@@ -7,14 +7,14 @@ Updates:
 
 TODO:
 
-Document lex specification
-Consolidate scanner code
-Write scanner tests
-Document grammar specification
-Write parser
-Write parser tests
-Write typechecker/semantic snalyzer
-Write TC/SA tests
-Write code generator
-Write code generator tests
+Document lex specification__
+Consolidate scanner code__
+Write scanner tests__
+Document grammar specification__
+Write parser__
+Write parser tests__
+Write typechecker/semantic snalyzer__
+Write TC/SA tests__
+Write code generator__
+Write code generator tests__
 Write integration tests
