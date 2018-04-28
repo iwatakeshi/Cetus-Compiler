@@ -1,0 +1,9 @@
+int main(int argc, char* argv)
+{
+	int x = 5;
+	int y = 16;
+	int z = y - x;
+	string f = "this is a string literal";
+	
+	return 0;
+}

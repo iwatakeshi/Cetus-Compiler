@@ -1,0 +1,4 @@
+#!/bin/bash
+
+flex c_simple_lex.l
+gcc -o scanner scanner.c lex.yy.c -std=c99 -ll
