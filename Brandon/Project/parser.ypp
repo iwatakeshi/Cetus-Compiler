@@ -1,0 +1,176 @@
+%{
+    #include <stdio.h>
+    #include <stdlib.h>
+    #define YYDEBUG 1
+
+    int yylex(void);
+    void yyerror(const char *);
+%}
+
+/* Enables verbose error messages */
+%error-verbose
+
+/** WRITE ME:
+ *  - Put all your token definitions here
+ *  - Put all your type definitions here
+ *  - Put all your precedence/associativity rules here
+
+
+//TODO UNCOMMENT
+ %start Start
+*/
+
+ %token T_Bool
+ %token T_Char
+ %token T_Integer
+ %token T_String
+ %token T_Intptr
+ %token T_Charptr
+ %token T_If
+ %token T_Else
+ %token T_While
+ %token T_Var
+ %token T_Proc
+ %token T_Return
+ %token T_True
+ %token T_False
+ %token T_Null
+
+ %token T_Semicolon
+ %token T_Colon
+ %token T_Lcurly
+ %token T_Rcurly
+ %token T_Lparen
+ %token T_Rparen
+ %token T_Lbracket
+ %token T_Rbracket
+
+ %token T_Num
+ %token T_Stringtype
+ %token T_Chartype
+ %token T_Identifier
+
+ /*Lowest precedence*/
+ %left T_Comma
+
+ /*Next highest precedence*/
+ %right T_Assignment
+
+ /*Next highest precedence*/
+ %left T_Or
+
+ /*Next highest precedence*/
+ %left T_And
+
+ /*Next highest precedence*/
+ %left T_Equals
+ %left T_NE
+
+ /*Next highest precedence*/
+ %left T_GT
+ %left T_GTE
+ %left T_LT
+ %left T_LTE
+
+ /*Next highest Precedence*/
+ %left T_Plus T_Minus
+
+ /*Next highest precedence*/
+ %left T_Times T_Divide
+
+ /*Highest Precedence*/
+ %right T_Not
+ %right T_Address
+ %right T_Dereference
+
+%%
+
+/** WRITE ME:
+ *  This is the language from Project 1. You need to put the productions for
+ *  the grammar for the language for this project here.
+ */
+
+/** TODO Finish Start Method and Expression, Left hand statements and right hand statements
+Start        : Method
+             ;
+**/
+
+Expr         : UnaryExpr Op
+             ;
+
+Method       : Method
+             ;
+
+MoreVars     : T_Comma T_Identifier MoreVars
+             |
+	          ;
+
+Type         : T_Integer
+       	    | T_Char
+       	    | T_Charptr
+       	    | T_Intptr
+       	    | T_Bool
+       	    | T_String
+       	    ;
+
+UnaryExpr    : T_Minus T_Num
+       	    | T_Minus T_Identifier
+       	    | T_Plus T_Num
+       	    | T_Plus T_Identifier
+       	    | T_Num
+       	    | T_True
+       	    | T_False
+       	    | T_Chartype
+       	    | T_Identifier
+       	    | T_Identifier T_Lbracket Expr T_Rbracket
+       	    | T_Not UnaryExpr
+       	    | T_Dereference T_Identifier
+       	    | T_Dereference T_Lparen Expr T_Rparen
+       	    | T_Address T_Identifier
+       	    | T_Address T_Identifier T_Lbracket Expr T_Rbracket
+       	    | T_Null
+       	    ;
+
+Op	          : T_Plus Expr
+       	    | T_Minus Expr
+       	    | T_Times Expr
+       	    | T_Divide Expr
+       	    | T_Equals Expr
+       	    | T_LT Expr
+       	    | T_LTE Expr
+       	    | T_GT Expr
+       	    | T_GTE Expr
+       	    | T_NE Expr
+       	    | T_Or Expr
+       	    | T_And Expr
+       	    |
+       	    ;
+
+
+/**
+List    : List Expr '.' {printf("parsed expresion\n");}
+	| Expr '.' {printf("parsed expresion\n");}
+        ;
+
+Expr    : Expr '*' Expr
+        | Expr '+' Expr
+        | Expr '-' Expr
+        | Expr '%' Expr
+        | 'n'
+        | '(' Expr ')'
+        ;
+**/
+
+%%
+
+/** You shall not pass!
+ *  You should not  have to do or edit anything past this.
+ */
+
+extern int yylineno;
+
+void yyerror(const char *s)
+{
+    fprintf(stderr, "%s at line %d\n", s, yylineno);
+    return;
+}

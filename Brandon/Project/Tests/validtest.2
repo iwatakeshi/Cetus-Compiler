@@ -1,0 +1,10 @@
+var x : charptr;    /% x is a pointer to a character variable %/
+var x, z : integer;
+var y    : intptr;
+x = 5;
+y = &x;
+x = 6;
+z = ^y;
+y = null;
+z = ^^y;
+&x = y;
