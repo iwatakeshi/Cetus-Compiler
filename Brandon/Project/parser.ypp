@@ -15,9 +15,6 @@
  *  - Put all your type definitions here
  *  - Put all your precedence/associativity rules here
 
-
-//TODO UNCOMMENT
- %start Start
 */
 
  %token T_Bool
@@ -88,78 +85,139 @@
 /** WRITE ME:
  *  This is the language from Project 1. You need to put the productions for
  *  the grammar for the language for this project here.
- */
-
-/** TODO Finish Start Method and Expression, Left hand statements and right hand statements
-Start        : Method
-             ;
-**/
-
-Expr         : UnaryExpr Op
-             ;
-
-Method       : Method
-             ;
-
-MoreVars     : T_Comma T_Identifier MoreVars
-             |
-	          ;
-
-Type         : T_Integer
-       	    | T_Char
-       	    | T_Charptr
-       	    | T_Intptr
-       	    | T_Bool
-       	    | T_String
-       	    ;
-
-UnaryExpr    : T_Minus T_Num
-       	    | T_Minus T_Identifier
-       	    | T_Plus T_Num
-       	    | T_Plus T_Identifier
-       	    | T_Num
-       	    | T_True
-       	    | T_False
-       	    | T_Chartype
-       	    | T_Identifier
-       	    | T_Identifier T_Lbracket Expr T_Rbracket
-       	    | T_Not UnaryExpr
-       	    | T_Dereference T_Identifier
-       	    | T_Dereference T_Lparen Expr T_Rparen
-       	    | T_Address T_Identifier
-       	    | T_Address T_Identifier T_Lbracket Expr T_Rbracket
-       	    | T_Null
-       	    ;
-
-Op	          : T_Plus Expr
-       	    | T_Minus Expr
-       	    | T_Times Expr
-       	    | T_Divide Expr
-       	    | T_Equals Expr
-       	    | T_LT Expr
-       	    | T_LTE Expr
-       	    | T_GT Expr
-       	    | T_GTE Expr
-       	    | T_NE Expr
-       	    | T_Or Expr
-       	    | T_And Expr
-       	    |
-       	    ;
+ **/
 
 
-/**
-List    : List Expr '.' {printf("parsed expresion\n");}
-	| Expr '.' {printf("parsed expresion\n");}
-        ;
+Start             : Method {printf("\n\nCompleted the parse!\n");}
+                  ;
 
-Expr    : Expr '*' Expr
-        | Expr '+' Expr
-        | Expr '-' Expr
-        | Expr '%' Expr
-        | 'n'
-        | '(' Expr ')'
-        ;
-**/
+/**  Follows this type of structure
+procedure foo() return integer { return 0; } **/
+Method            : T_Proc T_Identifier T_Lparen ArgsList T_Rparen T_Return Type T_Lcurly Body T_Rcurly Method
+                  |
+                  ;
+/**For when there are nested bodies/code blocks **/
+Body              : Method Vars StatementP T_Return Expr T_Semicolon
+                  ;
+
+/** procedure foo(i, j, k : integer) return integer **/
+ArgsList          : T_Identifier MoreArgs T_Colon Type T_Semicolon ArgsList
+                  |
+                  ;
+
+MoreArgs          : T_Comma T_Identifier MoreArgs
+                  |
+                  ;
+
+/**  var x, z : integer; **/
+Vars              : T_Var T_Identifier MoreVars T_Colon Type T_Semicolon Vars
+                  |
+                  ;
+
+/**  In case more variables are called **/
+MoreVars          : T_Comma T_Identifier MoreVars
+                  |
+                  ;
+
+/** Taken from lexer.l **/
+Type              : T_Integer
+                  | T_Char
+                  | T_Charptr
+                  | T_Intptr
+                  | T_Bool
+                  | T_String
+                  ;
+
+UnaryExpr         : T_Minus T_Num
+                  | T_Minus T_Identifier
+                  | T_Plus T_Num
+                  | T_Plus T_Identifier
+                  | T_Num
+                  | T_True
+                  | T_False
+                  | T_Chartype
+                  | T_Identifier
+                  | T_Identifier T_Lbracket Expr T_Rbracket
+                  | T_Not UnaryExpr
+                  | T_Dereference T_Identifier
+                  | T_Dereference T_Lparen Expr T_Rparen
+                  | T_Address T_Identifier
+                  | T_Address T_Identifier T_Lbracket Expr T_Rbracket
+                  | T_Null
+                  ;
+
+Op	               : T_Plus Expr
+                  | T_Minus Expr
+                  | T_Times Expr
+                  | T_Divide Expr
+                  | T_Equals Expr
+                  | T_LT Expr
+                  | T_LTE Expr
+                  | T_GT Expr
+                  | T_GTE Expr
+                  | T_NE Expr
+                  | T_Or Expr
+                  | T_And Expr
+                  |
+                  ;
+
+/** Define the multiple ways you can assign a variable on the left side of the variable **/
+LHS	            : T_Identifier
+                  | T_Identifier T_Lbracket Expr T_Rbracket
+                  | T_Dereference T_Identifier
+                  ;
+
+/**  Right hand side of the variable assignment
+var x : charptr;    /% x is a pointer to a character variable %/ **/
+RHS	            : Expr
+                  | T_Stringtype
+                  ;
+
+/** x = 5; **/
+AssignmentOp      : LHS T_Assignment RHS T_Semicolon
+                  ;
+
+/** Types of expressions under variable declarations **/
+Expr	            : UnaryExpr Op
+                  | T_Lparen Expr T_Rparen Op
+                  | T_Not T_Lparen Expr T_Rparen Op
+                  | '|' Expr '|' Op
+                  | T_Identifier T_Lparen MoreExpr T_Rparen
+                  ;
+
+/** Types of statement productions found under statments category**/
+StatementP        : AssignmentOp StatementP
+                  | MethodCall StatementP
+                  | While StatementP
+                  | CodeBlock StatementP
+                  | IfP StatementP
+                  | IfElse StatementP
+                  |
+                  ;
+
+MethodCall        : LHS T_Assignment T_Identifier T_Lparen Expr MoreExpr T_Rparen T_Semicolon
+                  ;
+
+MoreExpr          : T_Comma Expr MoreExpr
+                  |
+                  ;
+
+/** "if"  "("  expression  ")"  "{"  body_of_nested_statement  "}" **/
+IfP	            : T_If T_Lparen Expr T_Rparen CodeBlock
+                  ;
+
+/** "if"  "("  expression  ")"  "{"  body_of_nested_statement  "}"
+"else"  "{"  body_of_nested_statement  "}" **/
+IfElse            : IfP T_Else CodeBlock
+                  ;
+
+/** "while"  "("  expression  ")"  "{"  body_of_nested_statement  "}" **/
+While	            : T_While T_Lparen Expr T_Rparen CodeBlock
+                  ;
+
+/** "{"  body_of_nested_statement  "}" **/
+CodeBlock         : T_Lcurly Vars StatementP T_Rcurly
+                  ;
 
 %%
 
