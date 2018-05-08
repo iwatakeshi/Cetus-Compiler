@@ -229,6 +229,7 @@ extern int yylineno;
 
 void yyerror(const char *s)
 {
+    printf("%s at line %d\n", s, yylineno);
     fprintf(stderr, "%s at line %d\n", s, yylineno);
     return;
 }
