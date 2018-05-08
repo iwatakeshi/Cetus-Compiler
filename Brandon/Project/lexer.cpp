@@ -905,237 +905,237 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 51 "lexer.l"
-{return T_Bool;}
+{printf("T_Bool "); return T_Bool;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 52 "lexer.l"
-{return T_Char;}
+{printf("T_Char "); return T_Char;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 53 "lexer.l"
-{return T_Integer;}
+{printf("T_Integer "); return T_Integer;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 54 "lexer.l"
-{return T_String;}
+{printf("T_String "); return T_String;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 55 "lexer.l"
-{return T_Intptr;}
+{printf("T_Intptr "); return T_Intptr;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 56 "lexer.l"
-{return T_Charptr;}
+{printf("T_Charptr "); return T_Charptr;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 57 "lexer.l"
-{return T_If;}
+{printf("T_If "); return T_If;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 58 "lexer.l"
-{return T_Else;}
+{printf("T_Else "); return T_Else;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 59 "lexer.l"
-{return T_While;}
+{printf("T_While "); return T_While;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 60 "lexer.l"
-{return T_Var;}
+{printf("T_Var "); return T_Var;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 61 "lexer.l"
-{return T_Proc;}
+{printf("T_Proc "); return T_Proc;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 62 "lexer.l"
-{return T_Return;}
+{printf("T_Return "); return T_Return;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 63 "lexer.l"
-{return T_True;}
+{printf("T_True "); return T_True;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 64 "lexer.l"
-{return T_False;}
+{printf("T_False "); return T_False;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 65 "lexer.l"
-{return T_Null;}
+{printf("T_Null "); return T_Null;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 67 "lexer.l"
-{return T_And;}
+{printf("T_And "); return T_And;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 68 "lexer.l"
-{return T_Divide;}
+{printf("T_Divide "); return T_Divide;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 69 "lexer.l"
-{return T_Assignment;}
+{printf("T_Assignment "); return T_Assignment;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 70 "lexer.l"
-{return T_Equals;}
+{printf("T_Equals "); return T_Equals;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 71 "lexer.l"
-{return T_GT;}
+{printf("T_GT "); return T_GT;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 72 "lexer.l"
-{return T_GTE;}
+{printf("T_GTE "); return T_GTE;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 73 "lexer.l"
-{return T_LT;}
+{printf("T_LT "); return T_LT;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 74 "lexer.l"
-{return T_LTE;}
+{printf("T_LTE "); return T_LTE;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 75 "lexer.l"
-{return T_Minus;}
+{printf("T_Minus "); return T_Minus;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 76 "lexer.l"
-{return T_Not;}
+{printf("T_Not "); return T_Not;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 77 "lexer.l"
-{return T_NE;}
+{printf("T_NE "); return T_NE;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 78 "lexer.l"
-{return T_Or;}
+{printf("T_Or "); return T_Or;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 79 "lexer.l"
-{return T_Plus;}
+{printf("T_Plus "); return T_Plus;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 80 "lexer.l"
-{return T_Times;}
+{printf("T_Times "); return T_Times;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 81 "lexer.l"
-{return T_Address;}
+{printf("T_Address "); return T_Address;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 82 "lexer.l"
-{return T_Dereference;}
+{printf("T_Dereference "); return T_Dereference;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 84 "lexer.l"
-{return T_Semicolon;}
+{printf("T_Semicolon "); return T_Semicolon;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 85 "lexer.l"
-{return T_Colon;}
+{printf("T_Colon "); return T_Colon;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 86 "lexer.l"
-{return T_Lcurly;}
+{printf("T_Lcurly "); return T_Lcurly;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 87 "lexer.l"
-{return T_Rcurly;}
+{printf("T_Rcurly "); return T_Rcurly;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 88 "lexer.l"
-{return T_Lparen;}
+{printf("T_Lparen "); return T_Lparen;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 89 "lexer.l"
-{return T_Rparen;}
+{printf("T_Rparen "); return T_Rparen;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
 #line 90 "lexer.l"
-{return T_Lbracket;}
+{printf("T_Lbracket "); return T_Lbracket;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 91 "lexer.l"
-{return T_Rbracket;}
+{printf("T_Rbracket "); return T_Rbracket;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 92 "lexer.l"
-{return T_Comma;}
+{printf("T_Comma"); return T_Comma;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 94 "lexer.l"
-{return T_Num;}
+{printf("T_Num "); return T_Num;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 95 "lexer.l"
-{return T_Num;}
+{printf("T_Num "); return T_Num;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 96 "lexer.l"
-{return T_Num;}
+{printf("T_Num "); return T_Num;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
 #line 97 "lexer.l"
-{return T_Num;}
+{printf("T_Num "); return T_Num;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
 #line 99 "lexer.l"
-{return T_Chartype;}
+{printf("T_Chartype "); return T_Chartype;}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
 #line 100 "lexer.l"
-{return T_Stringtype;}
+{printf("T_Stringtype "); return T_Stringtype;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 102 "lexer.l"
-{return T_Identifier;}
+{printf("T_Identifier "); return T_Identifier;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
@@ -1145,7 +1145,7 @@ YY_RULE_SETUP
 case 49:
 YY_RULE_SETUP
 #line 105 "lexer.l"
-{return 'n'; }
+{return 'n';}
 	YY_BREAK
 case 50:
 /* rule 50 can match eol */

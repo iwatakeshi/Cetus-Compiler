@@ -48,64 +48,64 @@ exit(1);
 
 %%
 
-boolean                 {return T_Bool;}
-char                    {return T_Char;}
-integer                 {return T_Integer;}
-string\[[1-9][0-9]*\]   {return T_String;}
-intptr                  {return T_Intptr;}
-charptr                 {return T_Charptr;}
-if                      {return T_If;}
-else                    {return T_Else;}
-while                   {return T_While;}
-var                     {return T_Var;}
-procedure               {return T_Proc;}
-return                  {return T_Return;}
-true                    {return T_True;}
-false                   {return T_False;}
-null                    {return T_Null;}
+boolean                    {printf("T_Bool "); return T_Bool;}
+char                       {printf("T_Char "); return T_Char;}
+integer                    {printf("T_Integer "); return T_Integer;}
+string\[[1-9][0-9]*\]      {printf("T_String "); return T_String;}
+intptr                     {printf("T_Intptr "); return T_Intptr;}
+charptr                    {printf("T_Charptr "); return T_Charptr;}
+if                         {printf("T_If "); return T_If;}
+else                       {printf("T_Else "); return T_Else;}
+while                      {printf("T_While "); return T_While;}
+var                        {printf("T_Var "); return T_Var;}
+procedure                  {printf("T_Proc "); return T_Proc;}
+return                     {printf("T_Return "); return T_Return;}
+true                       {printf("T_True "); return T_True;}
+false                      {printf("T_False "); return T_False;}
+null                       {printf("T_Null "); return T_Null;}
 
-\&\&                    {return T_And;}
-\/                      {return T_Divide;}
-=                       {return T_Assignment;}
-==                      {return T_Equals;}
->                       {return T_GT;}
->=                      {return T_GTE;}
-\<                      {return T_LT;}
-\<=                     {return T_LTE;}
--                       {return T_Minus;}
-!                       {return T_Not;}
-!=                      {return T_NE;}
-\|\|                    {return T_Or;}
-\+                      {return T_Plus;}
-\*                      {return T_Times;}
-\&                      {return T_Address;}
-\^                      {return T_Dereference;}
+\&\&                       {printf("T_And "); return T_And;}
+\/                         {printf("T_Divide "); return T_Divide;}
+=                          {printf("T_Assignment "); return T_Assignment;}
+==                         {printf("T_Equals "); return T_Equals;}
+>                          {printf("T_GT "); return T_GT;}
+>=                         {printf("T_GTE "); return T_GTE;}
+\<                         {printf("T_LT "); return T_LT;}
+\<=                        {printf("T_LTE "); return T_LTE;}
+-                          {printf("T_Minus "); return T_Minus;}
+!                          {printf("T_Not "); return T_Not;}
+!=                         {printf("T_NE "); return T_NE;}
+\|\|                       {printf("T_Or "); return T_Or;}
+\+                         {printf("T_Plus "); return T_Plus;}
+\*                         {printf("T_Times "); return T_Times;}
+\&                         {printf("T_Address "); return T_Address;}
+\^                         {printf("T_Dereference "); return T_Dereference;}
 
-;                       {return T_Semicolon;}
-:                       {return T_Colon;}
-"{"                     {return T_Lcurly;}
-"}"                     {return T_Rcurly;}
-\(                      {return T_Lparen;}
-\)                      {return T_Rparen;}
-\[                      {return T_Lbracket;}
-]                       {return T_Rbracket;}
-,                       {return T_Comma;}
+;                          {printf("T_Semicolon "); return T_Semicolon;}
+:                          {printf("T_Colon "); return T_Colon;}
+"{"                        {printf("T_Lcurly "); return T_Lcurly;}
+"}"                        {printf("T_Rcurly "); return T_Rcurly;}
+\(                         {printf("T_Lparen "); return T_Lparen;}
+\)                         {printf("T_Rparen "); return T_Rparen;}
+\[                         {printf("T_Lbracket "); return T_Lbracket;}
+]                          {printf("T_Rbracket "); return T_Rbracket;}
+,                          {printf("T_Comma"); return T_Comma;}
 
-0|[1-9][0-9]*           {return T_Num;}
-0[xX][0-9A-F]+          {return T_Num;}
-0[0-7][0-7]*            {return T_Num;}
-[01][01]*b              {return T_Num;}
+0|[1-9][0-9]*              {printf("T_Num "); return T_Num;}
+0[xX][0-9A-F]+             {printf("T_Num "); return T_Num;}
+0[0-7][0-7]*               {printf("T_Num "); return T_Num;}
+[01][01]*b                 {printf("T_Num "); return T_Num;}
 
-'[ -~]'                 {return T_Chartype;}
-\"[^\"\r\n]*\"          {return T_Stringtype;}
+'[ -~]'                    {printf("T_Chartype "); return T_Chartype;}
+\"[^\"\r\n]*\"             {printf("T_Stringtype "); return T_Stringtype;}
 
-[a-zA-Z][0-9_a-zA-Z]*   {return T_Identifier;}
+[a-zA-Z][0-9_a-zA-Z]*      {printf("T_Identifier "); return T_Identifier;}
 
-[\*\(\)\.\+\-\%]        {return *yytext;}
-[0-9][0-9]*             {return 'n'; }
-[ \t\n]             ; /* skip whitespace */
+[\*\(\)\.\+\-\%]           {return *yytext;}
+[0-9][0-9]*                {return 'n';}
+[ \t\n]                    ; /* skip whitespace */
 
-.                   yyerror((char *) "invalid character");
+.                          yyerror((char *) "invalid character");
 
 %%
 

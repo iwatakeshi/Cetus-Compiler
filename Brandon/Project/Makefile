@@ -2,6 +2,10 @@
 # Makefile for Project 1, Part 1
 #
 
+define \n
+
+endef
+
 YACC    = bison -d -v
 LEX     = flex
 CC      = gcc
@@ -9,8 +13,10 @@ CPP     = g++ -g
 
 TARGET  = csimple
 
+TESTDIR = tests
 OBJS += lexer.o parser.o main.o
-RMFILES = core.* lexer.cpp parser.cpp parser.hpp parser.output $(TARGET) $(OBJS)
+RMFILES = core.* lexer.cpp parser.cpp parser.hpp parser.output testoutput.out $(TARGET) $(OBJS)
+TESTFILES = $(wildcard $(TESTDIR)/*)
 
 # Dependencies
 $(TARGET): parser.cpp lexer.cpp parser.hpp $(OBJS)
@@ -34,6 +40,31 @@ parser.o: parser.cpp parser.hpp
 parser.cpp: parser.ypp
 
 main.o: parser.hpp
+
+test: $(TARGET) $(TESTFILES)
+	@echo "validtest.1" >> testoutput.out
+	./$(TARGET) < tests/validtest.1 >> testoutput.out
+	@echo "validtest.2" >> testoutput.out
+	./$(TARGET) < tests/validtest.2 >> testoutput.out
+	@echo "validtest.3" >> testoutput.out
+	./$(TARGET) < tests/validtest.3 >> testoutput.out
+	@echo "validtest.4" >> testoutput.out
+	./$(TARGET) < tests/validtest.4 >> testoutput.out
+	@echo "test.1" >> testoutput.out
+	./$(TARGET) < tests/test.1 >> testoutput.out
+	@echo "test.2" >> testoutput.out
+	./$(TARGET) < tests/test.2 >> testoutput.out
+	@echo "test.3" >> testoutput.out
+	./$(TARGET) < tests/test.3 >> testoutput.out
+	@echo "test.4" >> testoutput.out
+	./$(TARGET) < tests/test.4 >> testoutput.out
+	@echo "test.5" >> testoutput.out
+	./$(TARGET) < tests/test.5 >> testoutput.out
+	@echo "invalidtest.1" >> testoutput.out
+	./$(TARGET) < tests/invalidtest.1 >> testoutput.out
+
+
+all: test
 
 clean:
 	rm -f $(RMFILES)
