@@ -10,6 +10,8 @@
 /* Enables verbose error messages */
 %error-verbose
 
+%union { int int_val; char *char_ptr; }
+
 /** WRITE ME:
  *  - Put all your token definitions here
  *  - Put all your type definitions here
@@ -93,7 +95,7 @@ Start             : Method {printf("\n\nCompleted the parse!\n");}
 
 /**  Follows this type of structure
 procedure foo() return integer { return 0; } **/
-Method            : T_Proc T_Identifier T_Lparen ArgsList T_Rparen T_Return Type T_Lcurly Body T_Rcurly Method
+Method            : T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return Type T_Lcurly Body T_Rcurly Method
                   |
                   ;
 /**For when there are nested bodies/code blocks **/
@@ -101,13 +103,20 @@ Body              : Method Vars StatementP T_Return Expr T_Semicolon
                   ;
 
 /** procedure foo(i, j, k : integer) return integer **/
-ArgsList          : T_Identifier MoreArgs T_Colon Type T_Semicolon ArgsList
+ParamList         : Params MoreParams
                   |
                   ;
 
-MoreArgs          : T_Comma T_Identifier MoreArgs
+MoreParams        : T_Semicolon Params MoreParams
                   |
                   ;
+
+Params            : T_Identifier ParamsAddl T_Colon Type
+                  ;
+
+ParamsAddl        : T_Comma T_Identifier ParamsAddl
+                  |
+                  ;                 
 
 /**  var x, z : integer; **/
 Vars              : T_Var T_Identifier MoreVars T_Colon Type T_Semicolon Vars

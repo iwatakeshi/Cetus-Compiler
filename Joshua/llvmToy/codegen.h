@@ -11,7 +11,7 @@
 #include <llvm/Analysis/Verifier.h>
 #include <llvm/Assembly/PrintModulePass.h>
 #include <llvm/IR/IRBuilder.h>
-#include <llvm/ModuleProvider.h>
+//#include <llvm/ModuleProvider.h>
 #include <llvm/Target/TargetSelect.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/ExecutionEngine/JIT.h>
