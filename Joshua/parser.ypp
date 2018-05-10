@@ -1,0 +1,229 @@
+%{
+  #include <cstdio>
+  #include <cstdlib>
+
+  #include "ast.hpp"
+  #include "primitive.hpp"
+  #include "symtab.hpp"
+
+  using std::list;
+
+  extern Program_ptr ast;
+  int yylex(void);
+  void yyerror(const char *);
+%}
+
+%token BOOLEAN
+%token CHAR
+%token INTEGER
+%token STRING
+%token INTPTR
+%token CHARPTR
+
+%token IF
+%token ELSE
+%token WHILE
+%token VAR
+%token PROCEDURE
+%token NIL
+
+%token COLON
+%token SEMICOLON
+%token COMMA
+%token BAR
+%token UNKNOWN
+%token RETURN
+%token ASSIGN
+
+%token BOOL_LIT
+%token CHAR_LIT
+%token INT_LIT
+%token STR_LIT
+%token IDENTIFIER
+%token PTR_LIT
+
+%token LBRACE
+%token RBRACE
+%token LPAREN
+%token RPAREN
+%token LSQUARE
+%token RSQUARE
+%token COMMENT
+
+%left OR
+%left AND
+%left EQUAL NOTEQUAL
+%left LESS LESSEQUAL GREATER GREATEREQUAL
+%left ADD SUBTRACT
+%left MULTIPLY DIVIDE
+%right NEGATIVE POSITIVE NOT CARET AMPERSAND
+
+%start program
+
+%%
+program : Begin { ast = new ProgramImpl($1.u_proc_list); }
+        ;
+
+Begin : Procedure Procedures  { $$.u_proc_list = new list<Proc_ptr>;
+                                $$.u_proc_list->push_front($1.u_proc);
+                                $$.u_proc_list->insert($$.u_proc_list->end(), $2.u_proc_list->begin(), $2.u_proc_list->end()); }
+      ;
+
+Procedures : Procedure Procedures  { $$.u_proc_list = new list<Proc_ptr>;
+                                     $$.u_proc_list->push_front($1.u_proc);
+                                     $$.u_proc_list->insert($$.u_proc_list->end(), $2.u_proc_list->begin(), $2.u_proc_list->end()); }
+           | %empty { $$.u_proc_list = new list<Proc_ptr>; }
+           ;
+
+Procedure : PROCEDURE IDENTIFIER LPAREN Parameters RPAREN RETURN Parameter_type LBRACE Block RBRACE 
+            { $$.u_proc = new ProcImpl(new SymName($2.u_base_charptr), $4.u_decl_list, $7.u_type, $9.u_procedure_block); }
+           ;
+
+Parameters : Parameter_ids Parameters_more   { $$.u_decl_list = $2.u_decl_list;
+                                               $$.u_decl_list->push_front($1.u_decl); }
+           | %empty { $$.u_decl_list = new list<Decl_ptr>; }
+           ;
+
+Parameters_more : SEMICOLON Parameter_ids Parameters_more  { $$.u_decl_list = new list<Decl_ptr>;
+                                                             $$.u_decl_list->push_front($2.u_decl);
+                                                             $$.u_decl_list->insert($$.u_decl_list->end(), $3.u_decl_list->begin(), $3.u_decl_list->end()); }
+                | %empty { $$.u_decl_list = new list<Decl_ptr>; }
+                ;
+
+Parameter_ids : IDENTIFIER Parameter_ids_more COLON Parameter_type   { list<SymName_ptr> *m = $2.u_symname_list;
+                                                                       SymName * x = new SymName($1.u_base_charptr);
+                                                                       m->push_front(x);
+                                                                       $$.u_decl = new DeclImpl(m, $4.u_type); }
+              ;
+
+Parameter_ids_more : COMMA IDENTIFIER Parameter_ids_more   { $$.u_symname_list = new list<SymName_ptr>;
+                                                             SymName * x = new SymName($2.u_base_charptr);
+                                                             $$.u_symname_list->push_front(x);
+                                                             $$.u_symname_list->insert($$.u_symname_list->end(), $3.u_symname_list->begin(), $3.u_symname_list->end()); }
+                   | %empty { $$.u_symname_list = new list<SymName_ptr>; }
+                   ;
+
+Parameter_type : INTEGER { $$.u_type = new TInteger;   }
+               | BOOLEAN { $$.u_type = new TBoolean;   }
+               | CHAR    { $$.u_type = new TCharacter; }
+               | CHARPTR { $$.u_type = new TCharPtr;   }
+               | INTPTR  { $$.u_type = new TIntPtr;    }
+               ;
+
+Block : Procedures Declarations Statements Return { $$.u_procedure_block = new Procedure_blockImpl($1.u_proc_list, $2.u_decl_list, $3.u_stat_list, $4.u_return_stat); }
+      ;
+
+Declarations : Block_ids SEMICOLON Declarations { $$.u_decl_list = $3.u_decl_list;
+                                                  $$.u_decl_list->push_front($1.u_decl); }
+             | %empty { list<Decl_ptr> * decl = new list<Decl_ptr>;
+                        $$.u_decl_list = decl; }
+             ;
+
+Block_ids :  VAR IDENTIFIER Block_ids_more COLON Block_type { list<SymName_ptr> *y = $3.u_symname_list;
+                                                              SymName *x = new SymName($2.u_base_charptr);
+                                                              y->push_front(x);
+                                                              $$.u_decl = new DeclImpl(y, $5.u_type); }
+          ;
+
+Block_ids_more : COMMA IDENTIFIER Block_ids_more  { $$.u_symname_list = new list<SymName_ptr>;
+                                                    SymName * x = new SymName($2.u_base_charptr);
+                                                    $$.u_symname_list->push_front(x);
+                                                    $$.u_symname_list->insert($$.u_symname_list->end(), $3.u_symname_list->begin(), $3.u_symname_list->end()); }
+               | %empty { $$.u_symname_list = new list<SymName_ptr>; }
+               ;
+
+Block_type : Parameter_type { $$.u_type = $1.u_type; }
+           | STRING LSQUARE INT_LIT RSQUARE { $$.u_type = new TString( new Primitive($3.u_base_int) ); }
+           ;
+
+Statements : Statement Statements { $$.u_stat_list = $2.u_stat_list;
+                                    $$.u_stat_list->push_front($1.u_stat); }
+           | %empty { list<Stat_ptr> * l = new list<Stat_ptr>;
+                      $$.u_stat_list = l; }
+          ;
+
+Statement : Assign     { $$.u_stat = $1.u_stat; }
+          | Function   { $$.u_stat = $1.u_stat; }
+          | If         { $$.u_stat = $1.u_stat; }
+          | IfElse     { $$.u_stat = $1.u_stat; }
+          | While      { $$.u_stat = $1.u_stat; }
+          | Code_block { $$.u_stat = new CodeBlock($1.u_nested_block); }
+          ;
+
+Assign : Lval ASSIGN Expr SEMICOLON { $$.u_stat = new Assignment($1.u_lhs, $3.u_expr); }
+       | Lval ASSIGN STR_LIT SEMICOLON { $$.u_stat = new StringAssignment($1.u_lhs, new StringPrimitive($3.u_base_charptr)); }
+       ;
+
+Lval : IDENTIFIER { $$.u_lhs = new Variable(new SymName($1.u_base_charptr)); }
+     | IDENTIFIER LSQUARE Expr RSQUARE { $$.u_lhs = new ArrayElement(new SymName($1.u_base_charptr), $3.u_expr); }
+     | CARET IDENTIFIER { $$.u_lhs = new DerefVariable(new SymName($2.u_base_charptr)); }
+     ;
+
+Function : Lval ASSIGN IDENTIFIER LPAREN Ids RPAREN SEMICOLON { $$.u_stat = new Call($1.u_lhs, new SymName($3.u_base_charptr), $5.u_expr_list); }
+         ;
+
+Ids : Expr Ids_more { $$.u_expr_list = $2.u_expr_list;
+                      $$.u_expr_list->push_front($1.u_expr); }
+    | %empty { $$.u_expr_list = new list<Expr_ptr>; }
+    ;
+
+Ids_more : COMMA Expr Ids_more { $$.u_expr_list = $3.u_expr_list;
+                                $$.u_expr_list->push_front($2.u_expr); }
+          | %empty { $$.u_expr_list = new list<Expr_ptr>; }
+          ;
+
+If : IF LPAREN Expr RPAREN Code_block { $$.u_stat = new IfNoElse($3.u_expr, $5.u_nested_block); }
+   ;
+
+IfElse : IF LPAREN Expr RPAREN Code_block ELSE Code_block{ $$.u_stat = new IfWithElse($3.u_expr, $5.u_nested_block, $7.u_nested_block); }
+       ;
+
+While :  WHILE LPAREN Expr RPAREN Code_block { $$.u_stat = new WhileLoop($3.u_expr, $5.u_nested_block); }
+      ;
+
+Code_block : LBRACE Declarations Statements RBRACE{ $$.u_nested_block = new Nested_blockImpl($2.u_decl_list, $3.u_stat_list); }
+           ;
+
+Return : RETURN Expr SEMICOLON { $$.u_return_stat = new Return($2.u_expr); }
+       ;
+
+Expr : NOT Expr                        { $$.u_expr = new Not($2.u_expr); }
+     | Expr OR Expr                    { $$.u_expr = new Or($1.u_expr, $3.u_expr); }
+     | Expr AND Expr                   { $$.u_expr = new And($1.u_expr, $3.u_expr); }
+     | Expr EQUAL Expr                 { $$.u_expr = new Compare($1.u_expr, $3.u_expr); }
+     | Expr NOTEQUAL Expr              { $$.u_expr = new Noteq($1.u_expr, $3.u_expr); }
+     | Expr LESS Expr                  { $$.u_expr = new Lt($1.u_expr, $3.u_expr); }
+     | Expr LESSEQUAL Expr             { $$.u_expr = new Lteq($1.u_expr, $3.u_expr); }
+     | Expr GREATER Expr               { $$.u_expr = new Gt($1.u_expr, $3.u_expr); }
+     | Expr GREATEREQUAL Expr          { $$.u_expr = new Gteq($1.u_expr, $3.u_expr); }
+     | Expr ADD Expr                   { $$.u_expr = new Plus($1.u_expr, $3.u_expr); }
+     | Expr SUBTRACT Expr              { $$.u_expr = new Minus($1.u_expr, $3.u_expr); }
+     | Expr MULTIPLY Expr              { $$.u_expr = new Times($1.u_expr, $3.u_expr); }
+     | Expr DIVIDE Expr                { $$.u_expr = new Div($1.u_expr, $3.u_expr); }
+     | SUBTRACT Expr %prec NEGATIVE    { $$.u_expr = new Uminus($2.u_expr); }
+     | ADD Expr %prec POSITIVE         { $$.u_expr = $2.u_expr; }
+     | CARET Expr                      { $$.u_expr = new Deref($2.u_expr); }
+     | LPAREN Expr RPAREN              { $$.u_expr = $2.u_expr; }
+     | NIL                             { $$.u_expr = new NullLit(); }
+     | BOOL_LIT                        { $$.u_expr = new BoolLit( new Primitive( $1.u_base_int ) ); }
+     | INT_LIT                         { $$.u_expr = new IntLit( new Primitive( $1.u_base_int ) ); }
+     | CHAR_LIT                        { $$.u_expr = new CharLit( new Primitive( $1.u_base_int ) ); }
+     | BAR Expr BAR                    { $$.u_expr = new AbsoluteValue($2.u_expr); }
+     | Ptrexpr                         { $$.u_expr = $1.u_expr; }
+     | IDENTIFIER                      { $$.u_expr = new Ident(new SymName($1.u_base_charptr));}
+     | IDENTIFIER LSQUARE Expr RSQUARE { $$.u_expr = new ArrayAccess(new SymName($1.u_base_charptr), $3.u_expr);
+};
+
+Ptrexpr : AMPERSAND IDENTIFIER { $$.u_expr = new AddressOf(new Variable(new SymName($2.u_base_charptr))); }
+        | AMPERSAND IDENTIFIER LSQUARE Expr RSQUARE { $$.u_expr = new AddressOf(new ArrayElement(new SymName($2.u_base_charptr), $4.u_expr)); }
+        ;
+
+%%
+
+extern int yylineno;
+
+void yyerror(const char *s)
+{
+    fprintf(stderr, "%s at line %d\n", s, yylineno);
+    exit(1);
+}
