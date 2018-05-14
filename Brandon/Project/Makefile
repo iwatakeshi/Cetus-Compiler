@@ -45,13 +45,13 @@ removeDos: $(TESTFILES)
 	dos2unix tests/validtest.1
 	dos2unix tests/validtest.2
 	dos2unix tests/validtest.3
-	dos2unix tests/test.1
-	dos2unix tests/test.2
-	dos2unix tests/test.3
-	dos2unix tests/test.4
-	dos2unix tests/test.5
+	dos2unix tests/validtest.4
+	dos2unix tests/validtest.5
+	dos2unix tests/validtest.6
 	dos2unix tests/invalidtest.1
 	dos2unix tests/invalidtest.2
+	dos2unix tests/invalidtest.3
+	dos2unix tests/invalidtest.4
 
 test: $(TARGET) $(TESTFILES)
 	@echo "validtest.1" >> testoutput.out
@@ -60,20 +60,20 @@ test: $(TARGET) $(TESTFILES)
 	./$(TARGET) < tests/validtest.2 >> testoutput.out
 	@echo "validtest.3" >> testoutput.out
 	./$(TARGET) < tests/validtest.3 >> testoutput.out
-	@echo "test.1" >> testoutput.out
-	./$(TARGET) < tests/test.1 >> testoutput.out
-	@echo "test.2" >> testoutput.out
-	./$(TARGET) < tests/test.2 >> testoutput.out
-	@echo "test.3" >> testoutput.out
-	./$(TARGET) < tests/test.3 >> testoutput.out
-	@echo "test.4" >> testoutput.out
-	./$(TARGET) < tests/test.4 >> testoutput.out
-	@echo "test.5" >> testoutput.out
-	./$(TARGET) < tests/test.5 >> testoutput.out
+	@echo "validtest.4" >> testoutput.out
+	./$(TARGET) < tests/validtest.4 >> testoutput.out
+	@echo "validtest.5" >> testoutput.out
+	./$(TARGET) < tests/validtest.5 >> testoutput.out
+	@echo "validtest.6" >> testoutput.out
+	./$(TARGET) < tests/validtest.6 >> testoutput.out
 	@echo "invalidtest.1" >> testoutput.out
 	./$(TARGET) < tests/invalidtest.1 >> testoutput.out
 	@echo "invalidtest.2" >> testoutput.out
 	./$(TARGET) < tests/invalidtest.2 >> testoutput.out
+	@echo "invalidtest.3" >> testoutput.out
+	./$(TARGET) < tests/invalidtest.3 >> testoutput.out
+	@echo "invalidtest.4" >> testoutput.out
+	./$(TARGET) < tests/invalidtest.4 >> testoutput.out
 
 all: removeDos test
 
