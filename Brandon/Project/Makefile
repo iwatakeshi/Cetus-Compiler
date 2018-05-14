@@ -41,6 +41,18 @@ parser.cpp: parser.ypp
 
 main.o: parser.hpp
 
+removeDos: $(TESTFILES)
+	dos2unix tests/validtest.1
+	dos2unix tests/validtest.2
+	dos2unix tests/validtest.3
+	dos2unix tests/validtest.4
+	dos2unix tests/test.1
+	dos2unix tests/test.2
+	dos2unix tests/test.3
+	dos2unix tests/test.4
+	dos2unix tests/test.5
+	dos2unix tests/invalidtest.1
+
 test: $(TARGET) $(TESTFILES)
 	@echo "validtest.1" >> testoutput.out
 	./$(TARGET) < tests/validtest.1 >> testoutput.out
@@ -63,8 +75,7 @@ test: $(TARGET) $(TESTFILES)
 	@echo "invalidtest.1" >> testoutput.out
 	./$(TARGET) < tests/invalidtest.1 >> testoutput.out
 
-
-all: test
+all: removeDos test
 
 clean:
 	rm -f $(RMFILES)

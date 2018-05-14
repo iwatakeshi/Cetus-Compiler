@@ -1,74 +1,42 @@
-Completed the parse!
 validtest.1
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Return T_Num T_Semicolon T_Rcurly
+T_Proc T_Identifier=foo T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Return T_Num=0 T_Semicolon T_Rcurly 
 
 Completed the parse!
 validtest.2
-T_Proc T_Identifier T_Lparen T_Identifier T_CommaT_Identifier T_CommaT_Identifier T_Colon T_Integer T_Rparen validtest.3
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier T_Colon T_Integer T_Semicolon T_Identifier T_Assignment T_Identifier T_Lparen T_Rparen T_Semicolon T_Return T_Num T_Semicolon T_Rcurly
+T_Proc T_Identifier=foo T_Lparen T_Identifier=i T_CommaT_Identifier=j T_CommaT_Identifier=k T_Colon T_Integer T_Rparen T_Return T_Integer T_Lcurly T_Proc T_Identifier=fee T_Lparen T_Identifier=l T_CommaT_Identifier=m T_CommaT_Identifier=n T_Colon T_Integer T_Rparen T_Return T_Bool T_Lcurly T_Return T_True T_Semicolon T_Rcurly T_Return T_Num=0 T_Semicolon T_Rcurly 
 
 Completed the parse!
-validtest.4
-T_Var
-
-Completed the parse!
-test.1
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier T_CommaT_Identifier T_CommaT_Identifier T_CommaT_Identifier T_Colon T_Integer T_Semicolon T_Var T_Identifier T_Colon T_Bool T_Semicolon T_Identifier T_Assignment T_Num T_Semicolon T_Identifier T_Assignment T_Minus T_Identifier T_Semicolon T_Identifier T_Assignment T_Num T_Minus T_Identifier T_Times T_Identifier T_Semicolon T_Identifier T_Assignment T_Identifier T_Lparen T_Identifier T_Rparen T_Semicolon T_Return T_Num T_Semicolon T_Rcurly
-
-Completed the parse!
-test.2
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Proc T_Identifier T_Lparen T_Identifier T_Colon T_Integer T_Rparen test.3
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Return T_Num T_Semicolon T_Rcurly T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Identifier T_Lparen test.4
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier T_Colon T_Integer T_Semicolon T_Identifier T_Assignment T_Identifier T_Lparen T_Num T_CommaT_Num T_Rparen T_Semicolon T_Return T_Identifier T_Semicolon T_Rcurly T_Divide
-
-Completed the parse!
-test.5
-T_Num
-
-Completed the parse!
-invalidtest.1
-T_Divide
-
-Completed the parse!
-validtest.1
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer invalid character at line 1
-T_Lcurly invalid character at line 2
-T_Return T_Num T_Semicolon invalid character at line 3
-T_Rcurly invalid character at line 4
-
-
-Completed the parse!
-validtest.2
-T_Proc T_Identifier T_Lparen T_Identifier T_CommaT_Identifier T_CommaT_Identifier T_Colon T_Integer T_Rparen syntax error, unexpected T_Rparen, expecting T_Semicolon at line 1
 validtest.3
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier T_Colon T_Integer T_Semicolon T_Identifier T_Assignment T_Identifier T_Lparen T_Rparen T_Semicolon T_Return T_Num T_Semicolon T_Rcurly
+T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier=a T_Colon T_Integer T_Semicolon T_Identifier=a T_Assignment T_Identifier=foo T_Lparen T_Rparen T_Semicolon T_Return T_Num=0 T_Semicolon T_Rcurly 
 
 Completed the parse!
 validtest.4
-T_Var
+T_Var 
 
 Completed the parse!
 syntax error, unexpected T_Var, expecting $end at line 1
 test.1
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier T_CommaT_Identifier T_CommaT_Identifier T_CommaT_Identifier T_Colon T_Integer T_Semicolon T_Var T_Identifier T_Colon T_Bool T_Semicolon T_Identifier T_Assignment T_Num T_Semicolon T_Identifier T_Assignment T_Minus T_Identifier T_Semicolon T_Identifier T_Assignment T_Num T_Minus T_Identifier T_Times T_Identifier T_Semicolon T_Identifier T_Assignment T_Identifier T_Lparen T_Identifier T_Rparen T_Semicolon T_Return T_Num T_Semicolon T_Rcurly
+T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier=j T_CommaT_Identifier=k T_CommaT_Identifier=m T_CommaT_Identifier=n T_Colon T_Integer T_Semicolon T_Var T_Identifier=o T_Colon T_Bool T_Semicolon T_Identifier=j T_Assignment T_Num=2 T_Semicolon T_Identifier=k T_Assignment T_Minus T_Identifier=j T_Semicolon T_Identifier=m T_Assignment T_Num=100 T_Minus T_Identifier=k T_Times T_Identifier=k T_Semicolon T_Identifier=n T_Assignment T_Identifier=printint T_Lparen T_Identifier=m T_Rparen T_Semicolon T_Return T_Num=0 T_Semicolon T_Rcurly 
 
 Completed the parse!
 test.2
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Proc T_Identifier T_Lparen T_Identifier T_Colon T_Integer T_Rparen syntax error, unexpected T_Rparen, expecting T_Semicolon at line 3
+T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Proc T_Identifier=foo T_Lparen T_Identifier=inc T_Colon T_Integer T_Rparen T_Return T_Bool T_Lcurly T_Identifier=m T_Assignment T_Identifier=m T_Plus T_Identifier=inc T_Semicolon T_Return T_True T_Semicolon T_Rcurly T_Var T_Identifier=j T_CommaT_Identifier=k T_CommaT_Identifier=m T_CommaT_Identifier=n T_Colon T_Integer T_Semicolon T_Var T_Identifier=x T_Colon T_String T_Semicolon T_Var T_Identifier=b T_Colon T_Bool T_Semicolon T_Identifier=j T_Assignment T_Num=2 T_Semicolon T_Identifier=k T_Assignment T_Minus T_Identifier=j T_Semicolon T_Identifier=m T_Assignment T_Num=100 T_Minus T_Identifier=k T_Times T_Identifier=k T_Semicolon T_Identifier=x T_Lbracket T_Num=1 T_Rbracket T_Assignment T_Identifier=foo T_Lparen T_Num=1 T_Rparen T_Semicolon T_Identifier=n T_Assignment T_Identifier=printint T_Lparen T_Identifier=m T_Rparen T_Semicolon T_Identifier=x T_Assignment T_Stringtype=this is a string['5']\n T_Semicolon T_Identifier=x T_Assignment T_Stringtype=this is \ T_Semicolon T_Identifier=x T_Assignment T_Stringtype=invalid T_Semicolon T_Identifier=x T_Lbracket T_Num=1 T_Rbracket T_Assignment T_Chartype=h T_Semicolon T_Return T_Identifier=x T_Lbracket T_Num=7 T_Plus T_Num=1 T_Rbracket T_Semicolon T_Rcurly 
+
+Completed the parse!
 test.3
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Return T_Num T_Semicolon T_Rcurly T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Identifier T_Lparen syntax error, unexpected T_Lparen, expecting T_Assignment at line 8
+T_Proc T_Identifier=foo T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Return T_Num=0 T_Semicolon T_Rcurly T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Identifier=foo T_Lparen syntax error, unexpected T_Lparen, expecting T_Assignment at line 8
 test.4
-T_Proc T_Identifier T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier T_Colon T_Integer T_Semicolon T_Identifier T_Assignment T_Identifier T_Lparen T_Num T_CommaT_Num T_Rparen T_Semicolon T_Return T_Identifier T_Semicolon T_Rcurly T_Divide
+T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier=ret T_Colon T_Integer T_Semicolon T_Identifier=ret T_Assignment T_Identifier=compare T_Lparen T_Num=5 T_CommaT_Num=25 T_Rparen T_Semicolon T_Return T_Identifier=ret T_Semicolon T_Rcurly T_Divide 
 
 Completed the parse!
 syntax error, unexpected T_Divide, expecting $end at line 8
 test.5
-T_Num
+T_Num=1 
 
 Completed the parse!
 syntax error, unexpected T_Num, expecting $end at line 1
 invalidtest.1
-T_Divide
+T_Divide 
 
 Completed the parse!
 syntax error, unexpected T_Divide, expecting $end at line 1

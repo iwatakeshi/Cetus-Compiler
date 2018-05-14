@@ -6,6 +6,8 @@
     #include <string.h>
     #include "parser.hpp"
 
+	int makeInt(char* text, int base);
+
     void yyerror(const char *);
 %}
 /** WRITE ME:
@@ -91,15 +93,19 @@ null                       {printf("T_Null "); return T_Null;}
 ]                          {printf("T_Rbracket "); return T_Rbracket;}
 ,                          {printf("T_Comma"); return T_Comma;}
 
-0|[1-9][0-9]*              {printf("T_Num "); return T_Num;}
-0[xX][0-9A-F]+             {printf("T_Num "); return T_Num;}
-0[0-7][0-7]*               {printf("T_Num "); return T_Num;}
-[01][01]*b                 {printf("T_Num "); return T_Num;}
+0|[1-9][0-9]*              {yylval.int_val = makeInt(yytext, 10); printf("T_Num=%d ", yylval.int_val); return T_Num;}
+0[xX][0-9A-F]+             {yylval.int_val = makeInt(yytext, 0); printf("T_Num=%d ", yylval.int_val); return T_Num;}
+0[0-7][0-7]*               {yylval.int_val = makeInt(yytext, 8); printf("T_Num=%d ", yylval.int_val); return T_Num;}
+[01][01]*b                 {yylval.int_val = makeInt(yytext, 2); printf("T_Num=%d ", yylval.int_val); return T_Num;}
 
-'[ -~]'                    {printf("T_Chartype "); return T_Chartype;}
-\"[^\"\r\n]*\"             {printf("T_Stringtype "); return T_Stringtype;}
+'[ -~]'                    {yylval.int_val = (int)(*(yytext+1)); printf("T_Chartype=%c ", (char) yylval.int_val); return T_Chartype;}
 
-[a-zA-Z][0-9_a-zA-Z]*      {printf("T_Identifier "); return T_Identifier;}
+\"[^\"\r\n]*\"             {yylval.char_ptr = strdup(yytext + 1); // Remove leading "
+							yylval.char_ptr[strlen(yylval.char_ptr) - 1] = '\0'; // Remove trailing "
+							printf("T_Stringtype=%s ", yylval.char_ptr);
+							return T_Stringtype;}
+
+[a-zA-Z][0-9_a-zA-Z]*      {yylval.char_ptr = strdup(yytext); printf("T_Identifier=%s ", yylval.char_ptr); return T_Identifier;}
 
 [\*\(\)\.\+\-\%]           {return *yytext;}
 [0-9][0-9]*                {return 'n';}
@@ -109,9 +115,20 @@ null                       {printf("T_Null "); return T_Null;}
 
 %%
 
-/** You shall not pass!
- *  You should not  have to do or edit anything past this.
- */
+int makeInt(char* text, int base) {
+
+	char *p = NULL;
+
+	errno = 0;
+
+	int value = (int) strtol(text, &p, base);
+
+	if (errno != 0){
+		yyerror("conversion to integer failed");
+	}
+
+	return value;
+}
 
 int yywrap(void) {
     return 1;
