@@ -1,5 +1,6 @@
 %option yylineno
 %pointer
+%s COMMENT
 
 %{
     #include <stdlib.h>
@@ -110,6 +111,13 @@ null                       {printf("T_Null "); return T_Null;}
 [\*\(\)\.\+\-\%]           {return *yytext;}
 [0-9][0-9]*                {return 'n';}
 [ \t\n]                    ; /* skip whitespace */
+
+"/%"                       { BEGIN(COMMENT); }
+<COMMENT><<EOF>>           { yyerror("unexpected end of file"); /* Detect unclosed comment block */  }
+<COMMENT>[^%]*           { /* Remove anything != '%' */ }
+<COMMENT>"%"+[^/]      { /* Remove any '*' if not immediately followed by '/' */ }
+<COMMENT>"\n"              { /* Absorb newlines */ }
+<COMMENT>"%"+"/"           { BEGIN(INITIAL); }
 
 .                          yyerror((char *) "invalid character");
 
