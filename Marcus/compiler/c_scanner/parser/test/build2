@@ -1,0 +1,5 @@
+#!/bin/bash
+
+flex baby.l
+bison -d baby.ypp
+g++ -o prog2 baby.tab.cpp lex.yy.c -std=c++11 -lfl
