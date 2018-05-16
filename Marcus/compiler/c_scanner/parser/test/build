@@ -1,0 +1,5 @@
+#!/bin/bash
+
+flex baby.l
+bison -d baby.y
+gcc -o prog baby.tab.c lex.yy.c -std=c99 -ll
