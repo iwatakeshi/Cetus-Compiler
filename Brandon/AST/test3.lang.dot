@@ -1,0 +1,98 @@
+digraph G { page="8.5,11"; size="7.5, 10"; 
+"0" -> "1"
+"1" [label="ProgramImpl"]
+"1" -> "2"
+"2" [label="ProcImpl"]
+"2" -> "3"
+"3" [label="SymName\n\"foo\""]
+"2" -> "4"
+"4" [label="DeclImpl"]
+"4" -> "5"
+"5" [label="SymName\n\"x\""]
+"4" -> "6"
+"6" [label="TInteger"]
+"2" -> "7"
+"7" [label="TInteger"]
+"2" -> "8"
+"8" [label="ProcedureBlockImpl"]
+"8" -> "9"
+"9" [label="Return"]
+"9" -> "10"
+"10" [label="Times"]
+"10" -> "11"
+"11" [label="IntLit"]
+"11" -> "12"
+"12" [label="Primitive\n2"]
+"10" -> "13"
+"13" [label="Ident"]
+"13" -> "14"
+"14" [label="SymName\n\"x\""]
+"1" -> "15"
+"15" [label="ProcImpl"]
+"15" -> "16"
+"16" [label="SymName\n\"Main\""]
+"15" -> "17"
+"17" [label="TInteger"]
+"15" -> "18"
+"18" [label="ProcedureBlockImpl"]
+"18" -> "19"
+"19" [label="DeclImpl"]
+"19" -> "20"
+"20" [label="SymName\n\"a\""]
+"19" -> "21"
+"21" [label="TInteger"]
+"18" -> "22"
+"22" [label="CodeBlock"]
+"22" -> "23"
+"23" [label="NestedBlockImpl"]
+"18" -> "24"
+"24" [label="Call"]
+"24" -> "25"
+"25" [label="Variable"]
+"25" -> "26"
+"26" [label="SymName\n\"a\""]
+"24" -> "27"
+"27" [label="SymName\n\"foo\""]
+"24" -> "28"
+"28" [label="IntLit"]
+"28" -> "29"
+"29" [label="Primitive\n3"]
+"18" -> "30"
+"30" [label="CodeBlock"]
+"30" -> "31"
+"31" [label="NestedBlockImpl"]
+"31" -> "32"
+"32" [label="DeclImpl"]
+"32" -> "33"
+"33" [label="SymName\n\"b\""]
+"32" -> "34"
+"34" [label="TInteger"]
+"31" -> "35"
+"35" [label="Assignment"]
+"35" -> "36"
+"36" [label="Variable"]
+"36" -> "37"
+"37" [label="SymName\n\"b\""]
+"35" -> "38"
+"38" [label="Plus"]
+"38" -> "39"
+"39" [label="Times"]
+"39" -> "40"
+"40" [label="IntLit"]
+"40" -> "41"
+"41" [label="Primitive\n3"]
+"39" -> "42"
+"42" [label="Ident"]
+"42" -> "43"
+"43" [label="SymName\n\"a\""]
+"38" -> "44"
+"44" [label="IntLit"]
+"44" -> "45"
+"45" [label="Primitive\n2"]
+"18" -> "46"
+"46" [label="Return"]
+"46" -> "47"
+"47" [label="IntLit"]
+"47" -> "48"
+"48" [label="Primitive\n0"]
+}

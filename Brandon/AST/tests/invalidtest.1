@@ -1,0 +1,31 @@
+/* wrong language */
+a = b
+i = j = k = 2
+&(x + y)
+if(true) i = 5;
+if(true) { j = 3; }
+else x = x -1;
+while(false) x = x + 1;
+
+
+
+var x : booleanptr; /% no such pointer type %/
+x = &(1+3)
+
+var x : char;
+var y : intptr;
+y = &x;             /% address of x is of type charptr %/
+
+var x : charptr;
+var y : char;
+x = &(&y);          /% can only take the address of variable or array element, and (&y) is an expression %/
+
+procedure foo() return integer
+{
+    var x : integer;
+    {
+        x = 1;
+        var y : integer;  /% must declare all variables before any statement %/
+    }
+    return 0;
+}

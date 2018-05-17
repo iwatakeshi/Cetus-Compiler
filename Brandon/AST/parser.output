@@ -1,0 +1,2501 @@
+Terminals unused in grammar
+
+   T_String
+
+
+Rules useless in parser due to conflicts
+
+   39 LHS: T_Identifier
+   40    | T_Identifier T_Lbracket Expr T_Rbracket
+   41    | T_Dereference T_Identifier
+
+
+State 38 conflicts: 18 reduce/reduce
+State 56 conflicts: 18 reduce/reduce
+State 114 conflicts: 18 reduce/reduce
+
+
+Grammar
+
+    0 $accept: Start $end
+
+    1 Start: Method
+
+    2 Method: T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return Type T_Lcurly BodyReturn T_Rcurly Method
+    3       | %empty
+
+    4 ParamList: T_Identifier MoreParams T_Colon Type ParamsAddl
+    5          | %empty
+
+    6 MoreParams: T_Comma T_Identifier MoreParams
+    7           | %empty
+
+    8 ParamsAddl: T_Semicolon ParamList
+    9           | ParamList
+
+   10 Type: T_Integer
+   11     | T_Char
+   12     | T_Charptr
+   13     | T_Intptr
+
+   14 LHS: T_Identifier
+   15    | T_Identifier T_Lbracket Expr T_Rbracket
+   16    | T_Dereference T_Identifier
+   17    | T_Bool
+   18    | T_Str T_Lbracket T_Num T_Rbracket
+
+   19 BodyReturn: Method Vars Statement Return
+
+   20 Return: T_Return Expr T_Semicolon
+
+   21 Vars: T_Var T_Identifier MoreVars T_Colon Type T_Semicolon Vars
+   22     | %empty
+
+   23 MoreVars: T_Comma T_Identifier MoreVars
+   24         | %empty
+
+   25 StatementP: Assignment
+   26           | MethodCall
+   27           | While
+   28           | CodeBlock
+   29           | IfWithElse
+
+   30 Statement: StatementP Statement
+   31          | %empty
+
+   32 Assignment: LHS T_Assignment Expr T_Semicolon
+   33           | LHS T_Assignment T_Stringtype T_Semicolon
+
+   34 MethodCall: LHS T_Assignment T_Identifier T_Lparen FuncExpr T_Rparen T_Semicolon
+
+   35 FuncExpr: Expr MoreExpr
+   36         | %empty
+
+   37 MoreExpr: T_Comma Expr MoreExpr
+   38         | %empty
+
+   39 LHS: T_Identifier
+   40    | T_Identifier T_Lbracket Expr T_Rbracket
+   41    | T_Dereference T_Identifier
+
+   42 UnaryExpr: T_Minus Expr
+   43          | T_Plus Expr
+   44          | T_Num
+   45          | T_True
+   46          | T_False
+   47          | T_Chartype
+   48          | T_Identifier
+   49          | T_Identifier T_Lbracket Expr T_Rbracket
+   50          | T_Not UnaryExpr
+   51          | T_Dereference Expr
+   52          | T_Address LHS
+   53          | T_Null
+
+   54 Expr: Expr T_Plus Expr
+   55     | Expr T_Minus Expr
+   56     | Expr T_Times Expr
+   57     | Expr T_Divide Expr
+   58     | Expr T_Equals Expr
+   59     | Expr T_LT Expr
+   60     | Expr T_LTE Expr
+   61     | Expr T_GT Expr
+   62     | Expr T_GTE Expr
+   63     | Expr T_NE Expr
+   64     | Expr T_Or Expr
+   65     | Expr T_And Expr
+   66     | T_Lparen Expr T_Rparen
+   67     | T_Not T_Lparen Expr T_Rparen
+   68     | '|' Expr '|'
+   69     | UnaryExpr
+
+   70 IfWithElse: T_If T_Lparen Expr T_Rparen CodeBlock
+   71           | T_If T_Lparen Expr T_Rparen CodeBlock T_Else CodeBlock
+
+   72 While: T_While T_Lparen Expr T_Rparen CodeBlock
+
+   73 CodeBlock: T_Lcurly Vars Statement T_Rcurly
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'|' (124) 68
+error (256)
+T_Bool (258) 17
+T_Char (259) 11
+T_Integer (260) 10
+T_Str (261) 18
+T_String (262)
+T_Intptr (263) 13
+T_Charptr (264) 12
+T_If (265) 70 71
+T_Else (266) 71
+T_While (267) 72
+T_Var (268) 21
+T_Proc (269) 2
+T_Return (270) 2 20
+T_True (271) 45
+T_False (272) 46
+T_Null (273) 53
+T_Semicolon (274) 8 20 21 32 33 34
+T_Colon (275) 4 21
+T_Lcurly (276) 2 73
+T_Rcurly (277) 2 73
+T_Lparen (278) 2 34 66 67 70 71 72
+T_Rparen (279) 2 34 66 67 70 71 72
+T_Lbracket (280) 15 18 40 49
+T_Rbracket (281) 15 18 40 49
+T_Num (282) 18 44
+T_Stringtype (283) 33
+T_Chartype (284) 47
+T_Identifier (285) 2 4 6 14 15 16 21 23 34 39 40 41 48 49
+T_Comma (286) 6 23 37
+T_Assignment (287) 32 33 34
+T_Or (288) 64
+T_And (289) 65
+T_Equals (290) 58
+T_NE (291) 63
+T_GT (292) 61
+T_GTE (293) 62
+T_LT (294) 59
+T_LTE (295) 60
+T_Plus (296) 43 54
+T_Minus (297) 42 55
+T_Times (298) 56
+T_Divide (299) 57
+T_Not (300) 50 67
+T_Address (301) 52
+T_Dereference (302) 16 41 51
+
+
+Nonterminals, with rules where they appear
+
+$accept (49)
+    on left: 0
+Start (50)
+    on left: 1, on right: 0
+Method (51)
+    on left: 2 3, on right: 1 2 19
+ParamList (52)
+    on left: 4 5, on right: 2 8 9
+MoreParams (53)
+    on left: 6 7, on right: 4 6
+ParamsAddl (54)
+    on left: 8 9, on right: 4
+Type (55)
+    on left: 10 11 12 13, on right: 2 4 21
+LHS (56)
+    on left: 14 15 16 17 18 39 40 41, on right: 32 33 34 52
+BodyReturn (57)
+    on left: 19, on right: 2
+Return (58)
+    on left: 20, on right: 19
+Vars (59)
+    on left: 21 22, on right: 19 21 73
+MoreVars (60)
+    on left: 23 24, on right: 21 23
+StatementP (61)
+    on left: 25 26 27 28 29, on right: 30
+Statement (62)
+    on left: 30 31, on right: 19 30 73
+Assignment (63)
+    on left: 32 33, on right: 25
+MethodCall (64)
+    on left: 34, on right: 26
+FuncExpr (65)
+    on left: 35 36, on right: 34
+MoreExpr (66)
+    on left: 37 38, on right: 35 37
+UnaryExpr (67)
+    on left: 42 43 44 45 46 47 48 49 50 51 52 53, on right: 50 69
+Expr (68)
+    on left: 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69, on right:
+    15 20 32 35 37 40 42 43 49 51 54 55 56 57 58 59 60 61 62 63 64
+    65 66 67 68 70 71 72
+IfWithElse (69)
+    on left: 70 71, on right: 29
+While (70)
+    on left: 72, on right: 27
+CodeBlock (71)
+    on left: 73, on right: 28 70 71 72
+
+
+State 0
+
+    0 $accept: . Start $end
+
+    T_Proc  shift, and go to state 1
+
+    $default  reduce using rule 3 (Method)
+
+    Start   go to state 2
+    Method  go to state 3
+
+
+State 1
+
+    2 Method: T_Proc . T_Identifier T_Lparen ParamList T_Rparen T_Return Type T_Lcurly BodyReturn T_Rcurly Method
+
+    T_Identifier  shift, and go to state 4
+
+
+State 2
+
+    0 $accept: Start . $end
+
+    $end  shift, and go to state 5
+
+
+State 3
+
+    1 Start: Method .
+
+    $default  reduce using rule 1 (Start)
+
+
+State 4
+
+    2 Method: T_Proc T_Identifier . T_Lparen ParamList T_Rparen T_Return Type T_Lcurly BodyReturn T_Rcurly Method
+
+    T_Lparen  shift, and go to state 6
+
+
+State 5
+
+    0 $accept: Start $end .
+
+    $default  accept
+
+
+State 6
+
+    2 Method: T_Proc T_Identifier T_Lparen . ParamList T_Rparen T_Return Type T_Lcurly BodyReturn T_Rcurly Method
+
+    T_Identifier  shift, and go to state 7
+
+    $default  reduce using rule 5 (ParamList)
+
+    ParamList  go to state 8
+
+
+State 7
+
+    4 ParamList: T_Identifier . MoreParams T_Colon Type ParamsAddl
+
+    T_Comma  shift, and go to state 9
+
+    $default  reduce using rule 7 (MoreParams)
+
+    MoreParams  go to state 10
+
+
+State 8
+
+    2 Method: T_Proc T_Identifier T_Lparen ParamList . T_Rparen T_Return Type T_Lcurly BodyReturn T_Rcurly Method
+
+    T_Rparen  shift, and go to state 11
+
+
+State 9
+
+    6 MoreParams: T_Comma . T_Identifier MoreParams
+
+    T_Identifier  shift, and go to state 12
+
+
+State 10
+
+    4 ParamList: T_Identifier MoreParams . T_Colon Type ParamsAddl
+
+    T_Colon  shift, and go to state 13
+
+
+State 11
+
+    2 Method: T_Proc T_Identifier T_Lparen ParamList T_Rparen . T_Return Type T_Lcurly BodyReturn T_Rcurly Method
+
+    T_Return  shift, and go to state 14
+
+
+State 12
+
+    6 MoreParams: T_Comma T_Identifier . MoreParams
+
+    T_Comma  shift, and go to state 9
+
+    $default  reduce using rule 7 (MoreParams)
+
+    MoreParams  go to state 15
+
+
+State 13
+
+    4 ParamList: T_Identifier MoreParams T_Colon . Type ParamsAddl
+
+    T_Char     shift, and go to state 16
+    T_Integer  shift, and go to state 17
+    T_Intptr   shift, and go to state 18
+    T_Charptr  shift, and go to state 19
+
+    Type  go to state 20
+
+
+State 14
+
+    2 Method: T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return . Type T_Lcurly BodyReturn T_Rcurly Method
+
+    T_Char     shift, and go to state 16
+    T_Integer  shift, and go to state 17
+    T_Intptr   shift, and go to state 18
+    T_Charptr  shift, and go to state 19
+
+    Type  go to state 21
+
+
+State 15
+
+    6 MoreParams: T_Comma T_Identifier MoreParams .
+
+    $default  reduce using rule 6 (MoreParams)
+
+
+State 16
+
+   11 Type: T_Char .
+
+    $default  reduce using rule 11 (Type)
+
+
+State 17
+
+   10 Type: T_Integer .
+
+    $default  reduce using rule 10 (Type)
+
+
+State 18
+
+   13 Type: T_Intptr .
+
+    $default  reduce using rule 13 (Type)
+
+
+State 19
+
+   12 Type: T_Charptr .
+
+    $default  reduce using rule 12 (Type)
+
+
+State 20
+
+    4 ParamList: T_Identifier MoreParams T_Colon Type . ParamsAddl
+
+    T_Semicolon   shift, and go to state 22
+    T_Identifier  shift, and go to state 7
+
+    $default  reduce using rule 5 (ParamList)
+
+    ParamList   go to state 23
+    ParamsAddl  go to state 24
+
+
+State 21
+
+    2 Method: T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return Type . T_Lcurly BodyReturn T_Rcurly Method
+
+    T_Lcurly  shift, and go to state 25
+
+
+State 22
+
+    8 ParamsAddl: T_Semicolon . ParamList
+
+    T_Identifier  shift, and go to state 7
+
+    $default  reduce using rule 5 (ParamList)
+
+    ParamList  go to state 26
+
+
+State 23
+
+    9 ParamsAddl: ParamList .
+
+    $default  reduce using rule 9 (ParamsAddl)
+
+
+State 24
+
+    4 ParamList: T_Identifier MoreParams T_Colon Type ParamsAddl .
+
+    $default  reduce using rule 4 (ParamList)
+
+
+State 25
+
+    2 Method: T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return Type T_Lcurly . BodyReturn T_Rcurly Method
+
+    T_Proc  shift, and go to state 1
+
+    $default  reduce using rule 3 (Method)
+
+    Method      go to state 27
+    BodyReturn  go to state 28
+
+
+State 26
+
+    8 ParamsAddl: T_Semicolon ParamList .
+
+    $default  reduce using rule 8 (ParamsAddl)
+
+
+State 27
+
+   19 BodyReturn: Method . Vars Statement Return
+
+    T_Var  shift, and go to state 29
+
+    $default  reduce using rule 22 (Vars)
+
+    Vars  go to state 30
+
+
+State 28
+
+    2 Method: T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return Type T_Lcurly BodyReturn . T_Rcurly Method
+
+    T_Rcurly  shift, and go to state 31
+
+
+State 29
+
+   21 Vars: T_Var . T_Identifier MoreVars T_Colon Type T_Semicolon Vars
+
+    T_Identifier  shift, and go to state 32
+
+
+State 30
+
+   19 BodyReturn: Method Vars . Statement Return
+
+    T_Bool         shift, and go to state 33
+    T_Str          shift, and go to state 34
+    T_If           shift, and go to state 35
+    T_While        shift, and go to state 36
+    T_Lcurly       shift, and go to state 37
+    T_Identifier   shift, and go to state 38
+    T_Dereference  shift, and go to state 39
+
+    $default  reduce using rule 31 (Statement)
+
+    LHS         go to state 40
+    StatementP  go to state 41
+    Statement   go to state 42
+    Assignment  go to state 43
+    MethodCall  go to state 44
+    IfWithElse  go to state 45
+    While       go to state 46
+    CodeBlock   go to state 47
+
+
+State 31
+
+    2 Method: T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return Type T_Lcurly BodyReturn T_Rcurly . Method
+
+    T_Proc  shift, and go to state 1
+
+    $default  reduce using rule 3 (Method)
+
+    Method  go to state 48
+
+
+State 32
+
+   21 Vars: T_Var T_Identifier . MoreVars T_Colon Type T_Semicolon Vars
+
+    T_Comma  shift, and go to state 49
+
+    $default  reduce using rule 24 (MoreVars)
+
+    MoreVars  go to state 50
+
+
+State 33
+
+   17 LHS: T_Bool .
+
+    $default  reduce using rule 17 (LHS)
+
+
+State 34
+
+   18 LHS: T_Str . T_Lbracket T_Num T_Rbracket
+
+    T_Lbracket  shift, and go to state 51
+
+
+State 35
+
+   70 IfWithElse: T_If . T_Lparen Expr T_Rparen CodeBlock
+   71           | T_If . T_Lparen Expr T_Rparen CodeBlock T_Else CodeBlock
+
+    T_Lparen  shift, and go to state 52
+
+
+State 36
+
+   72 While: T_While . T_Lparen Expr T_Rparen CodeBlock
+
+    T_Lparen  shift, and go to state 53
+
+
+State 37
+
+   73 CodeBlock: T_Lcurly . Vars Statement T_Rcurly
+
+    T_Var  shift, and go to state 29
+
+    $default  reduce using rule 22 (Vars)
+
+    Vars  go to state 54
+
+
+State 38
+
+   14 LHS: T_Identifier .
+   15    | T_Identifier . T_Lbracket Expr T_Rbracket
+   39    | T_Identifier .
+   40    | T_Identifier . T_Lbracket Expr T_Rbracket
+
+    T_Lbracket  shift, and go to state 55
+
+    T_Semicolon   reduce using rule 14 (LHS)
+    T_Semicolon   [reduce using rule 39 (LHS)]
+    T_Rparen      reduce using rule 14 (LHS)
+    T_Rparen      [reduce using rule 39 (LHS)]
+    T_Rbracket    reduce using rule 14 (LHS)
+    T_Rbracket    [reduce using rule 39 (LHS)]
+    T_Comma       reduce using rule 14 (LHS)
+    T_Comma       [reduce using rule 39 (LHS)]
+    T_Assignment  reduce using rule 14 (LHS)
+    T_Assignment  [reduce using rule 39 (LHS)]
+    T_Or          reduce using rule 14 (LHS)
+    T_Or          [reduce using rule 39 (LHS)]
+    T_And         reduce using rule 14 (LHS)
+    T_And         [reduce using rule 39 (LHS)]
+    T_Equals      reduce using rule 14 (LHS)
+    T_Equals      [reduce using rule 39 (LHS)]
+    T_NE          reduce using rule 14 (LHS)
+    T_NE          [reduce using rule 39 (LHS)]
+    T_GT          reduce using rule 14 (LHS)
+    T_GT          [reduce using rule 39 (LHS)]
+    T_GTE         reduce using rule 14 (LHS)
+    T_GTE         [reduce using rule 39 (LHS)]
+    T_LT          reduce using rule 14 (LHS)
+    T_LT          [reduce using rule 39 (LHS)]
+    T_LTE         reduce using rule 14 (LHS)
+    T_LTE         [reduce using rule 39 (LHS)]
+    T_Plus        reduce using rule 14 (LHS)
+    T_Plus        [reduce using rule 39 (LHS)]
+    T_Minus       reduce using rule 14 (LHS)
+    T_Minus       [reduce using rule 39 (LHS)]
+    T_Times       reduce using rule 14 (LHS)
+    T_Times       [reduce using rule 39 (LHS)]
+    T_Divide      reduce using rule 14 (LHS)
+    T_Divide      [reduce using rule 39 (LHS)]
+    '|'           reduce using rule 14 (LHS)
+    '|'           [reduce using rule 39 (LHS)]
+    $default      reduce using rule 14 (LHS)
+
+
+State 39
+
+   16 LHS: T_Dereference . T_Identifier
+   41    | T_Dereference . T_Identifier
+
+    T_Identifier  shift, and go to state 56
+
+
+State 40
+
+   32 Assignment: LHS . T_Assignment Expr T_Semicolon
+   33           | LHS . T_Assignment T_Stringtype T_Semicolon
+   34 MethodCall: LHS . T_Assignment T_Identifier T_Lparen FuncExpr T_Rparen T_Semicolon
+
+    T_Assignment  shift, and go to state 57
+
+
+State 41
+
+   30 Statement: StatementP . Statement
+
+    T_Bool         shift, and go to state 33
+    T_Str          shift, and go to state 34
+    T_If           shift, and go to state 35
+    T_While        shift, and go to state 36
+    T_Lcurly       shift, and go to state 37
+    T_Identifier   shift, and go to state 38
+    T_Dereference  shift, and go to state 39
+
+    $default  reduce using rule 31 (Statement)
+
+    LHS         go to state 40
+    StatementP  go to state 41
+    Statement   go to state 58
+    Assignment  go to state 43
+    MethodCall  go to state 44
+    IfWithElse  go to state 45
+    While       go to state 46
+    CodeBlock   go to state 47
+
+
+State 42
+
+   19 BodyReturn: Method Vars Statement . Return
+
+    T_Return  shift, and go to state 59
+
+    Return  go to state 60
+
+
+State 43
+
+   25 StatementP: Assignment .
+
+    $default  reduce using rule 25 (StatementP)
+
+
+State 44
+
+   26 StatementP: MethodCall .
+
+    $default  reduce using rule 26 (StatementP)
+
+
+State 45
+
+   29 StatementP: IfWithElse .
+
+    $default  reduce using rule 29 (StatementP)
+
+
+State 46
+
+   27 StatementP: While .
+
+    $default  reduce using rule 27 (StatementP)
+
+
+State 47
+
+   28 StatementP: CodeBlock .
+
+    $default  reduce using rule 28 (StatementP)
+
+
+State 48
+
+    2 Method: T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return Type T_Lcurly BodyReturn T_Rcurly Method .
+
+    $default  reduce using rule 2 (Method)
+
+
+State 49
+
+   23 MoreVars: T_Comma . T_Identifier MoreVars
+
+    T_Identifier  shift, and go to state 61
+
+
+State 50
+
+   21 Vars: T_Var T_Identifier MoreVars . T_Colon Type T_Semicolon Vars
+
+    T_Colon  shift, and go to state 62
+
+
+State 51
+
+   18 LHS: T_Str T_Lbracket . T_Num T_Rbracket
+
+    T_Num  shift, and go to state 63
+
+
+State 52
+
+   70 IfWithElse: T_If T_Lparen . Expr T_Rparen CodeBlock
+   71           | T_If T_Lparen . Expr T_Rparen CodeBlock T_Else CodeBlock
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 78
+
+
+State 53
+
+   72 While: T_While T_Lparen . Expr T_Rparen CodeBlock
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 79
+
+
+State 54
+
+   73 CodeBlock: T_Lcurly Vars . Statement T_Rcurly
+
+    T_Bool         shift, and go to state 33
+    T_Str          shift, and go to state 34
+    T_If           shift, and go to state 35
+    T_While        shift, and go to state 36
+    T_Lcurly       shift, and go to state 37
+    T_Identifier   shift, and go to state 38
+    T_Dereference  shift, and go to state 39
+
+    $default  reduce using rule 31 (Statement)
+
+    LHS         go to state 40
+    StatementP  go to state 41
+    Statement   go to state 80
+    Assignment  go to state 43
+    MethodCall  go to state 44
+    IfWithElse  go to state 45
+    While       go to state 46
+    CodeBlock   go to state 47
+
+
+State 55
+
+   15 LHS: T_Identifier T_Lbracket . Expr T_Rbracket
+   40    | T_Identifier T_Lbracket . Expr T_Rbracket
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 81
+
+
+State 56
+
+   16 LHS: T_Dereference T_Identifier .
+   41    | T_Dereference T_Identifier .
+
+    T_Semicolon   reduce using rule 16 (LHS)
+    T_Semicolon   [reduce using rule 41 (LHS)]
+    T_Rparen      reduce using rule 16 (LHS)
+    T_Rparen      [reduce using rule 41 (LHS)]
+    T_Rbracket    reduce using rule 16 (LHS)
+    T_Rbracket    [reduce using rule 41 (LHS)]
+    T_Comma       reduce using rule 16 (LHS)
+    T_Comma       [reduce using rule 41 (LHS)]
+    T_Assignment  reduce using rule 16 (LHS)
+    T_Assignment  [reduce using rule 41 (LHS)]
+    T_Or          reduce using rule 16 (LHS)
+    T_Or          [reduce using rule 41 (LHS)]
+    T_And         reduce using rule 16 (LHS)
+    T_And         [reduce using rule 41 (LHS)]
+    T_Equals      reduce using rule 16 (LHS)
+    T_Equals      [reduce using rule 41 (LHS)]
+    T_NE          reduce using rule 16 (LHS)
+    T_NE          [reduce using rule 41 (LHS)]
+    T_GT          reduce using rule 16 (LHS)
+    T_GT          [reduce using rule 41 (LHS)]
+    T_GTE         reduce using rule 16 (LHS)
+    T_GTE         [reduce using rule 41 (LHS)]
+    T_LT          reduce using rule 16 (LHS)
+    T_LT          [reduce using rule 41 (LHS)]
+    T_LTE         reduce using rule 16 (LHS)
+    T_LTE         [reduce using rule 41 (LHS)]
+    T_Plus        reduce using rule 16 (LHS)
+    T_Plus        [reduce using rule 41 (LHS)]
+    T_Minus       reduce using rule 16 (LHS)
+    T_Minus       [reduce using rule 41 (LHS)]
+    T_Times       reduce using rule 16 (LHS)
+    T_Times       [reduce using rule 41 (LHS)]
+    T_Divide      reduce using rule 16 (LHS)
+    T_Divide      [reduce using rule 41 (LHS)]
+    '|'           reduce using rule 16 (LHS)
+    '|'           [reduce using rule 41 (LHS)]
+    $default      reduce using rule 16 (LHS)
+
+
+State 57
+
+   32 Assignment: LHS T_Assignment . Expr T_Semicolon
+   33           | LHS T_Assignment . T_Stringtype T_Semicolon
+   34 MethodCall: LHS T_Assignment . T_Identifier T_Lparen FuncExpr T_Rparen T_Semicolon
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Stringtype   shift, and go to state 82
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 83
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 84
+
+
+State 58
+
+   30 Statement: StatementP Statement .
+
+    $default  reduce using rule 30 (Statement)
+
+
+State 59
+
+   20 Return: T_Return . Expr T_Semicolon
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 85
+
+
+State 60
+
+   19 BodyReturn: Method Vars Statement Return .
+
+    $default  reduce using rule 19 (BodyReturn)
+
+
+State 61
+
+   23 MoreVars: T_Comma T_Identifier . MoreVars
+
+    T_Comma  shift, and go to state 49
+
+    $default  reduce using rule 24 (MoreVars)
+
+    MoreVars  go to state 86
+
+
+State 62
+
+   21 Vars: T_Var T_Identifier MoreVars T_Colon . Type T_Semicolon Vars
+
+    T_Char     shift, and go to state 16
+    T_Integer  shift, and go to state 17
+    T_Intptr   shift, and go to state 18
+    T_Charptr  shift, and go to state 19
+
+    Type  go to state 87
+
+
+State 63
+
+   18 LHS: T_Str T_Lbracket T_Num . T_Rbracket
+
+    T_Rbracket  shift, and go to state 88
+
+
+State 64
+
+   45 UnaryExpr: T_True .
+
+    $default  reduce using rule 45 (UnaryExpr)
+
+
+State 65
+
+   46 UnaryExpr: T_False .
+
+    $default  reduce using rule 46 (UnaryExpr)
+
+
+State 66
+
+   53 UnaryExpr: T_Null .
+
+    $default  reduce using rule 53 (UnaryExpr)
+
+
+State 67
+
+   66 Expr: T_Lparen . Expr T_Rparen
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 89
+
+
+State 68
+
+   44 UnaryExpr: T_Num .
+
+    $default  reduce using rule 44 (UnaryExpr)
+
+
+State 69
+
+   47 UnaryExpr: T_Chartype .
+
+    $default  reduce using rule 47 (UnaryExpr)
+
+
+State 70
+
+   48 UnaryExpr: T_Identifier .
+   49          | T_Identifier . T_Lbracket Expr T_Rbracket
+
+    T_Lbracket  shift, and go to state 90
+
+    $default  reduce using rule 48 (UnaryExpr)
+
+
+State 71
+
+   43 UnaryExpr: T_Plus . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 91
+
+
+State 72
+
+   42 UnaryExpr: T_Minus . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 92
+
+
+State 73
+
+   50 UnaryExpr: T_Not . UnaryExpr
+   67 Expr: T_Not . T_Lparen Expr T_Rparen
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 93
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 94
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+
+    UnaryExpr  go to state 95
+
+
+State 74
+
+   52 UnaryExpr: T_Address . LHS
+
+    T_Bool         shift, and go to state 33
+    T_Str          shift, and go to state 34
+    T_Identifier   shift, and go to state 38
+    T_Dereference  shift, and go to state 39
+
+    LHS  go to state 96
+
+
+State 75
+
+   51 UnaryExpr: T_Dereference . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 97
+
+
+State 76
+
+   68 Expr: '|' . Expr '|'
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 98
+
+
+State 77
+
+   69 Expr: UnaryExpr .
+
+    $default  reduce using rule 69 (Expr)
+
+
+State 78
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+   70 IfWithElse: T_If T_Lparen Expr . T_Rparen CodeBlock
+   71           | T_If T_Lparen Expr . T_Rparen CodeBlock T_Else CodeBlock
+
+    T_Rparen  shift, and go to state 99
+    T_Or      shift, and go to state 100
+    T_And     shift, and go to state 101
+    T_Equals  shift, and go to state 102
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+
+State 79
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+   72 While: T_While T_Lparen Expr . T_Rparen CodeBlock
+
+    T_Rparen  shift, and go to state 112
+    T_Or      shift, and go to state 100
+    T_And     shift, and go to state 101
+    T_Equals  shift, and go to state 102
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+
+State 80
+
+   73 CodeBlock: T_Lcurly Vars Statement . T_Rcurly
+
+    T_Rcurly  shift, and go to state 113
+
+
+State 81
+
+   15 LHS: T_Identifier T_Lbracket Expr . T_Rbracket
+   40    | T_Identifier T_Lbracket Expr . T_Rbracket
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Rbracket  shift, and go to state 114
+    T_Or        shift, and go to state 100
+    T_And       shift, and go to state 101
+    T_Equals    shift, and go to state 102
+    T_NE        shift, and go to state 103
+    T_GT        shift, and go to state 104
+    T_GTE       shift, and go to state 105
+    T_LT        shift, and go to state 106
+    T_LTE       shift, and go to state 107
+    T_Plus      shift, and go to state 108
+    T_Minus     shift, and go to state 109
+    T_Times     shift, and go to state 110
+    T_Divide    shift, and go to state 111
+
+
+State 82
+
+   33 Assignment: LHS T_Assignment T_Stringtype . T_Semicolon
+
+    T_Semicolon  shift, and go to state 115
+
+
+State 83
+
+   34 MethodCall: LHS T_Assignment T_Identifier . T_Lparen FuncExpr T_Rparen T_Semicolon
+   48 UnaryExpr: T_Identifier .
+   49          | T_Identifier . T_Lbracket Expr T_Rbracket
+
+    T_Lparen    shift, and go to state 116
+    T_Lbracket  shift, and go to state 90
+
+    $default  reduce using rule 48 (UnaryExpr)
+
+
+State 84
+
+   32 Assignment: LHS T_Assignment Expr . T_Semicolon
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Semicolon  shift, and go to state 117
+    T_Or         shift, and go to state 100
+    T_And        shift, and go to state 101
+    T_Equals     shift, and go to state 102
+    T_NE         shift, and go to state 103
+    T_GT         shift, and go to state 104
+    T_GTE        shift, and go to state 105
+    T_LT         shift, and go to state 106
+    T_LTE        shift, and go to state 107
+    T_Plus       shift, and go to state 108
+    T_Minus      shift, and go to state 109
+    T_Times      shift, and go to state 110
+    T_Divide     shift, and go to state 111
+
+
+State 85
+
+   20 Return: T_Return Expr . T_Semicolon
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Semicolon  shift, and go to state 118
+    T_Or         shift, and go to state 100
+    T_And        shift, and go to state 101
+    T_Equals     shift, and go to state 102
+    T_NE         shift, and go to state 103
+    T_GT         shift, and go to state 104
+    T_GTE        shift, and go to state 105
+    T_LT         shift, and go to state 106
+    T_LTE        shift, and go to state 107
+    T_Plus       shift, and go to state 108
+    T_Minus      shift, and go to state 109
+    T_Times      shift, and go to state 110
+    T_Divide     shift, and go to state 111
+
+
+State 86
+
+   23 MoreVars: T_Comma T_Identifier MoreVars .
+
+    $default  reduce using rule 23 (MoreVars)
+
+
+State 87
+
+   21 Vars: T_Var T_Identifier MoreVars T_Colon Type . T_Semicolon Vars
+
+    T_Semicolon  shift, and go to state 119
+
+
+State 88
+
+   18 LHS: T_Str T_Lbracket T_Num T_Rbracket .
+
+    $default  reduce using rule 18 (LHS)
+
+
+State 89
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+   66     | T_Lparen Expr . T_Rparen
+
+    T_Rparen  shift, and go to state 120
+    T_Or      shift, and go to state 100
+    T_And     shift, and go to state 101
+    T_Equals  shift, and go to state 102
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+
+State 90
+
+   49 UnaryExpr: T_Identifier T_Lbracket . Expr T_Rbracket
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 121
+
+
+State 91
+
+   43 UnaryExpr: T_Plus Expr .
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 43 (UnaryExpr)
+
+
+State 92
+
+   42 UnaryExpr: T_Minus Expr .
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 42 (UnaryExpr)
+
+
+State 93
+
+   67 Expr: T_Not T_Lparen . Expr T_Rparen
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 122
+
+
+State 94
+
+   50 UnaryExpr: T_Not . UnaryExpr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 94
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+
+    UnaryExpr  go to state 95
+
+
+State 95
+
+   50 UnaryExpr: T_Not UnaryExpr .
+
+    $default  reduce using rule 50 (UnaryExpr)
+
+
+State 96
+
+   52 UnaryExpr: T_Address LHS .
+
+    $default  reduce using rule 52 (UnaryExpr)
+
+
+State 97
+
+   51 UnaryExpr: T_Dereference Expr .
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    $default  reduce using rule 51 (UnaryExpr)
+
+
+State 98
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+   68     | '|' Expr . '|'
+
+    T_Or      shift, and go to state 100
+    T_And     shift, and go to state 101
+    T_Equals  shift, and go to state 102
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+    '|'       shift, and go to state 123
+
+
+State 99
+
+   70 IfWithElse: T_If T_Lparen Expr T_Rparen . CodeBlock
+   71           | T_If T_Lparen Expr T_Rparen . CodeBlock T_Else CodeBlock
+
+    T_Lcurly  shift, and go to state 37
+
+    CodeBlock  go to state 124
+
+
+State 100
+
+   64 Expr: Expr T_Or . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 125
+
+
+State 101
+
+   65 Expr: Expr T_And . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 126
+
+
+State 102
+
+   58 Expr: Expr T_Equals . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 127
+
+
+State 103
+
+   63 Expr: Expr T_NE . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 128
+
+
+State 104
+
+   61 Expr: Expr T_GT . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 129
+
+
+State 105
+
+   62 Expr: Expr T_GTE . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 130
+
+
+State 106
+
+   59 Expr: Expr T_LT . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 131
+
+
+State 107
+
+   60 Expr: Expr T_LTE . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 132
+
+
+State 108
+
+   54 Expr: Expr T_Plus . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 133
+
+
+State 109
+
+   55 Expr: Expr T_Minus . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 134
+
+
+State 110
+
+   56 Expr: Expr T_Times . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 135
+
+
+State 111
+
+   57 Expr: Expr T_Divide . Expr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 136
+
+
+State 112
+
+   72 While: T_While T_Lparen Expr T_Rparen . CodeBlock
+
+    T_Lcurly  shift, and go to state 37
+
+    CodeBlock  go to state 137
+
+
+State 113
+
+   73 CodeBlock: T_Lcurly Vars Statement T_Rcurly .
+
+    $default  reduce using rule 73 (CodeBlock)
+
+
+State 114
+
+   15 LHS: T_Identifier T_Lbracket Expr T_Rbracket .
+   40    | T_Identifier T_Lbracket Expr T_Rbracket .
+
+    T_Semicolon   reduce using rule 15 (LHS)
+    T_Semicolon   [reduce using rule 40 (LHS)]
+    T_Rparen      reduce using rule 15 (LHS)
+    T_Rparen      [reduce using rule 40 (LHS)]
+    T_Rbracket    reduce using rule 15 (LHS)
+    T_Rbracket    [reduce using rule 40 (LHS)]
+    T_Comma       reduce using rule 15 (LHS)
+    T_Comma       [reduce using rule 40 (LHS)]
+    T_Assignment  reduce using rule 15 (LHS)
+    T_Assignment  [reduce using rule 40 (LHS)]
+    T_Or          reduce using rule 15 (LHS)
+    T_Or          [reduce using rule 40 (LHS)]
+    T_And         reduce using rule 15 (LHS)
+    T_And         [reduce using rule 40 (LHS)]
+    T_Equals      reduce using rule 15 (LHS)
+    T_Equals      [reduce using rule 40 (LHS)]
+    T_NE          reduce using rule 15 (LHS)
+    T_NE          [reduce using rule 40 (LHS)]
+    T_GT          reduce using rule 15 (LHS)
+    T_GT          [reduce using rule 40 (LHS)]
+    T_GTE         reduce using rule 15 (LHS)
+    T_GTE         [reduce using rule 40 (LHS)]
+    T_LT          reduce using rule 15 (LHS)
+    T_LT          [reduce using rule 40 (LHS)]
+    T_LTE         reduce using rule 15 (LHS)
+    T_LTE         [reduce using rule 40 (LHS)]
+    T_Plus        reduce using rule 15 (LHS)
+    T_Plus        [reduce using rule 40 (LHS)]
+    T_Minus       reduce using rule 15 (LHS)
+    T_Minus       [reduce using rule 40 (LHS)]
+    T_Times       reduce using rule 15 (LHS)
+    T_Times       [reduce using rule 40 (LHS)]
+    T_Divide      reduce using rule 15 (LHS)
+    T_Divide      [reduce using rule 40 (LHS)]
+    '|'           reduce using rule 15 (LHS)
+    '|'           [reduce using rule 40 (LHS)]
+    $default      reduce using rule 15 (LHS)
+
+
+State 115
+
+   33 Assignment: LHS T_Assignment T_Stringtype T_Semicolon .
+
+    $default  reduce using rule 33 (Assignment)
+
+
+State 116
+
+   34 MethodCall: LHS T_Assignment T_Identifier T_Lparen . FuncExpr T_Rparen T_Semicolon
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    $default  reduce using rule 36 (FuncExpr)
+
+    FuncExpr   go to state 138
+    UnaryExpr  go to state 77
+    Expr       go to state 139
+
+
+State 117
+
+   32 Assignment: LHS T_Assignment Expr T_Semicolon .
+
+    $default  reduce using rule 32 (Assignment)
+
+
+State 118
+
+   20 Return: T_Return Expr T_Semicolon .
+
+    $default  reduce using rule 20 (Return)
+
+
+State 119
+
+   21 Vars: T_Var T_Identifier MoreVars T_Colon Type T_Semicolon . Vars
+
+    T_Var  shift, and go to state 29
+
+    $default  reduce using rule 22 (Vars)
+
+    Vars  go to state 140
+
+
+State 120
+
+   66 Expr: T_Lparen Expr T_Rparen .
+
+    $default  reduce using rule 66 (Expr)
+
+
+State 121
+
+   49 UnaryExpr: T_Identifier T_Lbracket Expr . T_Rbracket
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Rbracket  shift, and go to state 141
+    T_Or        shift, and go to state 100
+    T_And       shift, and go to state 101
+    T_Equals    shift, and go to state 102
+    T_NE        shift, and go to state 103
+    T_GT        shift, and go to state 104
+    T_GTE       shift, and go to state 105
+    T_LT        shift, and go to state 106
+    T_LTE       shift, and go to state 107
+    T_Plus      shift, and go to state 108
+    T_Minus     shift, and go to state 109
+    T_Times     shift, and go to state 110
+    T_Divide    shift, and go to state 111
+
+
+State 122
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+   67     | T_Not T_Lparen Expr . T_Rparen
+
+    T_Rparen  shift, and go to state 142
+    T_Or      shift, and go to state 100
+    T_And     shift, and go to state 101
+    T_Equals  shift, and go to state 102
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+
+State 123
+
+   68 Expr: '|' Expr '|' .
+
+    $default  reduce using rule 68 (Expr)
+
+
+State 124
+
+   70 IfWithElse: T_If T_Lparen Expr T_Rparen CodeBlock .
+   71           | T_If T_Lparen Expr T_Rparen CodeBlock . T_Else CodeBlock
+
+    T_Else  shift, and go to state 143
+
+    $default  reduce using rule 70 (IfWithElse)
+
+
+State 125
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   64     | Expr T_Or Expr .
+   65     | Expr . T_And Expr
+
+    T_And     shift, and go to state 101
+    T_Equals  shift, and go to state 102
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 64 (Expr)
+
+
+State 126
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+   65     | Expr T_And Expr .
+
+    T_Equals  shift, and go to state 102
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 65 (Expr)
+
+
+State 127
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   58     | Expr T_Equals Expr .
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 58 (Expr)
+
+
+State 128
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   63     | Expr T_NE Expr .
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 63 (Expr)
+
+
+State 129
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   61     | Expr T_GT Expr .
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 61 (Expr)
+
+
+State 130
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   62     | Expr T_GTE Expr .
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 62 (Expr)
+
+
+State 131
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   59     | Expr T_LT Expr .
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 59 (Expr)
+
+
+State 132
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   60     | Expr T_LTE Expr .
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 60 (Expr)
+
+
+State 133
+
+   54 Expr: Expr . T_Plus Expr
+   54     | Expr T_Plus Expr .
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 54 (Expr)
+
+
+State 134
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   55     | Expr T_Minus Expr .
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 55 (Expr)
+
+
+State 135
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   56     | Expr T_Times Expr .
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    $default  reduce using rule 56 (Expr)
+
+
+State 136
+
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   57     | Expr T_Divide Expr .
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    $default  reduce using rule 57 (Expr)
+
+
+State 137
+
+   72 While: T_While T_Lparen Expr T_Rparen CodeBlock .
+
+    $default  reduce using rule 72 (While)
+
+
+State 138
+
+   34 MethodCall: LHS T_Assignment T_Identifier T_Lparen FuncExpr . T_Rparen T_Semicolon
+
+    T_Rparen  shift, and go to state 144
+
+
+State 139
+
+   35 FuncExpr: Expr . MoreExpr
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Comma   shift, and go to state 145
+    T_Or      shift, and go to state 100
+    T_And     shift, and go to state 101
+    T_Equals  shift, and go to state 102
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 38 (MoreExpr)
+
+    MoreExpr  go to state 146
+
+
+State 140
+
+   21 Vars: T_Var T_Identifier MoreVars T_Colon Type T_Semicolon Vars .
+
+    $default  reduce using rule 21 (Vars)
+
+
+State 141
+
+   49 UnaryExpr: T_Identifier T_Lbracket Expr T_Rbracket .
+
+    $default  reduce using rule 49 (UnaryExpr)
+
+
+State 142
+
+   67 Expr: T_Not T_Lparen Expr T_Rparen .
+
+    $default  reduce using rule 67 (Expr)
+
+
+State 143
+
+   71 IfWithElse: T_If T_Lparen Expr T_Rparen CodeBlock T_Else . CodeBlock
+
+    T_Lcurly  shift, and go to state 37
+
+    CodeBlock  go to state 147
+
+
+State 144
+
+   34 MethodCall: LHS T_Assignment T_Identifier T_Lparen FuncExpr T_Rparen . T_Semicolon
+
+    T_Semicolon  shift, and go to state 148
+
+
+State 145
+
+   37 MoreExpr: T_Comma . Expr MoreExpr
+
+    T_True         shift, and go to state 64
+    T_False        shift, and go to state 65
+    T_Null         shift, and go to state 66
+    T_Lparen       shift, and go to state 67
+    T_Num          shift, and go to state 68
+    T_Chartype     shift, and go to state 69
+    T_Identifier   shift, and go to state 70
+    T_Plus         shift, and go to state 71
+    T_Minus        shift, and go to state 72
+    T_Not          shift, and go to state 73
+    T_Address      shift, and go to state 74
+    T_Dereference  shift, and go to state 75
+    '|'            shift, and go to state 76
+
+    UnaryExpr  go to state 77
+    Expr       go to state 149
+
+
+State 146
+
+   35 FuncExpr: Expr MoreExpr .
+
+    $default  reduce using rule 35 (FuncExpr)
+
+
+State 147
+
+   71 IfWithElse: T_If T_Lparen Expr T_Rparen CodeBlock T_Else CodeBlock .
+
+    $default  reduce using rule 71 (IfWithElse)
+
+
+State 148
+
+   34 MethodCall: LHS T_Assignment T_Identifier T_Lparen FuncExpr T_Rparen T_Semicolon .
+
+    $default  reduce using rule 34 (MethodCall)
+
+
+State 149
+
+   37 MoreExpr: T_Comma Expr . MoreExpr
+   54 Expr: Expr . T_Plus Expr
+   55     | Expr . T_Minus Expr
+   56     | Expr . T_Times Expr
+   57     | Expr . T_Divide Expr
+   58     | Expr . T_Equals Expr
+   59     | Expr . T_LT Expr
+   60     | Expr . T_LTE Expr
+   61     | Expr . T_GT Expr
+   62     | Expr . T_GTE Expr
+   63     | Expr . T_NE Expr
+   64     | Expr . T_Or Expr
+   65     | Expr . T_And Expr
+
+    T_Comma   shift, and go to state 145
+    T_Or      shift, and go to state 100
+    T_And     shift, and go to state 101
+    T_Equals  shift, and go to state 102
+    T_NE      shift, and go to state 103
+    T_GT      shift, and go to state 104
+    T_GTE     shift, and go to state 105
+    T_LT      shift, and go to state 106
+    T_LTE     shift, and go to state 107
+    T_Plus    shift, and go to state 108
+    T_Minus   shift, and go to state 109
+    T_Times   shift, and go to state 110
+    T_Divide  shift, and go to state 111
+
+    $default  reduce using rule 38 (MoreExpr)
+
+    MoreExpr  go to state 150
+
+
+State 150
+
+   37 MoreExpr: T_Comma Expr MoreExpr .
+
+    $default  reduce using rule 37 (MoreExpr)
