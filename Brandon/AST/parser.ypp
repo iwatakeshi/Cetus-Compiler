@@ -137,14 +137,6 @@ Type        : T_Integer
             {$$.u_type = new TCharPtr();}
       	   | T_Intptr
             {$$.u_type = new TIntPtr();}
-/** Define the multiple ways you can assign a variable on the left side of the variable **/
-LHS	      : T_Identifier
-	         {$$.u_lhs = new Variable(new SymName($1.u_base_charptr));}
-	         | T_Identifier T_Lbracket Expr T_Rbracket
-	         {$$.u_lhs = new ArrayElement(new SymName($1.u_base_charptr), $3.u_expr);}
-	         | T_Dereference T_Identifier
-	         {$$.u_lhs = new DerefVariable(new SymName($2.u_base_charptr));}
-	         ;
       	   | T_Bool
             {$$.u_type = new TBoolean();}
       	   | T_Str T_Lbracket T_Num T_Rbracket
