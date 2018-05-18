@@ -138,7 +138,7 @@ test2pdf: $(TARGET) $(TESTFILES)
 	ps2pdf test.bad.output2.ps test.bad.output2.pdf
 
 
-all: removeDos test
+all: removeDos test test2pdf
 
 clean:
 	rm -f $(RMFILES)
