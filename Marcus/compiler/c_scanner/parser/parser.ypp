@@ -1,8 +1,15 @@
 %{
-	#include <cstdio.h>
-	#include <cstdlib.h>
+	#include <cstdio>
+	#include <cstdlib>
 	#include "public/ast.hpp"
+
+	extern int yylineno;
 	extern int yylex();
+
+	void yyerror(const char *err)
+	{
+		printf("There was an error during parsing at line: %d\n", yylineno);
+	}
 %}
 
 %token T_BOOL T_CHAR T_INT T_STR T_INTP T_CHARP
@@ -32,10 +39,10 @@
 
 %%
 
-program: proc
+program: proc											{ printf("PARSE COMPLETE!\n"); }
 ;
 
-proc: K_PROC ID PAREN_L params PAREN_R K_RETURN type proc_block proc
+proc: K_PROC ID PAREN_L params PAREN_R K_RETURN type proc_block proc	{printf("created a procedure\n");}
    	| /* E */
 ;
 
@@ -47,7 +54,7 @@ type: T_BOOL
 	| T_INTP
 ;
 
-params: ID more_params COLON type SEMICOLON params
+params: ID more_params COLON type
 	 | /* E */
 ;
 

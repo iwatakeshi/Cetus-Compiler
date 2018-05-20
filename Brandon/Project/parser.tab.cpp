@@ -195,7 +195,7 @@ typedef union YYSTYPE
 #line 13 "parser.ypp"
 { int int_val; char *char_ptr; }
 /* Line 193 of yacc.c.  */
-#line 199 "parser.cpp"
+#line 199 "parser.tab.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -208,7 +208,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 212 "parser.cpp"
+#line 212 "parser.tab.cpp"
 
 #ifdef short
 # undef short
@@ -1560,7 +1560,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1564 "parser.cpp"
+#line 1564 "parser.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+g++ -o csimple lex.yy.c parser.tab.cpp main.cpp -ll

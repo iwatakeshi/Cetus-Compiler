@@ -1,6 +1,5 @@
-#line 2 "lexer.cpp"
 
-#line 4 "lexer.cpp"
+#line 3 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -714,7 +713,7 @@ exit(1);
 }
 
 */
-#line 718 "lexer.cpp"
+#line 717 "lex.yy.c"
 
 #define INITIAL 0
 #define COMMENT 1
@@ -900,7 +899,7 @@ YY_DECL
 #line 52 "lexer.l"
 
 
-#line 904 "lexer.cpp"
+#line 903 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -1283,7 +1282,7 @@ YY_RULE_SETUP
 #line 123 "lexer.l"
 ECHO;
 	YY_BREAK
-#line 1287 "lexer.cpp"
+#line 1286 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

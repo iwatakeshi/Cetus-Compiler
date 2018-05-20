@@ -1,0 +1,4 @@
+procedure Main(x, y : integer) return integer 
+{
+	return 0;
+}

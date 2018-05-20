@@ -39,108 +39,103 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     T_Bool = 258,
-     T_Char = 259,
-     T_Integer = 260,
-     T_String = 261,
-     T_Intptr = 262,
-     T_Charptr = 263,
-     T_If = 264,
-     T_Else = 265,
-     T_While = 266,
-     T_Var = 267,
-     T_Proc = 268,
-     T_Return = 269,
-     T_True = 270,
-     T_False = 271,
-     T_Null = 272,
-     T_Semicolon = 273,
-     T_Colon = 274,
-     T_Lcurly = 275,
-     T_Rcurly = 276,
-     T_Lparen = 277,
-     T_Rparen = 278,
-     T_Lbracket = 279,
-     T_Rbracket = 280,
-     T_Num = 281,
-     T_Stringtype = 282,
-     T_Chartype = 283,
-     T_Identifier = 284,
-     T_Comma = 285,
-     T_Assignment = 286,
-     T_Or = 287,
-     T_And = 288,
-     T_Equals = 289,
-     T_NE = 290,
-     T_GT = 291,
-     T_GTE = 292,
-     T_LT = 293,
-     T_LTE = 294,
-     T_Minus = 295,
-     T_Plus = 296,
-     T_Divide = 297,
-     T_Times = 298,
-     T_Not = 299,
-     T_Address = 300,
-     T_Dereference = 301
+     T_BOOL = 258,
+     T_CHAR = 259,
+     T_INT = 260,
+     T_STR = 261,
+     T_INTP = 262,
+     T_CHARP = 263,
+     K_IF = 264,
+     K_ELSE = 265,
+     K_WHILE = 266,
+     K_VAR = 267,
+     K_PROC = 268,
+     K_RETURN = 269,
+     K_NULL = 270,
+     O_AND = 271,
+     O_DIVIDE = 272,
+     O_ASSIGN = 273,
+     O_EQUAL = 274,
+     O_GT = 275,
+     O_GTE = 276,
+     O_LT = 277,
+     O_LTE = 278,
+     O_SUBTRACT = 279,
+     O_NOT = 280,
+     O_NEQUAL = 281,
+     O_OR = 282,
+     O_ADD = 283,
+     O_MULTIPLY = 284,
+     O_ADDRESS = 285,
+     O_DEREF = 286,
+     L_BOOL = 287,
+     L_CHAR = 288,
+     L_INT = 289,
+     L_STRING = 290,
+     ID = 291,
+     SEMICOLON = 292,
+     COLON = 293,
+     COMMA = 294,
+     PIPE = 295,
+     CURLY_L = 296,
+     CURLY_R = 297,
+     PAREN_L = 298,
+     PAREN_R = 299,
+     SQR_L = 300,
+     SQR_R = 301
    };
 #endif
 /* Tokens.  */
-#define T_Bool 258
-#define T_Char 259
-#define T_Integer 260
-#define T_String 261
-#define T_Intptr 262
-#define T_Charptr 263
-#define T_If 264
-#define T_Else 265
-#define T_While 266
-#define T_Var 267
-#define T_Proc 268
-#define T_Return 269
-#define T_True 270
-#define T_False 271
-#define T_Null 272
-#define T_Semicolon 273
-#define T_Colon 274
-#define T_Lcurly 275
-#define T_Rcurly 276
-#define T_Lparen 277
-#define T_Rparen 278
-#define T_Lbracket 279
-#define T_Rbracket 280
-#define T_Num 281
-#define T_Stringtype 282
-#define T_Chartype 283
-#define T_Identifier 284
-#define T_Comma 285
-#define T_Assignment 286
-#define T_Or 287
-#define T_And 288
-#define T_Equals 289
-#define T_NE 290
-#define T_GT 291
-#define T_GTE 292
-#define T_LT 293
-#define T_LTE 294
-#define T_Minus 295
-#define T_Plus 296
-#define T_Divide 297
-#define T_Times 298
-#define T_Not 299
-#define T_Address 300
-#define T_Dereference 301
+#define T_BOOL 258
+#define T_CHAR 259
+#define T_INT 260
+#define T_STR 261
+#define T_INTP 262
+#define T_CHARP 263
+#define K_IF 264
+#define K_ELSE 265
+#define K_WHILE 266
+#define K_VAR 267
+#define K_PROC 268
+#define K_RETURN 269
+#define K_NULL 270
+#define O_AND 271
+#define O_DIVIDE 272
+#define O_ASSIGN 273
+#define O_EQUAL 274
+#define O_GT 275
+#define O_GTE 276
+#define O_LT 277
+#define O_LTE 278
+#define O_SUBTRACT 279
+#define O_NOT 280
+#define O_NEQUAL 281
+#define O_OR 282
+#define O_ADD 283
+#define O_MULTIPLY 284
+#define O_ADDRESS 285
+#define O_DEREF 286
+#define L_BOOL 287
+#define L_CHAR 288
+#define L_INT 289
+#define L_STRING 290
+#define ID 291
+#define SEMICOLON 292
+#define COLON 293
+#define COMMA 294
+#define PIPE 295
+#define CURLY_L 296
+#define CURLY_R 297
+#define PAREN_L 298
+#define PAREN_R 299
+#define SQR_L 300
+#define SQR_R 301
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
-#line 13 "parser.ypp"
-{ int int_val; char *char_ptr; }
-/* Line 1529 of yacc.c.  */
-#line 143 "parser.hpp"
-	YYSTYPE;
+typedef int YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1

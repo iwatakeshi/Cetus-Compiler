@@ -139,7 +139,7 @@ typedef union YYSTYPE
 #line 13 "parser.ypp"
 { int int_val; char *char_ptr; }
 /* Line 1529 of yacc.c.  */
-#line 143 "parser.hpp"
+#line 143 "parser.tab.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
