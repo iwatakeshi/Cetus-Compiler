@@ -1,23 +1,24 @@
 %option yylineno
 %pointer
-%s COMMENT
 
 %{
-    #include <stdlib.h>
-    #include <string.h>
+    #include <cstdlib>
+    #include <cstring>
+    #include "ast.hpp"
     #include "parser.hpp"
 
-	int makeInt(char* text, int base);
-
-    void yyerror(const char *);
+    /* void yyerror(const char *); */
 %}
+
 /** WRITE ME:
  *  Put any definitions you need here. Add your own regular expressions
  *  below for ALL tokens defined in the manual. You can choose not to use
  *  definitions here.
  */
 
-/** The example below is very simple, but it shows almost everything you will
+/* HERE */
+
+/** The example below is very simple, but it sh ows almost everything you will
  *  need to do for this first part. The syntax is as follows:
  *
  *  regular_expression      {  c code  }
@@ -26,116 +27,75 @@
  * execute the corresponding C code.
 */
 
-/**
-\"[ -~]*\"         {printf("T_Stringtype "); return T_Stringtype;}
-
-\"[^\r\n]*\"      {printf("T_Stringtype "); return T_Stringtype;}
-
-\/% {
-int i;
-while(true){
-while((i = yyinput() != '%' && i != EOF));
-if(i == '%'){
-while((i = yyinput() == '%'));
-if(i == '/'){
-break;
-}
-}
-if(i == EOF){
-exit(1);
-}
-}
-}
-
-*/
 
 %%
 
-boolean                    {printf("T_Bool "); return T_Bool;}
-char                       {printf("T_Char "); return T_Char;}
-integer                    {printf("T_Integer "); return T_Integer;}
-string\[[1-9][0-9]*\]      {printf("T_String "); return T_String;}
-intptr                     {printf("T_Intptr "); return T_Intptr;}
-charptr                    {printf("T_Charptr "); return T_Charptr;}
-if                         {printf("T_If "); return T_If;}
-else                       {printf("T_Else "); return T_Else;}
-while                      {printf("T_While "); return T_While;}
-var                        {printf("T_Var "); return T_Var;}
-procedure                  {printf("T_Proc "); return T_Proc;}
-return                     {printf("T_Return "); return T_Return;}
-true                       {printf("T_True "); return T_True;}
-false                      {printf("T_False "); return T_False;}
-null                       {printf("T_Null "); return T_Null;}
+boolean     {return T_Bool;}
+char        {return T_Char;}
+integer     {return T_Integer;}
+string      {return T_Str;}
+intptr      {return T_Intptr;}
+charptr     {return T_Charptr;}
+if          {return T_If;}
+else        {return T_Else;}
+while       {return T_While;}
+var         {return T_Var;}
+procedure   {return T_Proc;}
+return      {return T_Return;}
+true        {yylval.u_base_int = 1; return T_True;}
+false       {yylval.u_base_int = 0; return T_False;}
+null        {yylval.u_base_int = 0; return T_Null;}
+\&\&        {return T_And;}
+\/          {return T_Divide;}
+=           {return T_Assignment;}
+==          {return T_Equals;}
+>           {return T_GT;}
+>=          {return T_GTE;}
+\<          {return T_LT;}
+\<=         {return T_LTE;}
+-           {return T_Minus;}
+!           {return T_Not;}
+!=          {return T_NE;}
+\|\|        {return T_Or;}
+\+          {return T_Plus;}
+\*          {return T_Times;}
+\&          {return T_Address;}
+\^          {return T_Dereference;}
+;           {return T_Semicolon;}
+:           {return T_Colon;}
+"{"         {return T_Lcurly;}
+"}"         {return T_Rcurly;}
+\(          {return T_Lparen;}
+\)          {return T_Rparen;}
+\[          {return T_Lbracket;}
+]           {return T_Rbracket;}
+,           {return T_Comma;}
+\|          ;
 
-\&\&                       {printf("T_And "); return T_And;}
-\/                         {printf("T_Divide "); return T_Divide;}
-=                          {printf("T_Assignment "); return T_Assignment;}
-==                         {printf("T_Equals "); return T_Equals;}
->                          {printf("T_GT "); return T_GT;}
->=                         {printf("T_GTE "); return T_GTE;}
-\<                         {printf("T_LT "); return T_LT;}
-\<=                        {printf("T_LTE "); return T_LTE;}
--                          {printf("T_Minus "); return T_Minus;}
-!                          {printf("T_Not "); return T_Not;}
-!=                         {printf("T_NE "); return T_NE;}
-\|\|                       {printf("T_Or "); return T_Or;}
-\+                         {printf("T_Plus "); return T_Plus;}
-\*                         {printf("T_Times "); return T_Times;}
-\&                         {printf("T_Address "); return T_Address;}
-\^                         {printf("T_Dereference "); return T_Dereference;}
+0|[1-9][0-9]*   {yylval.u_base_int = (int)strtol(yytext, 0, 10); return T_Num;}
+0[xX][0-9A-F]+  {yylval.u_base_int = (int)strtol(yytext, 0, 16); return T_Num;}
+0[0-7][0-7]*    {yylval.u_base_int = (int)strtol(yytext, 0, 8); return T_Num;}
+[01][01]*b      {yylval.u_base_int = (int)strtol(yytext, 0, 2); return T_Num;}
 
-;                          {printf("T_Semicolon "); return T_Semicolon;}
-:                          {printf("T_Colon "); return T_Colon;}
-"{"                        {printf("T_Lcurly "); return T_Lcurly;}
-"}"                        {printf("T_Rcurly "); return T_Rcurly;}
-\(                         {printf("T_Lparen "); return T_Lparen;}
-\)                         {printf("T_Rparen "); return T_Rparen;}
-\[                         {printf("T_Lbracket "); return T_Lbracket;}
-]                          {printf("T_Rbracket "); return T_Rbracket;}
-,                          {printf("T_Comma"); return T_Comma;}
+'[ -~]'             {yylval.u_base_int = (int)yytext[1]; return T_Chartype;}
+\"[^\"\r\n]*\"      {yytext[strlen(yytext) - 1] = 0;
+                     yytext++;
+                     yylval.u_base_charptr = strdup(yytext);
+                     return T_Stringtype;}
 
-0|[1-9][0-9]*              {yylval.int_val = makeInt(yytext, 10); printf("T_Num=%d ", yylval.int_val); return T_Num;}
-0[xX][0-9A-F]+             {yylval.int_val = makeInt(yytext, 0); printf("T_Num=%d ", yylval.int_val); return T_Num;}
-0[0-7][0-7]*               {yylval.int_val = makeInt(yytext, 8); printf("T_Num=%d ", yylval.int_val); return T_Num;}
-[01][01]*b                 {yylval.int_val = makeInt(yytext, 2); printf("T_Num=%d ", yylval.int_val); return T_Num;}
+[/][%][^%]*[%]+([^%/][^%]*[%]+)*[/] ;
 
-'[ -~]'                    {yylval.int_val = (int)(*(yytext+1)); printf("T_Chartype=%c ", (char) yylval.int_val); return T_Chartype;}
 
-\"[^\"\r\n]*\"             {yylval.char_ptr = strdup(yytext + 1); // Remove leading "
-							yylval.char_ptr[strlen(yylval.char_ptr) - 1] = '\0'; // Remove trailing "
-							printf("T_Stringtype=%s ", yylval.char_ptr);
-							return T_Stringtype;}
+[a-zA-Z][0-9_a-zA-Z]* {yylval.u_base_charptr = strdup(yytext); return T_Identifier;}
 
-[a-zA-Z][0-9_a-zA-Z]*      {yylval.char_ptr = strdup(yytext); printf("T_Identifier=%s ", yylval.char_ptr); return T_Identifier;}
-
-[\*\(\)\.\+\-\%]           {return *yytext;}
-[0-9][0-9]*                {return 'n';}
-[ \t\n]                    ; /* skip whitespace */
-
-"/%"                       { BEGIN(COMMENT); }
-<COMMENT><<EOF>>           { yyerror("unexpected end of file"); /* Detect unclosed comment block */  }
-<COMMENT>[^%]*             { /* Remove anything != '%' */ }
-<COMMENT>"%"+[^/]          { /* Remove any '*' if not immediately followed by '/' */ }
-<COMMENT>"%"+"/"           { BEGIN(INITIAL); }
-
-.                          yyerror((char *) "invalid character");
+[\*\(\)\.\+\-\%]      { return *yytext; }
+[ \t\n]             ; /* skip whitespace */
 
 %%
 
-int makeInt(char* text, int base) {
-
-	char *p = NULL;
-
-	errno = 0;
-
-	int value = (int) strtol(text, &p, base);
-
-	if (errno != 0){
-		yyerror("conversion to integer failed");
-	}
-
-	return value;
-}
+/** You shall not pass!
+ *  You should not  have to do or edit anything past this.
+ */
 
 int yywrap(void) {
     return 1;
