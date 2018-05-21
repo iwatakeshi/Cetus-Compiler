@@ -1,0 +1,93 @@
+dos2unix tests/validtest.1
+dos2unix: converting file tests/validtest.1 to Unix format...
+dos2unix tests/validtest.2
+dos2unix: converting file tests/validtest.2 to Unix format...
+dos2unix tests/validtest.3
+dos2unix: converting file tests/validtest.3 to Unix format...
+dos2unix tests/validtest.4
+dos2unix: converting file tests/validtest.4 to Unix format...
+dos2unix tests/invalidtest.1
+dos2unix: converting file tests/invalidtest.1 to Unix format...
+dos2unix tests/invalidtest.2
+dos2unix: converting file tests/invalidtest.2 to Unix format...
+dos2unix tests/invalidtest.3
+dos2unix: converting file tests/invalidtest.3 to Unix format...
+dos2unix tests/invalidtest.4
+dos2unix: converting file tests/invalidtest.4 to Unix format...
+gawk -f astbuilder.gawk -v outtype=hpp -v outfile=ast.hpp < ast.cdef
+bison -d -v -o parser.cpp parser.ypp
+flex -olexer.cpp  lexer.l
+g++ -g -Wno-deprecated --std=c++11 -o lexer.o -c lexer.cpp
+g++ -g -Wno-deprecated --std=c++11 -o parser.o -c parser.cpp
+g++ -g -Wno-deprecated --std=c++11 -o main.o -c main.cpp
+gawk -f astbuilder.gawk -v outtype=cpp -v outfile=ast.cpp < ast.cdef
+g++ -g -Wno-deprecated --std=c++11 -o ast.o -c ast.cpp
+g++ -g -Wno-deprecated --std=c++11 -o primitive.o -c primitive.cpp
+g++ -g -Wno-deprecated --std=c++11 -o ast2dot.o -c ast2dot.cpp
+g++ -g -Wno-deprecated --std=c++11 -o symtab.o -c symtab.cpp
+g++ -g -Wno-deprecated --std=c++11 -o typecheck.o -c typecheck.cpp
+g++ -g -Wno-deprecated --std=c++11 -o csimple lexer.o parser.o main.o ast.o primitive.o ast2dot.o symtab.o typecheck.o
+./csimple < tests/validtest.1 >> testoutput.out
+./csimple < tests/validtest.2 >> testoutput.out
+./csimple < tests/validtest.3 >> testoutput.out
+./csimple < tests/validtest.4 >> testoutput.out
+./csimple < tests/invalidtest.1 >> testoutput.out
+syntax error, unexpected T_Divide, expecting $end at line 1
+make: [Makefile:73: test] Error 1 (ignored)
+./csimple < tests/invalidtest.2 >> testoutput.out
+syntax error, unexpected T_Var, expecting $end at line 1
+make: [Makefile:75: test] Error 1 (ignored)
+./csimple < tests/invalidtest.3 >> testoutput.out
+syntax error, unexpected T_Lparen, expecting T_Assignment at line 8
+make: [Makefile:77: test] Error 1 (ignored)
+./csimple < tests/invalidtest.4 >> testoutput.out
+syntax error, unexpected T_Num, expecting $end at line 1
+make: [Makefile:79: test] Error 1 (ignored)
+validtest.1
+./csimple < tests/validtest.1 >> test.good.output1.dot
+dot -Tps test.good.output1.dot > test.good.output1.ps
+ps2pdf test.good.output1.ps test.good.output1.pdf
+validtest.2
+./csimple < tests/validtest.2 >> test.good.output2.dot
+dot -Tps test.good.output2.dot > test.good.output2.ps
+ps2pdf test.good.output2.ps test.good.output2.pdf
+validtest.3
+./csimple < tests/validtest.3 >> test.good.output3.dot
+dot -Tps test.good.output3.dot > test.good.output3.ps
+ps2pdf test.good.output3.ps test.good.output3.pdf
+validtest.4
+./csimple < tests/validtest.4 >> test.good.output4.dot
+dot -Tps test.good.output4.dot > test.good.output4.ps
+ps2pdf test.good.output4.ps test.good.output4.pdf
+invalidtest.1
+./csimple < tests/invalidtest.1 >> test.bad.output1.dot
+syntax error, unexpected T_Divide, expecting $end at line 1
+make: [Makefile:99: test2pdf] Error 1 (ignored)
+dot -Tps test.bad.output1.dot > test.bad.output1.ps
+Error: test.bad.output1.dot: syntax error in line 1 near 'syntax'
+make: [Makefile:100: test2pdf] Error 1 (ignored)
+ps2pdf test.bad.output1.ps test.bad.output1.pdf
+invalidtest.2
+./csimple < tests/invalidtest.2 >> test.bad.output2.dot
+syntax error, unexpected T_Var, expecting $end at line 1
+make: [Makefile:103: test2pdf] Error 1 (ignored)
+dot -Tps test.bad.output2.dot > test.bad.output2.ps
+Error: test.bad.output2.dot: syntax error in line 1 near 'syntax'
+make: [Makefile:104: test2pdf] Error 1 (ignored)
+ps2pdf test.bad.output2.ps test.bad.output2.pdf
+invalidtest.3
+./csimple < tests/invalidtest.3 >> test.bad.output3.dot
+syntax error, unexpected T_Lparen, expecting T_Assignment at line 8
+make: [Makefile:107: test2pdf] Error 1 (ignored)
+dot -Tps test.bad.output2.dot > test.bad.output2.ps
+Error: test.bad.output2.dot: syntax error in line 1 near 'syntax'
+make: [Makefile:108: test2pdf] Error 1 (ignored)
+ps2pdf test.bad.output2.ps test.bad.output2.pdf
+invalidtest.4
+./csimple < tests/invalidtest.4 >> test.bad.output4.dot
+syntax error, unexpected T_Num, expecting $end at line 1
+make: [Makefile:111: test2pdf] Error 1 (ignored)
+dot -Tps test.bad.output2.dot > test.bad.output2.ps
+Error: test.bad.output2.dot: syntax error in line 1 near 'syntax'
+make: [Makefile:112: test2pdf] Error 1 (ignored)
+ps2pdf test.bad.output2.ps test.bad.output2.pdf

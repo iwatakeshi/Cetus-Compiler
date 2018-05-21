@@ -1,13 +1,17 @@
-procedure Main() return integer
+procedure foo(x: integer) return integer
 {
-	var j, k, m, n: integer; 
-	var o: boolean;
-
-	j = 2;
-	k = - j;
-	m = 100 - k * k;
-	n = printint( m );
-
-	return 0;
+    return 2*x;
 }
 
+procedure Main() return integer
+{
+    var a : integer;
+    {
+    }
+    a = foo(3);
+    {
+	var b: integer;
+	b = 3*a+2;
+    }
+    return 0;
+}

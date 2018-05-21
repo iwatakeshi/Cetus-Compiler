@@ -66,6 +66,7 @@ class Symbol
     Basetype m_return_type;
 
     //WRITEME: add string size information
+    int m_size;// Valid only if it is a string variable
 
     Symbol()
     {
@@ -87,7 +88,8 @@ class Symbol
         case bt_procedure:
             return(0);
         case bt_string:
-            return(1);
+            assert(m_size!=0);
+            return(1*m_size);
         case bt_ptr:
             return(4);
         case bt_charptr:
