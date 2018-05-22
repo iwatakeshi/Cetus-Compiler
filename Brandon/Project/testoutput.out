@@ -1,41 +1,546 @@
 validtest.1
-T_Proc T_Identifier=foo T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Return T_Num=0 T_Semicolon T_Rcurly 
-
-Completed the parse!
+digraph G { page="8.5,11"; size="7.5, 10"; 
+"0" -> "1"
+"1" [label="ProgramImpl"]
+"1" -> "2"
+"2" [label="ProcImpl"]
+"2" -> "3"
+"3" [label="SymName\n\"Main\""]
+"2" -> "4"
+"4" [label="TInteger"]
+"2" -> "5"
+"5" [label="ProcedureBlockImpl"]
+"5" -> "6"
+"6" [label="Return"]
+"6" -> "7"
+"7" [label="IntLit"]
+"7" -> "8"
+"8" [label="Primitive\n0"]
+}
 validtest.2
-T_Proc T_Identifier=foo T_Lparen T_Identifier=i T_CommaT_Identifier=j T_CommaT_Identifier=k T_Colon T_Integer T_Rparen T_Return T_Integer T_Lcurly T_Proc T_Identifier=fee T_Lparen T_Identifier=l T_CommaT_Identifier=m T_CommaT_Identifier=n T_Colon T_Integer T_Rparen T_Return T_Bool T_Lcurly T_Return T_True T_Semicolon T_Rcurly T_Return T_Num=0 T_Semicolon T_Rcurly 
-
-Completed the parse!
+digraph G { page="8.5,11"; size="7.5, 10"; 
+"0" -> "1"
+"1" [label="ProgramImpl"]
+"1" -> "2"
+"2" [label="ProcImpl"]
+"2" -> "3"
+"3" [label="SymName\n\"Main\""]
+"2" -> "4"
+"4" [label="TInteger"]
+"2" -> "5"
+"5" [label="ProcedureBlockImpl"]
+"5" -> "6"
+"6" [label="DeclImpl"]
+"6" -> "7"
+"7" [label="SymName\n\"a\""]
+"6" -> "8"
+"8" [label="TInteger"]
+"5" -> "9"
+"9" [label="Assignment"]
+"9" -> "10"
+"10" [label="Variable"]
+"10" -> "11"
+"11" [label="SymName\n\"a\""]
+"9" -> "12"
+"12" [label="IntLit"]
+"12" -> "13"
+"13" [label="Primitive\n2"]
+"5" -> "14"
+"14" [label="Return"]
+"14" -> "15"
+"15" [label="IntLit"]
+"15" -> "16"
+"16" [label="Primitive\n0"]
+}
 validtest.3
-T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier=a T_Colon T_Integer T_Semicolon T_Identifier=a T_Assignment T_Identifier=foo T_Lparen T_Rparen T_Semicolon T_Return T_Num=0 T_Semicolon T_Rcurly 
-
-Completed the parse!
+digraph G { page="8.5,11"; size="7.5, 10"; 
+"0" -> "1"
+"1" [label="ProgramImpl"]
+"1" -> "2"
+"2" [label="ProcImpl"]
+"2" -> "3"
+"3" [label="SymName\n\"array\""]
+"2" -> "4"
+"4" [label="DeclImpl"]
+"4" -> "5"
+"5" [label="SymName\n\"ax\""]
+"4" -> "6"
+"6" [label="TInteger"]
+"2" -> "7"
+"7" [label="TBoolean"]
+"2" -> "8"
+"8" [label="ProcedureBlockImpl"]
+"8" -> "9"
+"9" [label="DeclImpl"]
+"9" -> "10"
+"10" [label="SymName\n\"a\""]
+"9" -> "11"
+"11" [label="TString"]
+"11" -> "12"
+"12" [label="Primitive\n12"]
+"8" -> "13"
+"13" [label="DeclImpl"]
+"13" -> "14"
+"14" [label="SymName\n\"b\""]
+"13" -> "15"
+"15" [label="TString"]
+"15" -> "16"
+"16" [label="Primitive\n12"]
+"8" -> "17"
+"17" [label="DeclImpl"]
+"17" -> "18"
+"18" [label="SymName\n\"x\""]
+"17" -> "19"
+"19" [label="TInteger"]
+"8" -> "20"
+"20" [label="DeclImpl"]
+"20" -> "21"
+"21" [label="SymName\n\"z\""]
+"20" -> "22"
+"22" [label="TBoolean"]
+"8" -> "23"
+"23" [label="Assignment"]
+"23" -> "24"
+"24" [label="ArrayElement"]
+"24" -> "25"
+"25" [label="SymName\n\"a\""]
+"24" -> "26"
+"26" [label="Plus"]
+"26" -> "27"
+"27" [label="IntLit"]
+"27" -> "28"
+"28" [label="Primitive\n2"]
+"26" -> "29"
+"29" [label="IntLit"]
+"29" -> "30"
+"30" [label="Primitive\n3"]
+"23" -> "31"
+"31" [label="ArrayAccess"]
+"31" -> "32"
+"32" [label="SymName\n\"b\""]
+"31" -> "33"
+"33" [label="IntLit"]
+"33" -> "34"
+"34" [label="Primitive\n0"]
+"8" -> "35"
+"35" [label="Return"]
+"35" -> "36"
+"36" [label="BoolLit"]
+"36" -> "37"
+"37" [label="Primitive\n0"]
+"1" -> "38"
+"38" [label="ProcImpl"]
+"38" -> "39"
+"39" [label="SymName\n\"Main\""]
+"38" -> "40"
+"40" [label="TInteger"]
+"38" -> "41"
+"41" [label="ProcedureBlockImpl"]
+"41" -> "42"
+"42" [label="DeclImpl"]
+"42" -> "43"
+"43" [label="SymName\n\"x\""]
+"42" -> "44"
+"44" [label="TInteger"]
+"41" -> "45"
+"45" [label="DeclImpl"]
+"45" -> "46"
+"46" [label="SymName\n\"k\""]
+"45" -> "47"
+"47" [label="SymName\n\"j\""]
+"45" -> "48"
+"48" [label="TInteger"]
+"41" -> "49"
+"49" [label="DeclImpl"]
+"49" -> "50"
+"50" [label="SymName\n\"t\""]
+"49" -> "51"
+"51" [label="TBoolean"]
+"41" -> "52"
+"52" [label="Assignment"]
+"52" -> "53"
+"53" [label="Variable"]
+"53" -> "54"
+"54" [label="SymName\n\"x\""]
+"52" -> "55"
+"55" [label="IntLit"]
+"55" -> "56"
+"56" [label="Primitive\n5"]
+"41" -> "57"
+"57" [label="IfNoElse"]
+"57" -> "58"
+"58" [label="Lt"]
+"58" -> "59"
+"59" [label="Ident"]
+"59" -> "60"
+"60" [label="SymName\n\"x\""]
+"58" -> "61"
+"61" [label="IntLit"]
+"61" -> "62"
+"62" [label="Primitive\n3"]
+"57" -> "63"
+"63" [label="CodeBlock"]
+"63" -> "64"
+"64" [label="NestedBlockImpl"]
+"64" -> "65"
+"65" [label="Assignment"]
+"65" -> "66"
+"66" [label="Variable"]
+"66" -> "67"
+"67" [label="SymName\n\"x\""]
+"65" -> "68"
+"68" [label="IntLit"]
+"68" -> "69"
+"69" [label="Primitive\n7"]
+"41" -> "70"
+"70" [label="IfWithElse"]
+"70" -> "71"
+"71" [label="Lt"]
+"71" -> "72"
+"72" [label="Ident"]
+"72" -> "73"
+"73" [label="SymName\n\"x\""]
+"71" -> "74"
+"74" [label="IntLit"]
+"74" -> "75"
+"75" [label="Primitive\n3"]
+"70" -> "76"
+"76" [label="CodeBlock"]
+"76" -> "77"
+"77" [label="NestedBlockImpl"]
+"77" -> "78"
+"78" [label="Assignment"]
+"78" -> "79"
+"79" [label="Variable"]
+"79" -> "80"
+"80" [label="SymName\n\"x\""]
+"78" -> "81"
+"81" [label="IntLit"]
+"81" -> "82"
+"82" [label="Primitive\n9"]
+"70" -> "83"
+"83" [label="CodeBlock"]
+"83" -> "84"
+"84" [label="NestedBlockImpl"]
+"84" -> "85"
+"85" [label="IfNoElse"]
+"85" -> "86"
+"86" [label="Compare"]
+"86" -> "87"
+"87" [label="Ident"]
+"87" -> "88"
+"88" [label="SymName\n\"t\""]
+"86" -> "89"
+"89" [label="BoolLit"]
+"89" -> "90"
+"90" [label="Primitive\n1"]
+"85" -> "91"
+"91" [label="CodeBlock"]
+"91" -> "92"
+"92" [label="NestedBlockImpl"]
+"92" -> "93"
+"93" [label="Assignment"]
+"93" -> "94"
+"94" [label="Variable"]
+"94" -> "95"
+"95" [label="SymName\n\"x\""]
+"93" -> "96"
+"96" [label="IntLit"]
+"96" -> "97"
+"97" [label="Primitive\n12"]
+"41" -> "98"
+"98" [label="Return"]
+"98" -> "99"
+"99" [label="IntLit"]
+"99" -> "100"
+"100" [label="Primitive\n0"]
+"1" -> "101"
+"101" [label="ProcImpl"]
+"101" -> "102"
+"102" [label="SymName\n\"f\""]
+"101" -> "103"
+"103" [label="DeclImpl"]
+"103" -> "104"
+"104" [label="SymName\n\"a\""]
+"103" -> "105"
+"105" [label="SymName\n\"x\""]
+"103" -> "106"
+"106" [label="TInteger"]
+"101" -> "107"
+"107" [label="TBoolean"]
+"101" -> "108"
+"108" [label="ProcedureBlockImpl"]
+"108" -> "109"
+"109" [label="ProcImpl"]
+"109" -> "110"
+"110" [label="SymName\n\"nested\""]
+"109" -> "111"
+"111" [label="TBoolean"]
+"109" -> "112"
+"112" [label="ProcedureBlockImpl"]
+"112" -> "113"
+"113" [label="DeclImpl"]
+"113" -> "114"
+"114" [label="SymName\n\"i\""]
+"113" -> "115"
+"115" [label="SymName\n\"a\""]
+"113" -> "116"
+"116" [label="TInteger"]
+"112" -> "117"
+"117" [label="Return"]
+"117" -> "118"
+"118" [label="Compare"]
+"118" -> "119"
+"119" [label="Minus"]
+"119" -> "120"
+"120" [label="Ident"]
+"120" -> "121"
+"121" [label="SymName\n\"i\""]
+"119" -> "122"
+"122" [label="Ident"]
+"122" -> "123"
+"123" [label="SymName\n\"a\""]
+"118" -> "124"
+"124" [label="IntLit"]
+"124" -> "125"
+"125" [label="Primitive\n12"]
+"108" -> "126"
+"126" [label="DeclImpl"]
+"126" -> "127"
+"127" [label="SymName\n\"d\""]
+"126" -> "128"
+"128" [label="TBoolean"]
+"108" -> "129"
+"129" [label="Return"]
+"129" -> "130"
+"130" [label="Lt"]
+"130" -> "131"
+"131" [label="Ident"]
+"131" -> "132"
+"132" [label="SymName\n\"a\""]
+"130" -> "133"
+"133" [label="Ident"]
+"133" -> "134"
+"134" [label="SymName\n\"x\""]
+"1" -> "135"
+"135" [label="ProcImpl"]
+"135" -> "136"
+"136" [label="SymName\n\"main\""]
+"135" -> "137"
+"137" [label="DeclImpl"]
+"137" -> "138"
+"138" [label="SymName\n\"ax\""]
+"137" -> "139"
+"139" [label="TInteger"]
+"135" -> "140"
+"140" [label="TBoolean"]
+"135" -> "141"
+"141" [label="ProcedureBlockImpl"]
+"141" -> "142"
+"142" [label="ProcImpl"]
+"142" -> "143"
+"143" [label="SymName\n\"tain\""]
+"142" -> "144"
+"144" [label="DeclImpl"]
+"144" -> "145"
+"145" [label="SymName\n\"int\""]
+"144" -> "146"
+"146" [label="TInteger"]
+"142" -> "147"
+"147" [label="TBoolean"]
+"142" -> "148"
+"148" [label="ProcedureBlockImpl"]
+"148" -> "149"
+"149" [label="Return"]
+"149" -> "150"
+"150" [label="Or"]
+"150" -> "151"
+"151" [label="BoolLit"]
+"151" -> "152"
+"152" [label="Primitive\n0"]
+"150" -> "153"
+"153" [label="BoolLit"]
+"153" -> "154"
+"154" [label="Primitive\n1"]
+"141" -> "155"
+"155" [label="DeclImpl"]
+"155" -> "156"
+"156" [label="SymName\n\"i\""]
+"155" -> "157"
+"157" [label="TInteger"]
+"141" -> "158"
+"158" [label="Return"]
+"158" -> "159"
+"159" [label="Lt"]
+"159" -> "160"
+"160" [label="Plus"]
+"160" -> "161"
+"161" [label="IntLit"]
+"161" -> "162"
+"162" [label="Primitive\n2"]
+"160" -> "163"
+"163" [label="Times"]
+"163" -> "164"
+"164" [label="IntLit"]
+"164" -> "165"
+"165" [label="Primitive\n2"]
+"163" -> "166"
+"166" [label="IntLit"]
+"166" -> "167"
+"167" [label="Primitive\n4"]
+"159" -> "168"
+"168" [label="IntLit"]
+"168" -> "169"
+"169" [label="Primitive\n3"]
+"1" -> "170"
+"170" [label="ProcImpl"]
+"170" -> "171"
+"171" [label="SymName\n\"main1\""]
+"170" -> "172"
+"172" [label="DeclImpl"]
+"172" -> "173"
+"173" [label="SymName\n\"ax\""]
+"172" -> "174"
+"174" [label="TInteger"]
+"170" -> "175"
+"175" [label="TBoolean"]
+"170" -> "176"
+"176" [label="ProcedureBlockImpl"]
+"176" -> "177"
+"177" [label="DeclImpl"]
+"177" -> "178"
+"178" [label="SymName\n\"i\""]
+"177" -> "179"
+"179" [label="TInteger"]
+"176" -> "180"
+"180" [label="Return"]
+"180" -> "181"
+"181" [label="Lt"]
+"181" -> "182"
+"182" [label="Plus"]
+"182" -> "183"
+"183" [label="IntLit"]
+"183" -> "184"
+"184" [label="Primitive\n2"]
+"182" -> "185"
+"185" [label="Times"]
+"185" -> "186"
+"186" [label="IntLit"]
+"186" -> "187"
+"187" [label="Primitive\n2"]
+"185" -> "188"
+"188" [label="IntLit"]
+"188" -> "189"
+"189" [label="Primitive\n4"]
+"181" -> "190"
+"190" [label="IntLit"]
+"190" -> "191"
+"191" [label="Primitive\n3"]
+}
 validtest.4
-T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier=j T_CommaT_Identifier=k T_CommaT_Identifier=m T_CommaT_Identifier=n T_Colon T_Integer T_Semicolon T_Var T_Identifier=o T_Colon T_Bool T_Semicolon T_Identifier=j T_Assignment T_Num=2 T_Semicolon T_Identifier=k T_Assignment T_Minus T_Identifier=j T_Semicolon T_Identifier=m T_Assignment T_Num=100 T_Minus T_Identifier=k T_Times T_Identifier=k T_Semicolon T_Identifier=n T_Assignment T_Identifier=printint T_Lparen T_Identifier=m T_Rparen T_Semicolon T_Return T_Num=0 T_Semicolon T_Rcurly 
-
-Completed the parse!
-validtest.5
-T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Proc T_Identifier=foo T_Lparen T_Identifier=inc T_Colon T_Integer T_Rparen T_Return T_Bool T_Lcurly T_Identifier=m T_Assignment T_Identifier=m T_Plus T_Identifier=inc T_Semicolon T_Return T_True T_Semicolon T_Rcurly T_Var T_Identifier=j T_CommaT_Identifier=k T_CommaT_Identifier=m T_CommaT_Identifier=n T_Colon T_Integer T_Semicolon T_Var T_Identifier=x T_Colon T_String T_Semicolon T_Var T_Identifier=b T_Colon T_Bool T_Semicolon T_Identifier=j T_Assignment T_Num=2 T_Semicolon T_Identifier=k T_Assignment T_Minus T_Identifier=j T_Semicolon T_Identifier=m T_Assignment T_Num=100 T_Minus T_Identifier=k T_Times T_Identifier=k T_Semicolon T_Identifier=x T_Lbracket T_Num=1 T_Rbracket T_Assignment T_Identifier=foo T_Lparen T_Num=1 T_Rparen T_Semicolon T_Identifier=n T_Assignment T_Identifier=printint T_Lparen T_Identifier=m T_Rparen T_Semicolon T_Identifier=x T_Assignment T_Stringtype=this is a string['5']\n T_Semicolon T_Identifier=x T_Assignment T_Stringtype=this is \ T_Semicolon T_Identifier=x T_Assignment T_Stringtype=invalid T_Semicolon T_Identifier=x T_Lbracket T_Num=1 T_Rbracket T_Assignment T_Chartype=h T_Semicolon T_Return T_Identifier=x T_Lbracket T_Num=7 T_Plus T_Num=1 T_Rbracket T_Semicolon T_Rcurly 
-
-Completed the parse!
-validtest.6
-T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier=ret T_Colon T_Integer T_Semicolon T_Identifier=ret T_Assignment T_Identifier=compare T_Lparen T_Num=5 T_CommaT_Num=25 T_Rparen T_Semicolon T_Return T_Identifier=ret T_Semicolon T_Rcurly T_Proc T_Identifier=compare T_Lparen T_Identifier=numberOne T_CommaT_Identifier=numberTwo T_Colon T_Integer T_Rparen T_Return T_Integer T_Lcurly T_Var T_Identifier=ret T_Colon T_Integer T_Semicolon T_If T_Lparen T_Identifier=numberOne T_GT T_Identifier=numberTwo T_Rparen T_Lcurly T_Identifier=ret T_Assignment T_Num=1 T_Semicolon T_Rcurly T_Else T_Lcurly T_Identifier=ret T_Assignment T_Num=0 T_Semicolon T_Rcurly T_Return T_Identifier=ret T_Semicolon T_Rcurly 
-
-Completed the parse!
+digraph G { page="8.5,11"; size="7.5, 10"; 
+"0" -> "1"
+"1" [label="ProgramImpl"]
+"1" -> "2"
+"2" [label="ProcImpl"]
+"2" -> "3"
+"3" [label="SymName\n\"foo\""]
+"2" -> "4"
+"4" [label="DeclImpl"]
+"4" -> "5"
+"5" [label="SymName\n\"x\""]
+"4" -> "6"
+"6" [label="TInteger"]
+"2" -> "7"
+"7" [label="TInteger"]
+"2" -> "8"
+"8" [label="ProcedureBlockImpl"]
+"8" -> "9"
+"9" [label="Return"]
+"9" -> "10"
+"10" [label="Times"]
+"10" -> "11"
+"11" [label="IntLit"]
+"11" -> "12"
+"12" [label="Primitive\n2"]
+"10" -> "13"
+"13" [label="Ident"]
+"13" -> "14"
+"14" [label="SymName\n\"x\""]
+"1" -> "15"
+"15" [label="ProcImpl"]
+"15" -> "16"
+"16" [label="SymName\n\"Main\""]
+"15" -> "17"
+"17" [label="TInteger"]
+"15" -> "18"
+"18" [label="ProcedureBlockImpl"]
+"18" -> "19"
+"19" [label="DeclImpl"]
+"19" -> "20"
+"20" [label="SymName\n\"a\""]
+"19" -> "21"
+"21" [label="TInteger"]
+"18" -> "22"
+"22" [label="CodeBlock"]
+"22" -> "23"
+"23" [label="NestedBlockImpl"]
+"18" -> "24"
+"24" [label="Call"]
+"24" -> "25"
+"25" [label="Variable"]
+"25" -> "26"
+"26" [label="SymName\n\"a\""]
+"24" -> "27"
+"27" [label="SymName\n\"foo\""]
+"24" -> "28"
+"28" [label="IntLit"]
+"28" -> "29"
+"29" [label="Primitive\n3"]
+"18" -> "30"
+"30" [label="CodeBlock"]
+"30" -> "31"
+"31" [label="NestedBlockImpl"]
+"31" -> "32"
+"32" [label="DeclImpl"]
+"32" -> "33"
+"33" [label="SymName\n\"b\""]
+"32" -> "34"
+"34" [label="TInteger"]
+"31" -> "35"
+"35" [label="Assignment"]
+"35" -> "36"
+"36" [label="Variable"]
+"36" -> "37"
+"37" [label="SymName\n\"b\""]
+"35" -> "38"
+"38" [label="Plus"]
+"38" -> "39"
+"39" [label="Times"]
+"39" -> "40"
+"40" [label="IntLit"]
+"40" -> "41"
+"41" [label="Primitive\n3"]
+"39" -> "42"
+"42" [label="Ident"]
+"42" -> "43"
+"43" [label="SymName\n\"a\""]
+"38" -> "44"
+"44" [label="IntLit"]
+"44" -> "45"
+"45" [label="Primitive\n2"]
+"18" -> "46"
+"46" [label="Return"]
+"46" -> "47"
+"47" [label="IntLit"]
+"47" -> "48"
+"48" [label="Primitive\n0"]
+}
 invalidtest.1
-T_Divide 
-
-Completed the parse!
 syntax error, unexpected T_Divide, expecting $end at line 1
 invalidtest.2
-T_Var 
-
-Completed the parse!
 syntax error, unexpected T_Var, expecting $end at line 1
 invalidtest.3
-T_Proc T_Identifier=foo T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Return T_Num=0 T_Semicolon T_Rcurly T_Proc T_Identifier=Main T_Lparen T_Rparen T_Return T_Integer T_Lcurly T_Identifier=foo T_Lparen syntax error, unexpected T_Lparen, expecting T_Assignment at line 8
+syntax error, unexpected T_Lparen, expecting T_Assignment at line 8
 invalidtest.4
-T_Num=1 
-
-Completed the parse!
 syntax error, unexpected T_Num, expecting $end at line 1

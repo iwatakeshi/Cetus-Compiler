@@ -1,8 +1,14 @@
 %{
-    #include <stdio.h>
-    #include <stdlib.h>
+    #include <cstdio>
+    #include <cstdlib>
+
+    #include "ast.hpp"
+    #include "primitive.hpp"
+    #include "symtab.hpp"
+
     #define YYDEBUG 1
 
+    extern Program_ptr ast;
     int yylex(void);
     void yyerror(const char *);
 %}
@@ -10,18 +16,18 @@
 /* Enables verbose error messages */
 %error-verbose
 
-%union { int int_val; char *char_ptr; }
-
 /** WRITE ME:
  *  - Put all your token definitions here
  *  - Put all your type definitions here
  *  - Put all your precedence/associativity rules here
+ */
 
-*/
+ %start Start
 
  %token T_Bool
  %token T_Char
  %token T_Integer
+ %token T_Str
  %token T_String
  %token T_Intptr
  %token T_Charptr
@@ -48,6 +54,8 @@
  %token T_Stringtype
  %token T_Chartype
  %token T_Identifier
+
+
 
  /*Lowest precedence*/
  %left T_Comma
@@ -82,153 +90,213 @@
  %right T_Address
  %right T_Dereference
 
-%%
-
-/** WRITE ME:
- *  This is the language from Project 1. You need to put the productions for
- *  the grammar for the language for this project here.
- **/
+ /* $$ essentially means this. Like this.push_back(params)*/
 
 
-Start             : Method {printf("\n\nCompleted the parse!\n");}
-                  ;
 
-/**  Follows this type of structure
-procedure foo() return integer { return 0; } **/
-Method            : T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return Type T_Lcurly Body T_Rcurly Method
-                  |
-                  ;
-/**For when there are nested bodies/code blocks **/
-Body              : Method Vars StatementP T_Return Expr T_Semicolon
-                  ;
+ %%
 
-/** procedure foo(i, j, k : integer) return integer **/
-ParamList         : Params MoreParams
-                  |
-                  ;
+ /**  Follows this type of structure
+ procedure foo() return integer { return 0; } **/
+ Start       : Method
+             { ast = new ProgramImpl($1.u_proc_list);}
+             ;
 
-MoreParams        : T_Semicolon Params MoreParams
-                  |
-                  ;
+ /**For when there are nested bodies/code blocks **/
+ Method      : T_Proc T_Identifier T_Lparen ParamList T_Rparen T_Return Type T_Lcurly BodyReturn T_Rcurly Method
+             {$11.u_proc_list->push_front(new ProcImpl(new SymName($2.u_base_charptr), $4.u_decl_list, $7.u_type, $9.u_procedure_block)); $$ = $11;}
+             |
+             {$$.u_proc_list = new std::list<Proc_ptr>();}
+             ;
 
-Params            : T_Identifier ParamsAddl T_Colon Type
-                  ;
+ /** procedure foo(i, j, k : integer) return integer **/
+ ParamList   : T_Identifier MoreParams T_Colon Type ParamsAddl
+ 	         {$2.u_symname_list->push_front(new SymName($1.u_base_charptr));
+ 	         $5.u_decl_list->push_front(new DeclImpl($2.u_symname_list, $4.u_type)); $$ = $5;}
+ 	         |
+             {$$.u_decl_list = new std::list<Decl_ptr> ();}
+ 	         ;
 
-ParamsAddl        : T_Comma T_Identifier ParamsAddl
-                  |
-                  ;
+ MoreParams  : T_Comma T_Identifier MoreParams {$3.u_symname_list->push_front(new SymName($2.u_base_charptr)); $$=$3;}
+ 	         |
+             {$$.u_symname_list = new std::list<SymName_ptr> ();}
+ 	         ;
 
-/**  var x, z : integer; **/
-Vars              : T_Var T_Identifier MoreVars T_Colon Type T_Semicolon Vars
-                  |
-                  ;
+ ParamsAddl  : T_Semicolon ParamList
+             {$$ = $2;}
+ 	         | ParamList
+             {$$ = $1;}
+ 	         ;
 
-/**  In case more variables are called **/
-MoreVars          : T_Comma T_Identifier MoreVars
-                  |
-                  ;
+ Type        : T_Integer
+             {$$.u_type = new TInteger();}
+       	   | T_Char
+             {$$.u_type = new TCharacter();}
+       	   | T_Charptr
+             {$$.u_type = new TCharPtr();}
+       	   | T_Intptr
+             {$$.u_type = new TIntPtr();}
+       	   | T_Bool
+             {$$.u_type = new TBoolean();}
+       	   | T_Str T_Lbracket T_Num T_Rbracket
+       	   {$$.u_type = new TString(new Primitive($3.u_base_int));}
+       	   ;
 
-/** Taken from lexer.l **/
-Type              : T_Integer
-                  | T_Char
-                  | T_Charptr
-                  | T_Intptr
-                  | T_Bool
-                  | T_String
-                  ;
 
-UnaryExpr         : T_Minus T_Num
-                  | T_Minus T_Identifier
-                  | T_Plus T_Num
-                  | T_Plus T_Identifier
-                  | T_Num
-                  | T_True
-                  | T_False
-                  | T_Chartype
-                  | T_Identifier
-                  | T_Identifier T_Lbracket Expr T_Rbracket
-                  | T_Not UnaryExpr
-                  | T_Dereference T_Identifier
-                  | T_Dereference T_Lparen Expr T_Rparen
-                  | T_Address T_Identifier
-                  | T_Address T_Identifier T_Lbracket Expr T_Rbracket
-                  | T_Null
-                  ;
+ BodyReturn  : Method Vars Statement Return
+             {$$.u_procedure_block = new Procedure_blockImpl($1.u_proc_list, $2.u_decl_list, $3.u_stat_list, $4.u_return_stat);}
+ 	         ;
 
-Op	               : T_Plus Expr
-                  | T_Minus Expr
-                  | T_Times Expr
-                  | T_Divide Expr
-                  | T_Equals Expr
-                  | T_LT Expr
-                  | T_LTE Expr
-                  | T_GT Expr
-                  | T_GTE Expr
-                  | T_NE Expr
-                  | T_Or Expr
-                  | T_And Expr
-                  |
-                  ;
 
-/** Define the multiple ways you can assign a variable on the left side of the variable **/
-LHS	            : T_Identifier
-                  | T_Identifier T_Lbracket Expr T_Rbracket
-                  | T_Dereference T_Identifier
-                  ;
+ Return	   : T_Return Expr T_Semicolon
+ 	         {$$.u_return_stat = new Return($2.u_expr);}
+ 	         ;
 
-/**  Right hand side of the variable assignment
-var x : charptr;    /% x is a pointer to a character variable %/ **/
-RHS	            : Expr
-                  | T_Stringtype
-                  ;
 
-/** x = 5; **/
-AssignmentOp      : LHS T_Assignment RHS T_Semicolon
-                  ;
+ /**  var x, z : integer; **/
+ Vars      : T_Var T_Identifier MoreVars T_Colon Type T_Semicolon Vars
+ 	         {$3.u_symname_list->push_front(new SymName($2.u_base_charptr));
+  	         $7.u_decl_list->push_front(new DeclImpl($3.u_symname_list, $5.u_type)); $$ = $7;}
+ 	         |
+             {$$.u_decl_list = new std::list<Decl_ptr> ();}
+             ;
 
-/** Types of expressions under variable declarations **/
-Expr	            : UnaryExpr Op
-                  | T_Lparen Expr T_Rparen Op
-                  | T_Not T_Lparen Expr T_Rparen Op
-                  | '|' Expr '|' Op
-                  | T_Identifier T_Lparen MoreExpr T_Rparen
-                  ;
+ /**  In case more variables are called **/
+ MoreVars    : T_Comma T_Identifier MoreVars
+ 	         {$3.u_symname_list->push_front(new SymName($2.u_base_charptr)); $$=$3; }
+             |
+             {$$.u_symname_list = new std::list<SymName_ptr> ();}
+ 	         ;
 
-/** Types of statement productions found under statments category**/
-StatementP        : AssignmentOp StatementP
-                  | MethodCall StatementP
-                  | While StatementP
-                  | CodeBlock StatementP
-                  | IfP StatementP
-                  | IfElse StatementP
-                  |
-                  ;
+ /** Types of statement productions found under statments category**/
+ StatementP  : Assignment
+             {$$.u_stat = $1.u_stat;}
+       	   | MethodCall
+             {$$.u_stat = $1.u_stat;}
+       	   | While
+             {$$.u_stat = $1.u_stat;}
+       	   | CodeBlock
+             {$$.u_stat = $1.u_stat;}
+       	   | IfWithElse
+             {$$.u_stat = $1.u_stat;}
+       	   ;
 
-MethodCall        : LHS T_Assignment T_Identifier T_Lparen Expr MoreExpr T_Rparen T_Semicolon
-                  ;
+ Statement   : StatementP Statement
+ 	         {$2.u_stat_list->push_front($1.u_stat); $$.u_stat_list = $2.u_stat_list;}
+ 	         |
+             {$$.u_stat_list = new std::list<Stat_ptr> ();}
+ 	         ;
 
-MoreExpr          : T_Comma Expr MoreExpr
-                  |
-                  ;
+ Assignment  : LHS T_Assignment Expr T_Semicolon
+ 	         {$$.u_stat = new Assignment($1.u_lhs, $3.u_expr);}
+ 	         | LHS T_Assignment T_Stringtype T_Semicolon
+ 	         {$$.u_stat = new StringAssignment($1.u_lhs, new StringPrimitive($3.u_base_charptr));}
+ 	         ;
 
-/** "if"  "("  expression  ")"  "{"  body_of_nested_statement  "}" **/
-IfP	            : T_If T_Lparen Expr T_Rparen CodeBlock
-                  ;
+ MethodCall    : LHS T_Assignment T_Identifier T_Lparen FuncExpr T_Rparen T_Semicolon
+             {$$.u_stat = new Call($1.u_lhs, new SymName($3.u_base_charptr), $5.u_expr_list);}
+ 	         ;
 
-/** "if"  "("  expression  ")"  "{"  body_of_nested_statement  "}"
-"else"  "{"  body_of_nested_statement  "}" **/
-IfElse            : IfP T_Else CodeBlock
-                  ;
+ FuncExpr    : Expr MoreExpr
+             {$2.u_expr_list->push_front($1.u_expr); $$.u_expr_list = $2.u_expr_list;}
+ 	         |
+             {$$.u_expr_list = new std::list<Expr_ptr>();}
+ 	         ;
 
-/** "while"  "("  expression  ")"  "{"  body_of_nested_statement  "}" **/
-While	            : T_While T_Lparen Expr T_Rparen CodeBlock
-                  ;
+ MoreExpr    : T_Comma Expr MoreExpr
+ 	         {$3.u_expr_list->push_front($2.u_expr); $$.u_expr_list = $3.u_expr_list;}
+ 	         |
+             {$$.u_expr_list = new std::list<Expr_ptr>();}
+ 	         ;
 
-/** "{"  body_of_nested_statement  "}" **/
-CodeBlock         : T_Lcurly Vars StatementP T_Rcurly
-                  ;
+ /** Define the multiple ways you can assign a variable on the left side of the variable **/
+ LHS	      : T_Identifier {$$.u_lhs = new Variable(new SymName($1.u_base_charptr));}
+ 	         | T_Identifier T_Lbracket Expr T_Rbracket
+ 	         {$$.u_lhs = new ArrayElement(new SymName($1.u_base_charptr), $3.u_expr);}
+ 	         | T_Dereference T_Identifier
+ 	         {$$.u_lhs = new DerefVariable(new SymName($2.u_base_charptr));}
+ 	         ;
 
-%%
+ /** Taken from lexer.l **/
+ UnaryExpr   : T_Minus Expr
+             {$$.u_expr = new Uminus($2.u_expr);}
+       	   | T_Plus Expr
+             {$$.u_expr = $2.u_expr;}
+       	   | T_Num
+             {$$.u_expr = new IntLit(new Primitive($1.u_base_int));}
+       	   | T_True
+             {$$.u_expr = new BoolLit(new Primitive($1.u_base_int));}
+       	   | T_False
+             {$$.u_expr = new BoolLit(new Primitive($1.u_base_int));}
+       	   | T_Chartype
+             {$$.u_expr = new CharLit(new Primitive($1.u_base_int));}
+       	   | T_Identifier
+             {$$.u_expr = new Ident(new SymName($1.u_base_charptr));}
+       	   | T_Identifier T_Lbracket Expr T_Rbracket
+       	   {$$.u_expr = new ArrayAccess(new SymName($1.u_base_charptr), $3.u_expr);}
+       	   | T_Not UnaryExpr
+             {$$.u_expr = new Not($2.u_expr);}
+       	   | T_Dereference Expr
+       	   {$$.u_expr = new Deref($2.u_expr);}
+       	   | T_Address LHS {$$.u_expr = new AddressOf($2.u_lhs);}
+       	   | T_Null
+             {$$.u_expr = new IntLit(new Primitive($1.u_base_int));}
+       	   ;
+
+ /** Types of expressions under variable declarations **/
+ Expr	      : Expr T_Plus Expr
+             {$$.u_expr = new Plus($1.u_expr, $3.u_expr);}
+ 	         | Expr T_Minus Expr
+             {$$.u_expr = new Minus($1.u_expr, $3.u_expr);}
+       	   | Expr T_Times Expr
+             {$$.u_expr = new Times($1.u_expr, $3.u_expr);}
+       	   | Expr T_Divide Expr
+             {$$.u_expr = new Div($1.u_expr,$3.u_expr);}
+       	   | Expr T_Equals Expr
+             {$$.u_expr = new Compare($1.u_expr, $3.u_expr);}
+       	   | Expr T_LT Expr
+             {$$.u_expr = new Lt($1.u_expr, $3.u_expr);}
+       	   | Expr T_LTE Expr
+             {$$.u_expr = new Lteq($1.u_expr, $3.u_expr);}
+       	   | Expr T_GT Expr
+             {$$.u_expr = new Gt($1.u_expr, $3.u_expr);}
+       	   | Expr T_GTE Expr
+             {$$.u_expr = new Gteq($1.u_expr, $3.u_expr);}
+       	   | Expr T_NE Expr
+             {$$.u_expr = new Noteq($1.u_expr, $3.u_expr);}
+       	   | Expr T_Or Expr
+             {$$.u_expr = new Or($1.u_expr, $3.u_expr);}
+       	   | Expr T_And Expr
+             {$$.u_expr = new And($1.u_expr, $3.u_expr);}
+       	   | T_Lparen Expr T_Rparen
+             {$$.u_expr = $2.u_expr;}
+       	   | T_Not T_Lparen Expr T_Rparen
+             {$$.u_expr = new Not($3.u_expr);}
+       	   | '|' Expr '|'
+             {$$.u_expr = new AbsoluteValue($2.u_expr);}
+       	   | UnaryExpr
+             {$$.u_expr = $1.u_expr;}
+       	   ;
+
+ /** "if"  "("  expression  ")"  "{"  body_of_nested_statement  "}" **/
+ /** "if"  "("  expression  ")"  "{"  body_of_nested_statement  "}" "else"  "{" body_of_nested_statement  "}" **/
+ IfWithElse  : T_If T_Lparen Expr T_Rparen CodeBlock
+       	   {$$.u_stat = new IfNoElse($3.u_expr, $5.u_nested_block);}
+       	   | T_If T_Lparen Expr T_Rparen CodeBlock T_Else CodeBlock
+       	   {$$.u_stat = new IfWithElse($3.u_expr, $5.u_nested_block, $7.u_nested_block);}
+       	   ;
+
+ /** "while"  "("  expression  ")"  "{"  body_of_nested_statement  "}" **/
+ While	      : T_While T_Lparen Expr T_Rparen CodeBlock
+ 	         {$$.u_stat = new WhileLoop($3.u_expr, $5.u_nested_block);}
+ 	         ;
+
+ /** "{"  body_of_nested_statement  "}" **/
+ CodeBlock   : T_Lcurly Vars Statement T_Rcurly
+ 	         {$$.u_stat = new CodeBlock(new Nested_blockImpl($2.u_decl_list, $3.u_stat_list));}
+ 	         ;
+
+ %%
 
 /** You shall not pass!
  *  You should not  have to do or edit anything past this.
@@ -240,5 +308,5 @@ void yyerror(const char *s)
 {
     printf("%s at line %d\n", s, yylineno);
     fprintf(stderr, "%s at line %d\n", s, yylineno);
-    return;
+    exit(1);
 }
