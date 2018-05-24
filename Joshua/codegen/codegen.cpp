@@ -6,7 +6,7 @@
 #include "primitive.hpp"
 
 // Variadic Write macro for legibility
-#define W(...) fprintf(m_outputfile, __VA_ARGS__); fprintf(m_outputfile, "\n");
+#define emit(...) fprintf(m_outputfile, __VA_ARGS__); fprintf(m_outputfile, "\n");
 
 class Codegen : public Visitor
 {
@@ -138,21 +138,21 @@ class Codegen : public Visitor
     {
         int sStack = 0; // Track & return space used for args
 
-        W(".globl %s", name->spelling());   // .globl $NAME
-        W("%s:", name->spelling())          // $NAME:
+        emit(".globl %s", name->spelling());   // .globl $NAME
+        emit("%s:", name->spelling())          // $NAME:
 
-        W("\tpushl %%ebp");         // Save ebp for ret
-        W("\tmovl %%esp, %%ebp");   // New stack frame
+        emit("\tpushl %%ebp");         // Save ebp for ret
+        emit("\tmovl %%esp, %%ebp");   // New stack frame
 
-        W("\tpushl %% ebx");   // Save "callee save" registers
-        W("\tpushl %% esi");
-        W("\tpushl %% edi");
+        emit("\tpushl %% ebx");   // Save "callee save" registers
+        emit("\tpushl %% esi");
+        emit("\tpushl %% edi");
 
         if (num_args) {   // Check for arguments 
             int sOffset = wordsize * 2;   // Track required offset for arg
 
             while (num_args) {   // Step through all args
-                W("\tpushl (%%ebp)",offset);   // Add arg to stack, reversing order as in notes above
+                emit("\tpushl (%%ebp)",offset);   // Add arg to stack, reversing order as in notes above
 
                 sStack += wordsize;   // Increment record of stack memory size used for args
                 sOffset += wordsize; // Increment offset to get next arg
@@ -163,7 +163,7 @@ class Codegen : public Visitor
         if (size_locals) {   // if local vars record stack space usage and allocate space for them.
 
             sStack += size_locals;
-            W("\tsubl $%d, %%esp", size_locals);
+            emit("\tsubl $%d, %%esp", size_locals);
         }
 
         return sStack;
@@ -172,15 +172,15 @@ class Codegen : public Visitor
     void emit_epilogue(int sStack)
     {
         if (sStack) {   // If stack space is used for locals (args + temps) move esp to ignore
-            W("\taddl $%d, %%esp", sStack);
+            emit("\taddl $%d, %%esp", sStack);
         }
 
-        W("\tpushl %% edi");          // Restore "callee save" registers
-        W("\tpushl %% esi");
-        W("\tpushl %% ebx");
+        emit("\tpushl %% edi");          // Restore "callee save" registers
+        emit("\tpushl %% esi");
+        emit("\tpushl %% ebx");
 
-        W("\tleave");   // Restores ebp & esp
-        W("\tret");     // Returns to caller
+        emit("\tleave");   // Restores ebp & esp
+        emit("\tret");     // Returns to caller
     }
 
 
@@ -240,7 +240,7 @@ class Codegen : public Visitor
         p->visit_children(this);
 
         // Put expr result into eax
-        W("pop %%eax");
+        emit("pop %%eax");
 
         // Need to evaluate lhs and get offset for mov
 
@@ -326,28 +326,61 @@ class Codegen : public Visitor
     }
 
     // Arithmetic and logic operations
+    // Note: Children will resolve to stack 
     void visitAnd(And* p)
     {
+        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
+        emit("\tpopl %%ebx");          // m_expr_2 into ebx
+        emit("\tpopl %%ebx");          // m_expr_1 into eax
+        emit("\tandl %%ebx, %%eax");   // logical AND. Result in eax
+        emit("\tpushl eax");           // result to stack. Done. 
     }
 
     void visitOr(Or* p)
     {
+        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack        
+        emit("\tpopl %%ebx");          // m_expr_2 into ebx
+        emit("\tpopl %%ebx");          // m_expr_1 into eax
+        emit("\torl %%ebx, %%eax");   // logical OR. Result in eax
+        emit("\tpushl eax");           // result to stack. Done.        
     }
 
     void visitMinus(Minus* p)
     {
+        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack         
+        emit("\tpopl %%ebx");          // m_expr_2 into ebx
+        emit("\tpopl %%ebx");          // m_expr_1 into eax
+        emit("\tsubl %%ebx, %%eax");   // subtract ebx from eax. Result in eax
+        emit("\tpushl eax");           // result to stack. Done.  
     }
 
     void visitPlus(Plus* p)
     {
+        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack         
+        emit("\tpopl %%ebx");          // m_expr_2 into ebx
+        emit("\tpopl %%ebx");          // m_expr_1 into eax
+        emit("\taddl %%ebx, %%eax");   // add ebx to eax. Result in eax
+        emit("\tpushl eax");           // result to stack. Done.  
     }
 
     void visitTimes(Times* p)
     {
+        p->visit_children(this);   // push values of m_expr_1 and m_expr_2 to stack         
+        emit("\tpopl %%ebx");      // m_expr_2 into ebx
+        emit("\tpopl %%ebx");      // m_expr_1 into eax
+        emit("\tcdq");             // sign extend into edx
+        emit("\timull ebx");       // multiply ebx*eax. Result in eax
+        emit("\tpushl eax");       // result to stack. Done.        
     }
 
     void visitDiv(Div* p)
-    {
+    {   // What about /0 ?
+        p->visit_children(this);   // push values of m_expr_1 (dividend) and m_expr_2 (divisor) 
+        emit("\tpopl %%ebx");      // divisor into ebx
+        emit("\tpopl %%eax");      // dividend into eax
+        emit("\tcdq");             // sign extend into edx
+        emit("\tdivl ebx");        // divide. Result in eax
+        emit("\tpushl eax");       // result to stack. Done.
     }
 
     void visitNot(Not* p)
@@ -356,6 +389,7 @@ class Codegen : public Visitor
 
     void visitUminus(Uminus* p)
     {
+        // Get value of associated, multiply it by -1.
     }
 
     // Variable and constant access
@@ -373,6 +407,8 @@ class Codegen : public Visitor
 
     void visitIntLit(IntLit* p)
     {
+        // push to stack for operation/assignment 
+        emit("\tpush %d", p->m_primitive->m_data);
     }
 
     void visitNullLit(NullLit* p)
