@@ -1,5 +1,6 @@
 #include <cassert>
 #include <typeinfo>
+#include <string.h>
 
 #include "ast.hpp"
 #include "symtab.hpp"
@@ -148,7 +149,7 @@ class Codegen : public Visitor
         echo("\tpushl %% esi");
         echo("\tpushl %% edi");
 
-        if (num_args) {   // Check for arguments 
+        if (num_args) {   // Check for arguments
             int sOffset = wordsize * 2;   // Track required offset for arg
 
             while (num_args) {   // Step through all args
@@ -238,12 +239,13 @@ class Codegen : public Visitor
     {
         // visit expr & rely on expr to resolve onto top of stack
         p->visit_children(this);
-
+        const char* ident = lhs_to_id(p->m_lhs);
         // Put expr result into eax
         echo("pop %%eax");
-
+        //TODO I think this is how you look up the assignment. Not sure
+        Symbol *s = m_st->lookup(p->m_attribute.m_scope, ident);
         // Need to evaluate lhs and get offset for mov
-
+        echo("movl %%eax, %d(%%ebp)");
     }
 
     void visitCall(Call* p)
@@ -252,6 +254,8 @@ class Codegen : public Visitor
 
     void visitReturn(Return* p)
     {
+      p->visit_children(this);
+      echo("popl %%eax");
     }
 
     // Control flow
@@ -267,7 +271,7 @@ class Codegen : public Visitor
         echo("IfNoElseTrue%d:", label);       // Print label for TRUE for clarity (superfluous)
 
         p->m_nested_block->accept(this);      // Handle conditional code block
-  
+
         echo("IfNoElseFalse%d:", label);      // Print label for FALSE
         echo("; END IfNoElse %d", label);     // add control flow comment: END
     }
@@ -285,13 +289,13 @@ class Codegen : public Visitor
 
         p->m_nested_block_1->accept(this);      // Handle conditional code block (TRUE)
 
-        echo("jmp IfWithElseEnd%d:", label);    // Unconditional jump to skip Else block 
+        echo("jmp IfWithElseEnd%d:", label);    // Unconditional jump to skip Else block
         echo("IfWithElseFalse%d:", label);      // Print label for FALSE
 
         p->m_nested_block_2->accept(this);      // Handle conditional code block
 
         echo("IfWithElseEnd%d:", label);        // Unconditional jump to skip Else block
-        echo("; END IfWithElse %d", label);     // add control flow comment: END        
+        echo("; END IfWithElse %d", label);     // add control flow comment: END
     }
 
     void visitWhileLoop(WhileLoop* p)
@@ -310,7 +314,7 @@ class Codegen : public Visitor
         echo("; END WhileLoop %d", label);     // add control flow comment: END
     }
 
-    void visitCodeBlock(CodeBlock *p) 
+    void visitCodeBlock(CodeBlock *p)
     {
         visit_children(this);
     }
@@ -333,7 +337,7 @@ class Codegen : public Visitor
 
     void visitTBoolean(TBoolean* p)
     {
-        visit_children(this);      
+        visit_children(this);
     }
 
     void visitTCharacter(TCharacter* p)
@@ -385,7 +389,7 @@ class Codegen : public Visitor
         echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
         echo("setg %%dl");            // conditional set dl on GREATER
         echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");          // result to stack. Done.        
+        echo("pushl %%eax");          // result to stack. Done.
     }
 
     void visitGteq(Gteq* p)
@@ -396,7 +400,7 @@ class Codegen : public Visitor
         echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
         echo("setge %%dl");            // conditional set dl on GREATER OR EQUAL
         echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");          // result to stack. Done.   
+        echo("pushl %%eax");          // result to stack. Done.
     }
 
     void visitLt(Lt* p)
@@ -407,7 +411,7 @@ class Codegen : public Visitor
         echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
         echo("setl %%dl");            // conditional set dl on LESS
         echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");          // result to stack. Done.        
+        echo("pushl %%eax");          // result to stack. Done.
     }
 
     void visitLteq(Lteq* p)
@@ -418,60 +422,60 @@ class Codegen : public Visitor
         echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
         echo("setle %%dl");            // conditional set dl on LESS OR EQUAL
         echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");          // result to stack. Done.           
+        echo("pushl %%eax");          // result to stack. Done.
     }
 
     // Arithmetic and logic operations
-    // Note: Children will resolve to stack 
+    // Note: Children will resolve to stack
     void visitAnd(And* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
         echo("\tpopl %%ebx");          // m_expr_2 into ebx
         echo("\tpopl %%eax");          // m_expr_1 into eax
         echo("\tandl %%ebx, %%eax");   // logical AND. Result in eax
-        echo("\tpushl eax");           // result to stack. Done. 
+        echo("\tpushl eax");           // result to stack. Done.
     }
 
     void visitOr(Or* p)
     {
-        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack        
+        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
         echo("\tpopl %%ebx");          // m_expr_2 into ebx
         echo("\tpopl %%ebx");          // m_expr_1 into eax
         echo("\torl %%ebx, %%eax");    // logical OR. Result in eax
-        echo("\tpushl eax");           // result to stack. Done.        
+        echo("\tpushl eax");           // result to stack. Done.
     }
 
     void visitMinus(Minus* p)
     {
-        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack         
+        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
         echo("\tpopl %%ebx");          // m_expr_2 into ebx
         echo("\tpopl %%ebx");          // m_expr_1 into eax
         echo("\tsubl %%ebx, %%eax");   // subtract ebx from eax. Result in eax
-        echo("\tpushl eax");           // result to stack. Done.  
+        echo("\tpushl eax");           // result to stack. Done.
     }
 
     void visitPlus(Plus* p)
     {
-        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack         
+        p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
         echo("\tpopl %%ebx");          // m_expr_2 into ebx
         echo("\tpopl %%ebx");          // m_expr_1 into eax
         echo("\taddl %%ebx, %%eax");   // add ebx to eax. Result in eax
-        echo("\tpushl eax");           // result to stack. Done.  
+        echo("\tpushl eax");           // result to stack. Done.
     }
 
     void visitTimes(Times* p)
     {
-        p->visit_children(this);   // push values of m_expr_1 and m_expr_2 to stack         
+        p->visit_children(this);   // push values of m_expr_1 and m_expr_2 to stack
         echo("\tpopl %%ebx");      // m_expr_2 into ebx
         echo("\tpopl %%ebx");      // m_expr_1 into eax
         echo("\tcdq");             // sign extend into edx
         echo("\timull ebx");       // multiply ebx*eax. Result in eax
-        echo("\tpushl eax");       // result to stack. Done.        
+        echo("\tpushl eax");       // result to stack. Done.
     }
 
     void visitDiv(Div* p)
     {
-        p->visit_children(this);   // push values of m_expr_1 (dividend) and m_expr_2 (divisor) 
+        p->visit_children(this);   // push values of m_expr_1 (dividend) and m_expr_2 (divisor)
         echo("\tpopl %%ebx");      // divisor into ebx
         echo("\tpopl %%eax");      // dividend into eax
         echo("\tcdq");             // sign extend into edx
@@ -490,10 +494,10 @@ class Codegen : public Visitor
 
     void visitUminus(Uminus* p)
     {
-        p->visit_children(this);   // Push result of m_expr to stack 
+        p->visit_children(this);   // Push result of m_expr to stack
         echo("\tpopl eax");        // Pop result to eax
-        echo("\tneg eax");         // Negate contents of eax. Thanks, IA-32!   
-        echo("\tpushl eax");       // result to stack. Done.        
+        echo("\tneg eax");         // Negate contents of eax. Thanks, IA-32!
+        echo("\tpushl eax");       // result to stack. Done.
     }
 
     // Variable and constant access
@@ -504,26 +508,30 @@ class Codegen : public Visitor
 
     void visitBoolLit(BoolLit* p)
     {
-        p->visit_children(this);   // visit the primitive       
+      int value = p->m_primitive->m_data;
+      echo("\tpushl %d", value);
     }
 
     void visitCharLit(CharLit* p)
     {
-        p->visit_children(this);   // visit the primitive
+      int value = p->m_primitive->m_data;
+      echo("\tpushl %d", value);
     }
 
     void visitIntLit(IntLit* p)
     {
-        p->visit_children(this);   // visit the primitive       
+      int value = p->m_primitive->m_data;
+      echo("\tpushl %d", value);
     }
 
     void visitNullLit(NullLit* p)
-    {   // IS THIS CORRECT?
-        echo("\tpushl 0");   // Push 0 to stack. Used for invalid ptrs.
+    {
+      echo("\tpushl $0");   // Push 0 to stack. Used for invalid ptrs.
     }
 
     void visitArrayAccess(ArrayAccess* p)
     {
+      p->m_expr->accept(this); //Array index
     }
 
     // LHS
@@ -549,7 +557,7 @@ class Codegen : public Visitor
 
     void visitPrimitive(Primitive* p)
     {
-        echo("\tpushl %d", p->m_primitive->m_data);   // Push value to stack         
+      echo("\tpushl %d", p->m_primitive->m_data);   // Push value to stack
     }
 
     // Strings
@@ -559,6 +567,7 @@ class Codegen : public Visitor
 
     void visitStringPrimitive(StringPrimitive* p)
     {
+      echo("\tpushl $%d", p->m_string)
     }
 
     void visitAbsoluteValue(AbsoluteValue* p)
