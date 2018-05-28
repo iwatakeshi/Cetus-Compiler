@@ -312,7 +312,7 @@ class Codegen : public Visitor
 
     void visitCodeBlock(CodeBlock *p) 
     {
-        visit_childern(this);
+        visit_children(this);
     }
 
     // Variable declarations (no code generation needed)
@@ -499,24 +499,27 @@ class Codegen : public Visitor
     // Variable and constant access
     void visitIdent(Ident* p)
     {
+        p->visit_children(this);   // visit the symname
     }
 
     void visitBoolLit(BoolLit* p)
     {
+        p->visit_children(this);   // visit the primitive       
     }
 
     void visitCharLit(CharLit* p)
     {
+        p->visit_children(this);   // visit the primitive
     }
 
     void visitIntLit(IntLit* p)
     {
-        // push to stack for operation/assignment 
-        echo("\tpush %d", p->m_primitive->m_data);
+        p->visit_children(this);   // visit the primitive       
     }
 
     void visitNullLit(NullLit* p)
-    {
+    {   // IS THIS CORRECT?
+        echo("\tpushl 0");   // Push 0 to stack. Used for invalid ptrs.
     }
 
     void visitArrayAccess(ArrayAccess* p)
@@ -526,6 +529,9 @@ class Codegen : public Visitor
     // LHS
     void visitVariable(Variable* p)
     {
+        p->visit_children(this);   // visit the symname
+
+        // Need to get the offset on stack then push that value to stack for assignment
     }
 
     void visitDerefVariable(DerefVariable* p)
@@ -543,6 +549,7 @@ class Codegen : public Visitor
 
     void visitPrimitive(Primitive* p)
     {
+        echo("\tpushl %d", p->m_primitive->m_data);   // Push value to stack         
     }
 
     // Strings
