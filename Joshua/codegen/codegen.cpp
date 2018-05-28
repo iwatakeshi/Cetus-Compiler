@@ -6,7 +6,7 @@
 #include "primitive.hpp"
 
 // Variadic Write macro for legibility
-#define emit(...) fprintf(m_outputfile, __VA_ARGS__); fprintf(m_outputfile, "\n");
+#define echo(...) fprintf(m_outputfile, __VA_ARGS__); fprintf(m_outputfile, "\n");
 
 class Codegen : public Visitor
 {
@@ -138,21 +138,21 @@ class Codegen : public Visitor
     {
         int sStack = 0; // Track & return space used for args
 
-        emit(".globl %s", name->spelling());   // .globl $NAME
-        emit("%s:", name->spelling())          // $NAME:
+        echo(".globl %s", name->spelling());   // .globl $NAME
+        echo("%s:", name->spelling())          // $NAME:
 
-        emit("\tpushl %%ebp");         // Save ebp for ret
-        emit("\tmovl %%esp, %%ebp");   // New stack frame
+        echo("\tpushl %%ebp");         // Save ebp for ret
+        echo("\tmovl %%esp, %%ebp");   // New stack frame
 
-        emit("\tpushl %% ebx");   // Save "callee save" registers
-        emit("\tpushl %% esi");
-        emit("\tpushl %% edi");
+        echo("\tpushl %% ebx");   // Save "callee save" registers
+        echo("\tpushl %% esi");
+        echo("\tpushl %% edi");
 
         if (num_args) {   // Check for arguments 
             int sOffset = wordsize * 2;   // Track required offset for arg
 
             while (num_args) {   // Step through all args
-                emit("\tpushl (%%ebp)",offset);   // Add arg to stack, reversing order as in notes above
+                echo("\tpushl (%%ebp)",offset);   // Add arg to stack, reversing order as in notes above
 
                 sStack += wordsize;   // Increment record of stack memory size used for args
                 sOffset += wordsize; // Increment offset to get next arg
@@ -163,7 +163,7 @@ class Codegen : public Visitor
         if (size_locals) {   // if local vars record stack space usage and allocate space for them.
 
             sStack += size_locals;
-            emit("\tsubl $%d, %%esp", size_locals);
+            echo("\tsubl $%d, %%esp", size_locals);
         }
 
         return sStack;
@@ -172,15 +172,15 @@ class Codegen : public Visitor
     void emit_epilogue(int sStack)
     {
         if (sStack) {   // If stack space is used for locals (args + temps) move esp to ignore
-            emit("\taddl $%d, %%esp", sStack);
+            echo("\taddl $%d, %%esp", sStack);
         }
 
-        emit("\tpushl %% edi");          // Restore "callee save" registers
-        emit("\tpushl %% esi");
-        emit("\tpushl %% ebx");
+        echo("\tpushl %% edi");          // Restore "callee save" registers
+        echo("\tpushl %% esi");
+        echo("\tpushl %% ebx");
 
-        emit("\tleave");   // Restores ebp & esp
-        emit("\tret");     // Returns to caller
+        echo("\tleave");   // Restores ebp & esp
+        echo("\tret");     // Returns to caller
     }
 
 
@@ -240,7 +240,7 @@ class Codegen : public Visitor
         p->visit_children(this);
 
         // Put expr result into eax
-        emit("pop %%eax");
+        echo("pop %%eax");
 
         // Need to evaluate lhs and get offset for mov
 
@@ -274,55 +274,107 @@ class Codegen : public Visitor
     // Variable declarations (no code generation needed)
     void visitDeclImpl(DeclImpl* p)
     {
+        visit_children(this);
     }
 
     void visitTInteger(TInteger* p)
     {
+        visit_children(this);
     }
 
     void visitTIntPtr(TIntPtr* p)
     {
+        visit_children(this);
     }
 
     void visitTBoolean(TBoolean* p)
     {
+        visit_children(this);      
     }
 
     void visitTCharacter(TCharacter* p)
     {
+        visit_children(this);
+
     }
 
     void visitTCharPtr(TCharPtr* p)
     {
+        visit_children(this);
     }
 
     void visitTString(TString* p)
     {
+        visit_children(this);
     }
 
     // Comparison operations
+    // See: set* @ https://docs.oracle.com/cd/E19455-01/806-3773/instructionset-120/index.html
+
     void visitCompare(Compare* p)
     {
+        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        echo("popl %%ebx");            // m_expr_2 into ebx
+        echo("popl %%eax");            // m_expr_1 into eax
+        echo("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
+        echo("sete %%dl");            // conditional set dl on EQUAL
+        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        echo("pushl %%eax");           // result to stack. Done.
     }
 
     void visitNoteq(Noteq* p)
     {
+        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        echo("popl %%ebx");            // m_expr_2 into ebx
+        echo("popl %%eax");            // m_expr_1 into eax
+        echo("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
+        echo("setne %%dl");            // conditional set dl on NOT EQUAL
+        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        echo("pushl %%eax");           // result to stack. Done.
     }
 
     void visitGt(Gt* p)
     {
+        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        echo("popl %%ebx");           // m_expr_2 into ebx
+        echo("popl %%eax");           // m_expr_1 into eax
+        echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        echo("setg %%dl");            // conditional set dl on GREATER
+        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        echo("pushl %%eax");          // result to stack. Done.        
     }
 
     void visitGteq(Gteq* p)
     {
+        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        echo("popl %%ebx");           // m_expr_2 into ebx
+        echo("popl %%eax");           // m_expr_1 into eax
+        echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        echo("setge %%dl");            // conditional set dl on GREATER OR EQUAL
+        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        echo("pushl %%eax");          // result to stack. Done.   
     }
 
     void visitLt(Lt* p)
     {
+        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        echo("popl %%ebx");           // m_expr_2 into ebx
+        echo("popl %%eax");           // m_expr_1 into eax
+        echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        echo("setl %%dl");            // conditional set dl on LESS
+        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        echo("pushl %%eax");          // result to stack. Done.        
     }
 
     void visitLteq(Lteq* p)
     {
+        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        echo("popl %%ebx");           // m_expr_2 into ebx
+        echo("popl %%eax");           // m_expr_1 into eax
+        echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        echo("setle %%dl");            // conditional set dl on LESS OR EQUAL
+        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        echo("pushl %%eax");          // result to stack. Done.           
     }
 
     // Arithmetic and logic operations
@@ -330,66 +382,74 @@ class Codegen : public Visitor
     void visitAnd(And* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
-        emit("\tpopl %%ebx");          // m_expr_2 into ebx
-        emit("\tpopl %%ebx");          // m_expr_1 into eax
-        emit("\tandl %%ebx, %%eax");   // logical AND. Result in eax
-        emit("\tpushl eax");           // result to stack. Done. 
+        echo("\tpopl %%ebx");          // m_expr_2 into ebx
+        echo("\tpopl %%eax");          // m_expr_1 into eax
+        echo("\tandl %%ebx, %%eax");   // logical AND. Result in eax
+        echo("\tpushl eax");           // result to stack. Done. 
     }
 
     void visitOr(Or* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack        
-        emit("\tpopl %%ebx");          // m_expr_2 into ebx
-        emit("\tpopl %%ebx");          // m_expr_1 into eax
-        emit("\torl %%ebx, %%eax");   // logical OR. Result in eax
-        emit("\tpushl eax");           // result to stack. Done.        
+        echo("\tpopl %%ebx");          // m_expr_2 into ebx
+        echo("\tpopl %%ebx");          // m_expr_1 into eax
+        echo("\torl %%ebx, %%eax");    // logical OR. Result in eax
+        echo("\tpushl eax");           // result to stack. Done.        
     }
 
     void visitMinus(Minus* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack         
-        emit("\tpopl %%ebx");          // m_expr_2 into ebx
-        emit("\tpopl %%ebx");          // m_expr_1 into eax
-        emit("\tsubl %%ebx, %%eax");   // subtract ebx from eax. Result in eax
-        emit("\tpushl eax");           // result to stack. Done.  
+        echo("\tpopl %%ebx");          // m_expr_2 into ebx
+        echo("\tpopl %%ebx");          // m_expr_1 into eax
+        echo("\tsubl %%ebx, %%eax");   // subtract ebx from eax. Result in eax
+        echo("\tpushl eax");           // result to stack. Done.  
     }
 
     void visitPlus(Plus* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack         
-        emit("\tpopl %%ebx");          // m_expr_2 into ebx
-        emit("\tpopl %%ebx");          // m_expr_1 into eax
-        emit("\taddl %%ebx, %%eax");   // add ebx to eax. Result in eax
-        emit("\tpushl eax");           // result to stack. Done.  
+        echo("\tpopl %%ebx");          // m_expr_2 into ebx
+        echo("\tpopl %%ebx");          // m_expr_1 into eax
+        echo("\taddl %%ebx, %%eax");   // add ebx to eax. Result in eax
+        echo("\tpushl eax");           // result to stack. Done.  
     }
 
     void visitTimes(Times* p)
     {
         p->visit_children(this);   // push values of m_expr_1 and m_expr_2 to stack         
-        emit("\tpopl %%ebx");      // m_expr_2 into ebx
-        emit("\tpopl %%ebx");      // m_expr_1 into eax
-        emit("\tcdq");             // sign extend into edx
-        emit("\timull ebx");       // multiply ebx*eax. Result in eax
-        emit("\tpushl eax");       // result to stack. Done.        
+        echo("\tpopl %%ebx");      // m_expr_2 into ebx
+        echo("\tpopl %%ebx");      // m_expr_1 into eax
+        echo("\tcdq");             // sign extend into edx
+        echo("\timull ebx");       // multiply ebx*eax. Result in eax
+        echo("\tpushl eax");       // result to stack. Done.        
     }
 
     void visitDiv(Div* p)
-    {   // What about /0 ?
+    {
         p->visit_children(this);   // push values of m_expr_1 (dividend) and m_expr_2 (divisor) 
-        emit("\tpopl %%ebx");      // divisor into ebx
-        emit("\tpopl %%eax");      // dividend into eax
-        emit("\tcdq");             // sign extend into edx
-        emit("\tdivl ebx");        // divide. Result in eax
-        emit("\tpushl eax");       // result to stack. Done.
+        echo("\tpopl %%ebx");      // divisor into ebx
+        echo("\tpopl %%eax");      // dividend into eax
+        echo("\tcdq");             // sign extend into edx
+        echo("\tdivl ebx");        // divide. Result in eax
+        echo("\tpushl eax");       // result to stack. Done.
     }
 
     void visitNot(Not* p)
     {
+        p->visit_children(this);   // Push result of m_expr to stack
+        echo("popl %%eax");        // Pop result off stack
+        echo("movl $1, %%ebx");    // Put "1" into ebx to signify "TRUE"
+        echo("xor %%ebx, %%eax");  // XOR to invert value of m_expr
+        echo("pushl %%eax");       // result to stack. Done.
     }
 
     void visitUminus(Uminus* p)
     {
-        // Get value of associated, multiply it by -1.
+        p->visit_children(this);   // Push result of m_expr to stack 
+        echo("\tpopl eax");        // Pop result to eax
+        echo("\tneg eax");         // Negate contents of eax. Thanks, IA-32!   
+        echo("\tpushl eax");       // result to stack. Done.        
     }
 
     // Variable and constant access
@@ -408,7 +468,7 @@ class Codegen : public Visitor
     void visitIntLit(IntLit* p)
     {
         // push to stack for operation/assignment 
-        emit("\tpush %d", p->m_primitive->m_data);
+        echo("\tpush %d", p->m_primitive->m_data);
     }
 
     void visitNullLit(NullLit* p)
