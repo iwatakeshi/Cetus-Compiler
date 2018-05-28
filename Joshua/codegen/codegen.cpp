@@ -257,18 +257,62 @@ class Codegen : public Visitor
     // Control flow
     void visitIfNoElse(IfNoElse* p)
     {
+        int label = new_label();
+        p->m_expr->accept(this);              // Put condition expr result on stack
+
+        echo("; BEGIN IfNoElse %d", label);   // add control flow comment: BEGIN
+        echo("\tpopl %%eax");                 // Move condition expr result to eax
+        echo("\tcmp $0, %%eax");              // Test result against 0 (FALSE)
+        echo("\tje IfNoElseFalse%d", label);  // Conditional jump if equal (FALSE) to label
+        echo("IfNoElseTrue%d:", label);       // Print label for TRUE for clarity (superfluous)
+
+        p->m_nested_block->accept(this);      // Handle conditional code block
+  
+        echo("IfNoElseFalse%d:", label);      // Print label for FALSE
+        echo("; END IfNoElse %d", label);     // add control flow comment: END
     }
 
     void visitIfWithElse(IfWithElse* p)
     {
+        int label = new_label();
+        p->m_expr->accept(this);                // Put condition expr result on stack
+
+        echo("; BEGIN IfWithElse %d", label);   // add control flow comment: BEGIN
+        echo("\tpopl %%eax");                   // Move condition expr result to eax
+        echo("\tcmp $0, %%eax");                // Test result against 0 (FALSE)
+        echo("\tje IfWithElseFalse%d", label);  // Conditional jump if equal (FALSE) to label
+        echo("IfWithElseTrue%d:", label);       // Print label for TRUE for clarity (superfluous)
+
+        p->m_nested_block_1->accept(this);      // Handle conditional code block (TRUE)
+
+        echo("jmp IfWithElseEnd%d:", label);    // Unconditional jump to skip Else block 
+        echo("IfWithElseFalse%d:", label);      // Print label for FALSE
+
+        p->m_nested_block_2->accept(this);      // Handle conditional code block
+
+        echo("IfWithElseEnd%d:", label);        // Unconditional jump to skip Else block
+        echo("; END IfWithElse %d", label);     // add control flow comment: END        
     }
 
     void visitWhileLoop(WhileLoop* p)
     {
+        int label = new_label();
+
+        echo("; BEGIN WhileLoop %d", label);   // add control flow comment: BEGIN
+        echo("WhileLoop%d:", label);           // Print loop label
+
+        p->m_nested_block->accept(this);       // Handle conditional code block
+
+        p->m_expr->accept(this);               // Put condition expr result on stack
+        echo("\tpopl %%eax");                  // Move condition expr result to eax
+        echo("\tcmp $0, %%eax");               // Test result against 0 (FALSE)
+        echo("\tjne WhileLoop%d", label);      // Conditional jump if not equal (i.e., TRUE) to loop label
+        echo("; END WhileLoop %d", label);     // add control flow comment: END
     }
 
     void visitCodeBlock(CodeBlock *p) 
     {
+        visit_childern(this);
     }
 
     // Variable declarations (no code generation needed)
