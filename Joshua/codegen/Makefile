@@ -51,5 +51,12 @@ ast.hpp: ast.cdef
 primitive.o: primitive.hpp primitive.cpp ast.hpp
 symtab.o: symtab.hpp symtab.cpp ast.hpp attribute.hpp
 
+test: $(TARGET) $(TESTFILES)
+	@echo "validtest.1"
+	./$(TARGET) < tests/validtest.1 >> validtest1.s
+	gcc -c -m32 -o csimple.o validtest1.s
+	gcc -c -m32 -o start.o start.c
+	gcc -m32 -o start start.o csimple.o
+
 clean:
 	rm -f $(RMFILES)

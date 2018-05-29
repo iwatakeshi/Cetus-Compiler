@@ -235,19 +235,30 @@ class Codegen : public Visitor
         p->visit_children(this);
     }
 
+    //TODO pretty sure this works now
     void visitAssignment(Assignment* p)
     {
-        // visit expr & rely on expr to resolve onto top of stack
-        p->visit_children(this);
-        const char* ident = lhs_to_id(p->m_lhs);
-        // Put expr result into eax
-        echo("pop %%eax");
-        //TODO I think this is how you look up the assignment. Not sure
-        Symbol *s = m_st->lookup(p->m_attribute.m_scope, ident);
-        // Need to evaluate lhs and get offset for mov
-        echo("movl %%eax, %d(%%ebp)");
+        //navigate through the assignment class rather than visiting the children
+        p->m_expr->accept(this);
+        if(dynamic_cast<const AddressOf*>(p->m_expr) != 0){
+           echo("movl %%ecx, %%eax");
+        }
+        //check the lhs
+        p->m_lhs->accept(this);
+        //If the lhs is an array element
+        if(dynamic_cast<const ArrayElement*>(p->m_lhs) != 0){
+           echo("movl %%eax, %%ecx");
+           echo("popl %%eax");
+        }
+        if(dynamic_cast<const Variable*>(p->m_lhs) != 0 && p->m_lhs->m_attribute.m_basetype!=bt_string){
+            echo("movl %%eax, %%ecx");
+        }
+        if(dynamic_cast<const DerefVariable*>(p->m_lhs) != 0){
+           echo("movl %%eax, %%ecx");
+        }
     }
 
+    //TODO
     void visitCall(Call* p)
     {
     }
@@ -567,7 +578,7 @@ class Codegen : public Visitor
 
     void visitStringPrimitive(StringPrimitive* p)
     {
-      echo("\tpushl $%d", p->m_string)
+      echo("\tpushl %d", p->m_string)
     }
 
     void visitAbsoluteValue(AbsoluteValue* p)
