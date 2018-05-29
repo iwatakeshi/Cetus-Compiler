@@ -348,8 +348,8 @@ class Typecheck : public Visitor
       const char* lhs_name = lhs_to_id(p->m_lhs);
       Symbol *sym = m_st->lookup(lhs_name);
       Basetype left = sym->m_basetype;
-      print_type(left);
-      print_type(right);
+      //print_type(left);
+      //print_type(right);
       /*if(right == bt_integer){
 	printf("right is int");
 	}*/

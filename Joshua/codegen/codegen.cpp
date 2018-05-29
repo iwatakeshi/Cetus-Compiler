@@ -241,20 +241,20 @@ class Codegen : public Visitor
         //navigate through the assignment class rather than visiting the children
         p->m_expr->accept(this);
         if(dynamic_cast<const AddressOf*>(p->m_expr) != 0){
-           echo("movl %%ecx, %%eax");
+           echo("\tmovl %%ecx, %%eax");
         }
         //check the lhs
         p->m_lhs->accept(this);
         //If the lhs is an array element
         if(dynamic_cast<const ArrayElement*>(p->m_lhs) != 0){
-           echo("movl %%eax, %%ecx");
-           echo("popl %%eax");
+           echo("\tmovl %%eax, %%ecx");
+           echo("\tpopl %%eax");
         }
         if(dynamic_cast<const Variable*>(p->m_lhs) != 0 && p->m_lhs->m_attribute.m_basetype!=bt_string){
-            echo("movl %%eax, %%ecx");
+            echo("\tmovl %%eax, %%ecx");
         }
         if(dynamic_cast<const DerefVariable*>(p->m_lhs) != 0){
-           echo("movl %%eax, %%ecx");
+           echo("\tmovl %%eax, %%ecx");
         }
     }
 
@@ -266,7 +266,7 @@ class Codegen : public Visitor
     void visitReturn(Return* p)
     {
       p->visit_children(this);
-      echo("popl %%eax");
+      echo("\tpopl %%eax");
     }
 
     // Control flow
