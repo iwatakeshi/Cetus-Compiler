@@ -153,7 +153,7 @@ class Codegen : public Visitor
             int sOffset = wordsize * 2;   // Track required offset for arg
 
             while (num_args) {   // Step through all args
-                echo("\tpushl (%%ebp)",offset);   // Add arg to stack, reversing order as in notes above
+                echo("\tpushl %d(%%ebp)",sOffset);   // Add arg to stack, reversing order as in notes above ** Edited
 
                 sStack += wordsize;   // Increment record of stack memory size used for args
                 sOffset += wordsize; // Increment offset to get next arg
@@ -207,11 +207,11 @@ class Codegen : public Visitor
             argCount = 0;
 
         // Get local scope count
-        localCount = p->m_st.scopesize(((Procedure_blockImpl *) p->m_procedure_block)->m_attribute.m_scope);
+        localCount = m_st->scopesize(((Procedure_blockImpl *) p->m_procedure_block)->m_attribute.m_scope);
 
         // Get arg count
-        for (auto it : p->m_decl_list) {
-            argCount += ((DeclImpl *)it)->m_symname_list.size(); // Cast to DeclImpl_ptr & accumulate
+        for (auto it : *(p->m_decl_list)) {
+            argCount += ((DeclImpl *)it)->m_symname_list->size(); // Cast to DeclImpl_ptr & accumulate
         }
 
         // Do prologue, recording allocated stack over min req'd
@@ -316,44 +316,44 @@ class Codegen : public Visitor
 
     void visitCodeBlock(CodeBlock *p)
     {
-        visit_children(this);
+       p->visit_children(this);
     }
 
     // Variable declarations (no code generation needed)
     void visitDeclImpl(DeclImpl* p)
     {
-        visit_children(this);
+        p->visit_children(this);
     }
 
     void visitTInteger(TInteger* p)
     {
-        visit_children(this);
+        p->visit_children(this);
     }
 
     void visitTIntPtr(TIntPtr* p)
     {
-        visit_children(this);
+        p->visit_children(this);
     }
 
     void visitTBoolean(TBoolean* p)
     {
-        visit_children(this);
+        p->visit_children(this);
     }
 
     void visitTCharacter(TCharacter* p)
     {
-        visit_children(this);
+        p->visit_children(this);
 
     }
 
     void visitTCharPtr(TCharPtr* p)
     {
-        visit_children(this);
+        p->visit_children(this);
     }
 
     void visitTString(TString* p)
     {
-        visit_children(this);
+        p->visit_children(this);
     }
 
     // Comparison operations
@@ -361,7 +361,7 @@ class Codegen : public Visitor
 
     void visitCompare(Compare* p)
     {
-        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
         echo("popl %%ebx");            // m_expr_2 into ebx
         echo("popl %%eax");            // m_expr_1 into eax
         echo("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
@@ -372,7 +372,7 @@ class Codegen : public Visitor
 
     void visitNoteq(Noteq* p)
     {
-        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
         echo("popl %%ebx");            // m_expr_2 into ebx
         echo("popl %%eax");            // m_expr_1 into eax
         echo("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
@@ -383,7 +383,7 @@ class Codegen : public Visitor
 
     void visitGt(Gt* p)
     {
-        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
         echo("popl %%ebx");           // m_expr_2 into ebx
         echo("popl %%eax");           // m_expr_1 into eax
         echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
@@ -394,7 +394,7 @@ class Codegen : public Visitor
 
     void visitGteq(Gteq* p)
     {
-        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
         echo("popl %%ebx");           // m_expr_2 into ebx
         echo("popl %%eax");           // m_expr_1 into eax
         echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
@@ -405,7 +405,7 @@ class Codegen : public Visitor
 
     void visitLt(Lt* p)
     {
-        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
         echo("popl %%ebx");           // m_expr_2 into ebx
         echo("popl %%eax");           // m_expr_1 into eax
         echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
@@ -416,7 +416,7 @@ class Codegen : public Visitor
 
     void visitLteq(Lteq* p)
     {
-        visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
+        p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
         echo("popl %%ebx");           // m_expr_2 into ebx
         echo("popl %%eax");           // m_expr_1 into eax
         echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
@@ -557,7 +557,7 @@ class Codegen : public Visitor
 
     void visitPrimitive(Primitive* p)
     {
-      echo("\tpushl %d", p->m_primitive->m_data);   // Push value to stack
+      echo("\tpushl %d", p->m_data);   // Push value to stack
     }
 
     // Strings
@@ -567,7 +567,7 @@ class Codegen : public Visitor
 
     void visitStringPrimitive(StringPrimitive* p)
     {
-      echo("\tpushl $%d", p->m_string)
+      echo("\tpushl $%s", p->m_string)
     }
 
     void visitAbsoluteValue(AbsoluteValue* p)
