@@ -567,7 +567,7 @@ class Codegen : public Visitor
 
     void visitStringPrimitive(StringPrimitive* p)
     {
-      echo("\tpushl $%s", p->m_string)
+      echo("\tpushl $%d", p->m_string)
     }
 
     void visitAbsoluteValue(AbsoluteValue* p)
