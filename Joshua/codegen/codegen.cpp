@@ -145,9 +145,9 @@ class Codegen : public Visitor
         echo("\tpushl %%ebp");         // Save ebp for ret
         echo("\tmovl %%esp, %%ebp");   // New stack frame
 
-        echo("\tpushl %% ebx");   // Save "callee save" registers
-        echo("\tpushl %% esi");
-        echo("\tpushl %% edi");
+        echo("\tpushl %%ebx");   // Save "callee save" registers
+        echo("\tpushl %%esi");
+        echo("\tpushl %%edi");
 
         if (num_args) {   // Check for arguments
             int sOffset = wordsize * 2;   // Track required offset for arg
@@ -176,9 +176,9 @@ class Codegen : public Visitor
             echo("\taddl $%d, %%esp", sStack);
         }
 
-        echo("\tpushl %% edi");          // Restore "callee save" registers
-        echo("\tpushl %% esi");
-        echo("\tpushl %% ebx");
+        echo("\tpopl %%edi");          // Restore "callee save" registers
+        echo("\tpopl %%esi");
+        echo("\tpopl %%ebx");
 
         echo("\tleave");   // Restores ebp & esp
         echo("\tret");     // Returns to caller
@@ -261,6 +261,17 @@ class Codegen : public Visitor
     //TODO
     void visitCall(Call* p)
     {
+		echo("\tpushl %%ecx");
+		echo("\tpushl %%edx");
+		//push arguments in reverse order
+		for(auto it = (p->m_expr_list->rbegin()); it != p->m_expr_list->rend(); it--)
+		{
+			(*it)->accept(this);
+		}
+		echo("\tcall %s", p->m_symname->spelling());
+		
+		echo("\tpopl %%edx");
+		echo("\tpopl %%ecx");
     }
 
     void visitReturn(Return* p)
@@ -532,7 +543,7 @@ class Codegen : public Visitor
     void visitIntLit(IntLit* p)
     {
       int value = p->m_primitive->m_data;
-      echo("\tpushl %d", value);
+      echo("\tpushl $%d", value);
     }
 
     void visitNullLit(NullLit* p)
@@ -568,17 +579,25 @@ class Codegen : public Visitor
 
     void visitPrimitive(Primitive* p)
     {
-      echo("\tpushl %d", p->m_data);   // Push value to stack
+      echo("\tpushl $%d", p->m_data);   // Push value to stack
     }
 
     // Strings
     void visitStringAssignment(StringAssignment* p)
     {
+		p->visit_children(this);
+		//TODO Needs to do a "string copy"?
     }
 
     void visitStringPrimitive(StringPrimitive* p)
     {
-      echo("\tpushl %d", p->m_string)
+      	set_data_mode();
+		int label = new_label();
+		echo("\t%d:", label);
+		echo("\t\t.asciz \"%s\"", p->m_string);
+		set_text_mode();
+		echo("\tleal %d, %%edi", label);
+		echo("\tpushl %%edi");
     }
 
     void visitAbsoluteValue(AbsoluteValue* p)

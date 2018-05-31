@@ -1,8 +1,14 @@
 +-- Symbol Scope ---
 | Main 
+| proc 
 +-------------
 
 	+-- Symbol Scope ---
+	| x 
+	+-------------
+
+	+-- Symbol Scope ---
 	| a 
+	| str 
 	+-------------
 

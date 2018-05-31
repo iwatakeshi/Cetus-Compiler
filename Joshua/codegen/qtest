@@ -1,0 +1,14 @@
+procedure proc(x : integer) return integer
+{
+	return 9;
+}
+
+procedure Main() return integer
+{
+	var str: string[15];
+	var a: integer;
+	
+	a = proc(7);
+	str = "literally";
+	return 0;
+}
