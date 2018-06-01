@@ -1,0 +1,36 @@
+validtest.1
+./csimple < tests/validtest.1 >> validtest1.s
+gcc -c -m32 -o csimple.o validtest1.s
+gcc -c -m32 -o start.o start.c
+gcc -m32 -o start1 start.o csimple.o
+validtest.2
+./csimple < tests/validtest.2 >> validtest2.s
+gcc -c -m32 -o csimple.o validtest2.s
+gcc -c -m32 -o start.o start.c
+gcc -m32 -o start2 start.o csimple.o
+validtest.3
+./csimple < tests/validtest.3 >> validtest3.s
+csimple: symtab.cpp:200: Symbol* SymTab::lookup(const char*): Assertion `name != NULL' failed.
+/bin/sh: line 1: 25673 Aborted                 (core dumped) ./csimple < tests/validtest.3 >> validtest3.s
+make: [Makefile:66: test] Error 134 (ignored)
+gcc -c -m32 -o csimple.o validtest3.s
+gcc -c -m32 -o start.o start.c
+gcc -m32 -o start3 start.o csimple.o
+start.o: In function `main':
+start.c:(.text+0x12): undefined reference to `Main'
+collect2: error: ld returned 1 exit status
+make: [Makefile:69: test] Error 1 (ignored)
+validtest.2
+./csimple < tests/validtest.4 >> validtest4.s
+gcc -c -m32 -o csimple.o validtest4.s
+gcc -c -m32 -o start.o start.c
+gcc -m32 -o start4 start.o csimple.o
+csimple.o: In function `foo':
+(.text+0x13): undefined reference to `ebx'
+(.text+0x19): undefined reference to `eax'
+csimple.o: In function `Main':
+(.text+0x41): undefined reference to `ebx'
+(.text+0x47): undefined reference to `eax'
+(.text+0x53): undefined reference to `eax'
+collect2: error: ld returned 1 exit status
+make: [Makefile:74: test] Error 1 (ignored)

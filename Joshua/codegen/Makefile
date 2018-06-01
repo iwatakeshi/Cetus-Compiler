@@ -11,7 +11,7 @@ ASTBUILDER = astbuilder.gawk
 TARGET     = csimple
 
 OBJS += lexer.o parser.o main.o ast.o primitive.o ast2dot.o symtab.o typecheck.o codegen.o
-RMFILES = core.* *.dot *.pdf lexer.cpp parser.cpp parser.hpp parser.output ast.hpp ast.cpp $(TARGET) $(OBJS)
+RMFILES = core.* *.dot *.pdf lexer.cpp parser.cpp parser.hpp parser.output ast.hpp ast.cpp *.s $(TARGET) $(OBJS)
 
 # dependencies
 $(TARGET): parser.cpp lexer.cpp parser.hpp $(OBJS)
@@ -56,7 +56,22 @@ test: $(TARGET) $(TESTFILES)
 	./$(TARGET) < tests/validtest.1 >> validtest1.s
 	gcc -c -m32 -o csimple.o validtest1.s
 	gcc -c -m32 -o start.o start.c
-	gcc -m32 -o start start.o csimple.o
+	gcc -m32 -o start1 start.o csimple.o
+	@echo "validtest.2"
+	./$(TARGET) < tests/validtest.2 >> validtest2.s
+	gcc -c -m32 -o csimple.o validtest2.s
+	gcc -c -m32 -o start.o start.c
+	gcc -m32 -o start2 start.o csimple.o
+	@echo "validtest.3"
+	./$(TARGET) < tests/validtest.3 >> validtest3.s
+	gcc -c -m32 -o csimple.o validtest3.s
+	gcc -c -m32 -o start.o start.c
+	gcc -m32 -o start3 start.o csimple.o
+	@echo "validtest.2"
+	./$(TARGET) < tests/validtest.4 >> validtest4.s
+	gcc -c -m32 -o csimple.o validtest4.s
+	gcc -c -m32 -o start.o start.c
+	gcc -m32 -o start4 start.o csimple.o
 
 clean:
 	rm -f $(RMFILES)
