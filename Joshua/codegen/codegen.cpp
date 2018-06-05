@@ -6,8 +6,8 @@
 #include "symtab.hpp"
 #include "primitive.hpp"
 
-// Variadic Write macro for legibility
-#define echo(...) fprintf(m_outputfile, __VA_ARGS__); fprintf(m_outputfile, "\n");
+// Variadic write macro for legibility
+#define ASM(...) fprintf(m_outputfile, __VA_ARGS__); fprintf(m_outputfile, "\n");
 
 class Codegen : public Visitor
 {
@@ -134,26 +134,26 @@ class Codegen : public Visitor
 
 
     // NOTE: Used https://en.wikibooks.org/wiki/X86_Assembly/GAS_Syntax
-
+    // Ugly & only used in visitProcImpl() - rewrite?
     int emit_prologue(SymName *name, unsigned int size_locals, unsigned int num_args)
     {
         int sStack = 0; // Track & return space used for args
 
-        echo(".globl %s", name->spelling());   // .globl $NAME
-        echo("%s:", name->spelling())          // $NAME:
+        ASM(".globl %s", name->spelling());   // .globl $NAME
+        ASM("%s:", name->spelling())          // $NAME:
 
-        echo("\tpushl %%ebp");         // Save ebp for ret
-        echo("\tmovl %%esp, %%ebp");   // New stack frame
+        ASM("\tpushl %%ebp");         // Save ebp for ret
+        ASM("\tmovl %%esp, %%ebp");   // New stack frame
 
-        echo("\tpushl %%ebx");   // Save "callee save" registers
-        echo("\tpushl %%esi");
-        echo("\tpushl %%edi");
+        ASM("\tpushl %%ebx");   // Save "callee save" registers
+        ASM("\tpushl %%esi");
+        ASM("\tpushl %%edi");
 
         if (num_args) {   // Check for arguments
             int sOffset = wordsize * 2;   // Track required offset for arg
 
             while (num_args) {   // Step through all args
-                echo("\tpushl %d(%%ebp)",sOffset);   // Add arg to stack, reversing order as in notes above ** Edited
+                ASM("\tpushl %d(%%ebp)",sOffset);   // Add arg to stack, reversing order as in notes above ** Edited
 
                 sStack += wordsize;   // Increment record of stack memory size used for args
                 sOffset += wordsize; // Increment offset to get next arg
@@ -164,7 +164,7 @@ class Codegen : public Visitor
         if (size_locals) {   // if local vars record stack space usage and allocate space for them.
 
             sStack += size_locals;
-            echo("\tsubl $%d, %%esp", size_locals);
+            ASM("\tsubl $%d, %%esp", size_locals);
         }
 
         return sStack;
@@ -173,17 +173,16 @@ class Codegen : public Visitor
     void emit_epilogue(int sStack)
     {
         if (sStack) {   // If stack space is used for locals (args + temps) move esp to ignore
-            echo("\taddl $%d, %%esp", sStack);
+            ASM("\taddl $%d, %%esp", sStack);
         }
 
-        echo("\tpopl %%edi");          // Restore "callee save" registers
-        echo("\tpopl %%esi");
-        echo("\tpopl %%ebx");
+        ASM("\tpopl %%edi");          // Restore "callee save" registers
+        ASM("\tpopl %%esi");
+        ASM("\tpopl %%ebx");
 
-        echo("\tleave");   // Restores ebp & esp
-        echo("\tret");     // Returns to caller
+        ASM("\tleave");   // Restores ebp & esp
+        ASM("\tret");     // Returns to caller
     }
-
 
   public:
 
@@ -202,6 +201,7 @@ class Codegen : public Visitor
 
     void visitProcImpl(ProcImpl* p)
     {
+
         int sStack,
             localCount,
             argCount = 0;
@@ -241,43 +241,43 @@ class Codegen : public Visitor
         //navigate through the assignment class rather than visiting the children
         p->m_expr->accept(this);
         if(dynamic_cast<const AddressOf*>(p->m_expr) != 0){
-           echo("\tmovl %%ecx, %%eax");
+           ASM("\tmovl %%ecx, %%eax");
         }
         //check the lhs
         p->m_lhs->accept(this);
         //If the lhs is an array element
         if(dynamic_cast<const ArrayElement*>(p->m_lhs) != 0){
-           echo("\tmovl %%eax, %%ecx");
-           echo("\tpopl %%eax");
+           ASM("\tmovl %%eax, %%ecx");
+           ASM("\tpopl %%eax");
         }
         if(dynamic_cast<const Variable*>(p->m_lhs) != 0 && p->m_lhs->m_attribute.m_basetype!=bt_string){
-            echo("\tmovl %%eax, %%ecx");
+            ASM("\tmovl %%eax, %%ecx");
         }
         if(dynamic_cast<const DerefVariable*>(p->m_lhs) != 0){
-           echo("\tmovl %%eax, %%ecx");
+           ASM("\tmovl %%eax, %%ecx");
         }
     }
 
     //TODO
     void visitCall(Call* p)
     {
-		echo("\tpushl %%ecx");
-		echo("\tpushl %%edx");
+		ASM("\tpushl %%ecx");
+		ASM("\tpushl %%edx");
 		//push arguments in reverse order
 		for(auto it = (p->m_expr_list->rbegin()); it != p->m_expr_list->rend(); it--)
 		{
 			(*it)->accept(this);
 		}
-		echo("\tcall %s", p->m_symname->spelling());
+		ASM("\tcall %s", p->m_symname->spelling());
 		
-		echo("\tpopl %%edx");
-		echo("\tpopl %%ecx");
+		ASM("\tpopl %%edx");
+		ASM("\tpopl %%ecx");
     }
 
     void visitReturn(Return* p)
     {
       p->visit_children(this);
-      echo("\tpopl %%eax");
+      ASM("\tpopl %%eax");
     }
 
     // Control flow
@@ -286,16 +286,16 @@ class Codegen : public Visitor
         int label = new_label();
         p->m_expr->accept(this);              // Put condition expr result on stack
 
-        echo("; BEGIN IfNoElse %d", label);   // add control flow comment: BEGIN
-        echo("\tpopl %%eax");                 // Move condition expr result to eax
-        echo("\tcmp $0, %%eax");              // Test result against 0 (FALSE)
-        echo("\tje IfNoElseFalse%d", label);  // Conditional jump if equal (FALSE) to label
-        echo("IfNoElseTrue%d:", label);       // Print label for TRUE for clarity (superfluous)
+        ASM("; BEGIN IfNoElse %d", label);   // add control flow comment: BEGIN
+        ASM("\tpopl %%eax");                 // Move condition expr result to eax
+        ASM("\tcmp $0, %%eax");              // Test result against 0 (FALSE)
+        ASM("\tje IfNoElseFalse%d", label);  // Conditional jump if equal (FALSE) to label
+        ASM("IfNoElseTrue%d:", label);       // Print label for TRUE for clarity (superfluous)
 
         p->m_nested_block->accept(this);      // Handle conditional code block
 
-        echo("IfNoElseFalse%d:", label);      // Print label for FALSE
-        echo("; END IfNoElse %d", label);     // add control flow comment: END
+        ASM("IfNoElseFalse%d:", label);      // Print label for FALSE
+        ASM("; END IfNoElse %d", label);     // add control flow comment: END
     }
 
     void visitIfWithElse(IfWithElse* p)
@@ -303,37 +303,37 @@ class Codegen : public Visitor
         int label = new_label();
         p->m_expr->accept(this);                // Put condition expr result on stack
 
-        echo("; BEGIN IfWithElse %d", label);   // add control flow comment: BEGIN
-        echo("\tpopl %%eax");                   // Move condition expr result to eax
-        echo("\tcmp $0, %%eax");                // Test result against 0 (FALSE)
-        echo("\tje IfWithElseFalse%d", label);  // Conditional jump if equal (FALSE) to label
-        echo("IfWithElseTrue%d:", label);       // Print label for TRUE for clarity (superfluous)
+        ASM("; BEGIN IfWithElse %d", label);   // add control flow comment: BEGIN
+        ASM("\tpopl %%eax");                   // Move condition expr result to eax
+        ASM("\tcmp $0, %%eax");                // Test result against 0 (FALSE)
+        ASM("\tje IfWithElseFalse%d", label);  // Conditional jump if equal (FALSE) to label
+        ASM("IfWithElseTrue%d:", label);       // Print label for TRUE for clarity (superfluous)
 
         p->m_nested_block_1->accept(this);      // Handle conditional code block (TRUE)
 
-        echo("jmp IfWithElseEnd%d:", label);    // Unconditional jump to skip Else block
-        echo("IfWithElseFalse%d:", label);      // Print label for FALSE
+        ASM("jmp IfWithElseEnd%d:", label);    // Unconditional jump to skip Else block
+        ASM("IfWithElseFalse%d:", label);      // Print label for FALSE
 
         p->m_nested_block_2->accept(this);      // Handle conditional code block
 
-        echo("IfWithElseEnd%d:", label);        // Unconditional jump to skip Else block
-        echo("; END IfWithElse %d", label);     // add control flow comment: END
+        ASM("IfWithElseEnd%d:", label);        // Unconditional jump to skip Else block
+        ASM("; END IfWithElse %d", label);     // add control flow comment: END
     }
 
     void visitWhileLoop(WhileLoop* p)
     {
         int label = new_label();
 
-        echo("; BEGIN WhileLoop %d", label);   // add control flow comment: BEGIN
-        echo("WhileLoop%d:", label);           // Print loop label
+        ASM("; BEGIN WhileLoop %d", label);   // add control flow comment: BEGIN
+        ASM("WhileLoop%d:", label);           // Print loop label
 
         p->m_nested_block->accept(this);       // Handle conditional code block
 
         p->m_expr->accept(this);               // Put condition expr result on stack
-        echo("\tpopl %%eax");                  // Move condition expr result to eax
-        echo("\tcmp $0, %%eax");               // Test result against 0 (FALSE)
-        echo("\tjne WhileLoop%d", label);      // Conditional jump if not equal (i.e., TRUE) to loop label
-        echo("; END WhileLoop %d", label);     // add control flow comment: END
+        ASM("\tpopl %%eax");                  // Move condition expr result to eax
+        ASM("\tcmp $0, %%eax");               // Test result against 0 (FALSE)
+        ASM("\tjne WhileLoop%d", label);      // Conditional jump if not equal (i.e., TRUE) to loop label
+        ASM("; END WhileLoop %d", label);     // add control flow comment: END
     }
 
     void visitCodeBlock(CodeBlock *p)
@@ -384,67 +384,67 @@ class Codegen : public Visitor
     void visitCompare(Compare* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        echo("popl %%ebx");            // m_expr_2 into ebx
-        echo("popl %%eax");            // m_expr_1 into eax
-        echo("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
-        echo("sete %%dl");            // conditional set dl on EQUAL
-        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");           // result to stack. Done.
+        ASM("popl %%ebx");            // m_expr_2 into ebx
+        ASM("popl %%eax");            // m_expr_1 into eax
+        ASM("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
+        ASM("sete %%dl");            // conditional set dl on EQUAL
+        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("pushl %%eax");           // result to stack. Done.
     }
 
     void visitNoteq(Noteq* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        echo("popl %%ebx");            // m_expr_2 into ebx
-        echo("popl %%eax");            // m_expr_1 into eax
-        echo("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
-        echo("setne %%dl");            // conditional set dl on NOT EQUAL
-        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");           // result to stack. Done.
+        ASM("popl %%ebx");            // m_expr_2 into ebx
+        ASM("popl %%eax");            // m_expr_1 into eax
+        ASM("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
+        ASM("setne %%dl");            // conditional set dl on NOT EQUAL
+        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("pushl %%eax");           // result to stack. Done.
     }
 
     void visitGt(Gt* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        echo("popl %%ebx");           // m_expr_2 into ebx
-        echo("popl %%eax");           // m_expr_1 into eax
-        echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
-        echo("setg %%dl");            // conditional set dl on GREATER
-        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");          // result to stack. Done.
+        ASM("popl %%ebx");           // m_expr_2 into ebx
+        ASM("popl %%eax");           // m_expr_1 into eax
+        ASM("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("setg %%dl");            // conditional set dl on GREATER
+        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("pushl %%eax");          // result to stack. Done.
     }
 
     void visitGteq(Gteq* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        echo("popl %%ebx");           // m_expr_2 into ebx
-        echo("popl %%eax");           // m_expr_1 into eax
-        echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
-        echo("setge %%dl");            // conditional set dl on GREATER OR EQUAL
-        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");          // result to stack. Done.
+        ASM("popl %%ebx");           // m_expr_2 into ebx
+        ASM("popl %%eax");           // m_expr_1 into eax
+        ASM("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("setge %%dl");            // conditional set dl on GREATER OR EQUAL
+        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("pushl %%eax");          // result to stack. Done.
     }
 
     void visitLt(Lt* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        echo("popl %%ebx");           // m_expr_2 into ebx
-        echo("popl %%eax");           // m_expr_1 into eax
-        echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
-        echo("setl %%dl");            // conditional set dl on LESS
-        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");          // result to stack. Done.
+        ASM("popl %%ebx");           // m_expr_2 into ebx
+        ASM("popl %%eax");           // m_expr_1 into eax
+        ASM("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("setl %%dl");            // conditional set dl on LESS
+        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("pushl %%eax");          // result to stack. Done.
     }
 
     void visitLteq(Lteq* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        echo("popl %%ebx");           // m_expr_2 into ebx
-        echo("popl %%eax");           // m_expr_1 into eax
-        echo("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
-        echo("setle %%dl");            // conditional set dl on LESS OR EQUAL
-        echo("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        echo("pushl %%eax");          // result to stack. Done.
+        ASM("popl %%ebx");           // m_expr_2 into ebx
+        ASM("popl %%eax");           // m_expr_1 into eax
+        ASM("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("setle %%dl");            // conditional set dl on LESS OR EQUAL
+        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("pushl %%eax");          // result to stack. Done.
     }
 
     // Arithmetic and logic operations
@@ -452,74 +452,74 @@ class Codegen : public Visitor
     void visitAnd(And* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
-        echo("\tpopl %%ebx");          // m_expr_2 into ebx
-        echo("\tpopl %%eax");          // m_expr_1 into eax
-        echo("\tandl %%ebx, %%eax");   // logical AND. Result in eax
-        echo("\tpushl eax");           // result to stack. Done.
+        ASM("\tpopl %%ebx");          // m_expr_2 into ebx
+        ASM("\tpopl %%eax");          // m_expr_1 into eax
+        ASM("\tandl %%ebx, %%eax");   // logical AND. Result in eax
+        ASM("\tpushl eax");           // result to stack. Done.
     }
 
     void visitOr(Or* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
-        echo("\tpopl %%ebx");          // m_expr_2 into ebx
-        echo("\tpopl %%ebx");          // m_expr_1 into eax
-        echo("\torl %%ebx, %%eax");    // logical OR. Result in eax
-        echo("\tpushl eax");           // result to stack. Done.
+        ASM("\tpopl %%ebx");          // m_expr_2 into ebx
+        ASM("\tpopl %%ebx");          // m_expr_1 into eax
+        ASM("\torl %%ebx, %%eax");    // logical OR. Result in eax
+        ASM("\tpushl eax");           // result to stack. Done.
     }
 
     void visitMinus(Minus* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
-        echo("\tpopl %%ebx");          // m_expr_2 into ebx
-        echo("\tpopl %%ebx");          // m_expr_1 into eax
-        echo("\tsubl %%ebx, %%eax");   // subtract ebx from eax. Result in eax
-        echo("\tpushl eax");           // result to stack. Done.
+        ASM("\tpopl %%ebx");          // m_expr_2 into ebx
+        ASM("\tpopl %%ebx");          // m_expr_1 into eax
+        ASM("\tsubl %%ebx, %%eax");   // subtract ebx from eax. Result in eax
+        ASM("\tpushl eax");           // result to stack. Done.
     }
 
     void visitPlus(Plus* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
-        echo("\tpopl %%ebx");          // m_expr_2 into ebx
-        echo("\tpopl %%ebx");          // m_expr_1 into eax
-        echo("\taddl %%ebx, %%eax");   // add ebx to eax. Result in eax
-        echo("\tpushl eax");           // result to stack. Done.
+        ASM("\tpopl %%ebx");          // m_expr_2 into ebx
+        ASM("\tpopl %%ebx");          // m_expr_1 into eax
+        ASM("\taddl %%ebx, %%eax");   // add ebx to eax. Result in eax
+        ASM("\tpushl eax");           // result to stack. Done.
     }
 
     void visitTimes(Times* p)
     {
         p->visit_children(this);   // push values of m_expr_1 and m_expr_2 to stack
-        echo("\tpopl %%ebx");      // m_expr_2 into ebx
-        echo("\tpopl %%ebx");      // m_expr_1 into eax
-        echo("\tcdq");             // sign extend into edx
-        echo("\timull ebx");       // multiply ebx*eax. Result in eax
-        echo("\tpushl eax");       // result to stack. Done.
+        ASM("\tpopl %%ebx");      // m_expr_2 into ebx
+        ASM("\tpopl %%ebx");      // m_expr_1 into eax
+        ASM("\tcdq");             // sign extend into edx
+        ASM("\timull ebx");       // multiply ebx*eax. Result in eax
+        ASM("\tpushl eax");       // result to stack. Done.
     }
 
     void visitDiv(Div* p)
     {
         p->visit_children(this);   // push values of m_expr_1 (dividend) and m_expr_2 (divisor)
-        echo("\tpopl %%ebx");      // divisor into ebx
-        echo("\tpopl %%eax");      // dividend into eax
-        echo("\tcdq");             // sign extend into edx
-        echo("\tdivl ebx");        // divide. Result in eax
-        echo("\tpushl eax");       // result to stack. Done.
+        ASM("\tpopl %%ebx");      // divisor into ebx
+        ASM("\tpopl %%eax");      // dividend into eax
+        ASM("\tcdq");             // sign extend into edx
+        ASM("\tdivl ebx");        // divide. Result in eax
+        ASM("\tpushl eax");       // result to stack. Done.
     }
 
     void visitNot(Not* p)
     {
         p->visit_children(this);   // Push result of m_expr to stack
-        echo("popl %%eax");        // Pop result off stack
-        echo("movl $1, %%ebx");    // Put "1" into ebx to signify "TRUE"
-        echo("xor %%ebx, %%eax");  // XOR to invert value of m_expr
-        echo("pushl %%eax");       // result to stack. Done.
+        ASM("popl %%eax");        // Pop result off stack
+        ASM("movl $1, %%ebx");    // Put "1" into ebx to signify "TRUE"
+        ASM("xor %%ebx, %%eax");  // XOR to invert value of m_expr
+        ASM("pushl %%eax");       // result to stack. Done.
     }
 
     void visitUminus(Uminus* p)
     {
         p->visit_children(this);   // Push result of m_expr to stack
-        echo("\tpopl eax");        // Pop result to eax
-        echo("\tneg eax");         // Negate contents of eax. Thanks, IA-32!
-        echo("\tpushl eax");       // result to stack. Done.
+        ASM("\tpopl eax");        // Pop result to eax
+        ASM("\tneg eax");         // Negate contents of eax. Thanks, IA-32!
+        ASM("\tpushl eax");       // result to stack. Done.
     }
 
     // Variable and constant access
@@ -531,41 +531,50 @@ class Codegen : public Visitor
     void visitBoolLit(BoolLit* p)
     {
       int value = p->m_primitive->m_data;
-      echo("\tpushl %d", value);
+      ASM("\tpushl %d", value);
     }
 
     void visitCharLit(CharLit* p)
     {
       int value = p->m_primitive->m_data;
-      echo("\tpushl %d", value);
+      ASM("\tpushl %d", value);
     }
 
     void visitIntLit(IntLit* p)
     {
       int value = p->m_primitive->m_data;
-      echo("\tpushl $%d", value);
+      ASM("\tpushl $%d", value);
     }
 
     void visitNullLit(NullLit* p)
     {
-      echo("\tpushl $0");   // Push 0 to stack. Used for invalid ptrs.
+      ASM("\tpushl $0");   // Push 0 to stack. Used for NULL ptrs.
     }
 
     void visitArrayAccess(ArrayAccess* p)
     {
+        //TODO: incomplete 
       p->m_expr->accept(this); //Array index
     }
 
     // LHS
     void visitVariable(Variable* p)
     {
-        p->visit_children(this);   // visit the symname
+        // Get variable offset
+        int offset = -3 * 2 * wordsize; // ebx, esi, edi = 3 doublewords on stack
+        offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
 
-        // Need to get the offset on stack then push that value to stack for assignment
+        ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
     }
 
     void visitDerefVariable(DerefVariable* p)
     {
+        // Get variable offset
+        int offset = -3 * 2 * wordsize; // ebx, esi, edi = 3 doublewords on stack
+        offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
+
+        ASM("\tmovl %d(%%ebp), eax", offset);   // Move ptr target address to ebx
+        ASM("\tpushl (%%eax)");   // Push value at memory address in eax to stack
     }
 
     void visitArrayElement(ArrayElement* p)
@@ -579,29 +588,31 @@ class Codegen : public Visitor
 
     void visitPrimitive(Primitive* p)
     {
-      echo("\tpushl $%d", p->m_data);   // Push value to stack
+      ASM("\tpushl $%d", p->m_data);   // Push value to stack
     }
 
     // Strings
     void visitStringAssignment(StringAssignment* p)
     {
 		p->visit_children(this);
-		//TODO Needs to do a "string copy"?
+		//TODO Finish this!
     }
 
     void visitStringPrimitive(StringPrimitive* p)
     {
       	set_data_mode();
 		int label = new_label();
-		echo("\t%d:", label);
-		echo("\t\t.asciz \"%s\"", p->m_string);
+		ASM("\t%d:", label);
+		ASM("\t\t.asciz \"%s\"", p->m_string);
 		set_text_mode();
-		echo("\tleal %d, %%edi", label);
-		echo("\tpushl %%edi");
+		ASM("\tleal %d, %%edi", label);
+		ASM("\tpushl %%edi");
     }
 
     void visitAbsoluteValue(AbsoluteValue* p)
     {
+        p->visit_children(this);   // Push result of m_expr to stack
+        ASM("fabs");              // Replace stack[0] with absolute value.
     }
 
     // Pointer
