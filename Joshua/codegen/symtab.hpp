@@ -53,7 +53,6 @@ class Symbol
   private:
     int m_offset;
     SymScope* m_symscope;
-    int stringLen = -1; // Length of string, or -1 if not string
 
   public:
     // We don't need to store symbol name in the actual symbol
@@ -66,8 +65,6 @@ class Symbol
     std::vector<Basetype> m_arg_type;
     Basetype m_return_type;
 
-    //WRITEME: add string size information
-
     Symbol()
     {
         m_offset = -1;
@@ -75,30 +72,10 @@ class Symbol
         m_basetype = bt_undef;
     }
 
-    // string length setter
-    void setStringLen(int len)
-    {
-        stringLen = len;
-    }
-
-    // string length getter. Can also determine if symbol not a string (-1)
-    int getStringLen()
-    {
-        return stringLen;
-    }
-
-    // Size of symbol. Strings get a word per char, otherwise a word. 
-    // Wasteful, but it works!
+    // Size of symbol. Everything is a word. Strings are handled by address.
     int get_size()
     {
-        if(m_basetype==bt_string)
-        {
-            return 4*stringLen;
-        }
-        else
-        {
-            return 4;
-        }
+        return 4;
     }
 
     // If either of these assert fails, you tried to get a variable that was

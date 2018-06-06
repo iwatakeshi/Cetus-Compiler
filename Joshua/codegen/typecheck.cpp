@@ -212,10 +212,7 @@ class Typecheck : public Visitor
       for(i = p->m_symname_list->begin(); i != p->m_symname_list->end(); i++){
 	Symbol *sym = new Symbol();
 	sym->m_basetype = p->m_type->m_attribute.m_basetype;
-  if (p->m_type->m_attribute.m_basetype == bt_string){
-    sym->setStringLen(p->m_type->m_attribute.stringLen);
-  }
-	Basetype b = p->m_type->m_attribute.m_basetype;
+  Basetype b = p->m_type->m_attribute.m_basetype;
 	const char* Name = (*i)->spelling();
 	char* declName = strdup(Name);
 	//printf(declName);
