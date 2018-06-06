@@ -213,7 +213,7 @@ class Typecheck : public Visitor
 	Symbol *sym = new Symbol();
 	sym->m_basetype = p->m_type->m_attribute.m_basetype;
   if (p->m_type->m_attribute.m_basetype == bt_string){
-    s->setStringLen(p->m_type->m_attribute.stringLen);
+    sym->setStringLen(p->m_type->m_attribute.stringLen);
   }
 	Basetype b = p->m_type->m_attribute.m_basetype;
 	const char* Name = (*i)->spelling();
@@ -235,7 +235,8 @@ class Typecheck : public Visitor
       //printf("expr_to_id: ");
       //printf(v->m_symname->spelling());
       return i->m_symname->spelling();
-    }
+    }i
+	
   }
 
 
