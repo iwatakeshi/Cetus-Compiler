@@ -53,6 +53,7 @@ class Symbol
   private:
     int m_offset;
     SymScope* m_symscope;
+    int stringLen = -1; // Length of string, or -1 if not string
 
   public:
     // We don't need to store symbol name in the actual symbol
@@ -74,33 +75,30 @@ class Symbol
         m_basetype = bt_undef;
     }
 
+    // string length setter
+    void setStringLen(int len)
+    {
+        stringLen = len;
+    }
+
+    // string length getter. Can also determine if symbol not a string (-1)
+    int getStringLen()
+    {
+        return stringLen;
+    }
+
+    // Size of symbol. Strings get a word per char, otherwise a word. 
+    // Wasteful, but it works!
     int get_size()
     {
-      switch(m_basetype)
-      {
-        case bt_integer:
-            return(4);
-        case bt_boolean:
-            return(4);
-        case bt_char:
-            return(1);
-        case bt_procedure:
-            return(0);
-        case bt_string:
-            return(1);
-        case bt_ptr:
-            return(4);
-        case bt_charptr:
-            return(4);
-        case bt_intptr:
-            return(4);
-        case bt_undef:
-            // Fall through
-        default:
-            assert(0);
-
-        // WRITEME: add string size calc and assert size != 0
-      }
+        if(m_basetype==bt_string)
+        {
+            return 4*stringLen;
+        }
+        else
+        {
+            return 4;
+        }
     }
 
     // If either of these assert fails, you tried to get a variable that was

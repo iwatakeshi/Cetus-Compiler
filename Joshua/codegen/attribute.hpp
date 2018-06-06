@@ -28,6 +28,7 @@ class Attribute
   int m_place;          // Register where this value is stored
   SymScope* m_scope;    // The scope of the current symbol
   int lineno;           // Line number on which that ast node resides
+  int stringLen = -1;   // Length of the string, or -1 if not a string
 
   Attribute() {
     m_basetype = bt_undef;
