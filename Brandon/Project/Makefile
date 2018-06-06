@@ -10,7 +10,7 @@ GAWK       = gawk
 ASTBUILDER = astbuilder.gawk
 TARGET     = csimple
 
-OBJS += lexer.o parser.o main.o ast.o primitive.o ast2dot.o symtab.o typecheck.o
+OBJS += lexer.o parser.o main.o ast.o primitive.o ast2dot.o symtab.o typecheck.o codegen.o
 RMFILES = core.* *.dot *.pdf lexer.cpp parser.cpp parser.hpp parser.output ast.hpp ast.cpp error.log *.gch *.ps *.out $(TARGET) $(OBJS)
 RMOBJ = core.* *.dot lexer.cpp parser.cpp parser.hpp parser.output ast.hpp ast.cpp *.gch *.ps $(TARGET) $(OBJS)
 
@@ -112,6 +112,37 @@ test2pdf: $(TARGET) $(TESTFILES)
 	dot -Tps test.bad.output2.dot > test.bad.output2.ps
 	ps2pdf test.bad.output2.ps test.bad.output2.pdf
 
+test1: $(TARGET)
+	@echo "validtest.1" >> testoutput.out
+	./$(TARGET) < tests/validtest.1 >> testoutput.out
+	@echo "validtest.1"
+	./$(TARGET) < tests/validtest.1 >> test.good.output1.dot
+	dot -Tps test.good.output1.dot > test.good.output1.ps
+	ps2pdf test.good.output1.ps test.good.output1.pdf
+
+test2: $(TARGET)
+	@echo "validtest.2" >> testoutput.out
+	./$(TARGET) < tests/validtest.2 >> testoutput.out
+	@echo "validtest.2"
+	./$(TARGET) < tests/validtest.2 >> test.good.output2.dot
+	dot -Tps test.good.output2.dot > test.good.output2.ps
+	ps2pdf test.good.output2.ps test.good.output2.pdf
+
+test3: $(TARGET)
+	@echo "validtest.3" >> testoutput.out
+	./$(TARGET) < tests/validtest.3 >> testoutput.out
+	@echo "validtest.3"
+	./$(TARGET) < tests/validtest.3 >> test.good.output3.dot
+	dot -Tps test.good.output3.dot > test.good.output3.ps
+	ps2pdf test.good.output3.ps test.good.output3.pdf
+
+test4: $(TARGET)
+	@echo "validtest.4" >> testoutput.out
+	./$(TARGET) < tests/validtest.4 >> testoutput.out
+	@echo "validtest.4"
+	./$(TARGET) < tests/validtest.4 >> test.good.output4.dot
+	dot -Tps test.good.output4.dot > test.good.output4.ps
+	ps2pdf test.good.output4.ps test.good.output4.pdf
 
 all: removeDos test test2pdf
 
