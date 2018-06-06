@@ -561,7 +561,7 @@ class Codegen : public Visitor
     void visitVariable(Variable* p)
     {
         // Get variable offset
-        int offset = -3 * 2 * wordsize; // ebx, esi, edi = 3 doublewords on stack
+        int offset = -3 * wordsize; // skip ebx, esi, edi
         offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
 
         ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
@@ -570,7 +570,7 @@ class Codegen : public Visitor
     void visitDerefVariable(DerefVariable* p)
     {
         // Get variable offset
-        int offset = -3 * 2 * wordsize; // ebx, esi, edi = 3 doublewords on stack
+        int offset = -3 * wordsize; // skip ebx, esi, edi
         offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
 
         ASM("\tmovl %d(%%ebp), eax", offset);   // Move ptr target address to ebx
