@@ -525,7 +525,7 @@ class Codegen : public Visitor
     void visitIdent(Ident* p)
     {   // Pushes content of stack at ident offset, which will be either an address or value
 
-        int offset = -3 * wordsize; // ebx, esi, edi = 3 words on stack
+        int offset = -4 * wordsize; // ebx, esi, edi = 3 words on stack
         offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
 
         ASM("\tpushl %d(%%ebp)", offset);   // Push contents of stack at offset
@@ -562,7 +562,7 @@ class Codegen : public Visitor
     {   // Pushes location of variable on stack for assignment
 
         // Get variable offset
-        int offset = -3 * wordsize; // skip ebx, esi, edi
+        int offset = -4 * wordsize; // skip ebx, esi, edi
         offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
 
         ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
@@ -572,7 +572,7 @@ class Codegen : public Visitor
     {   // Pushes value at location of variable on stack to dereference ptrs
 
         // Get variable offset
-        int offset = -3 * wordsize; // skip ebx, esi, edi
+        int offset = -4 * wordsize; // skip ebx, esi, edi
         offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
 
         ASM("\tmovl %d(%%ebp), eax", offset);   // Move ptr target address to ebx
@@ -581,7 +581,19 @@ class Codegen : public Visitor
 
     void visitArrayElement(ArrayElement* p)
     {
+        // Get chararray offset on stack
+        int offset = -4 * wordsize; // ebx, esi, edi = 3 words on stack
+        offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
 
+        ASM("\tmovl %d(%%ebp), eax", offset);   // Move array address to eax
+
+        // Get index in array
+        p->m_expr(accept(this));
+        ASM("\tpopl %%ebx");
+
+        // Adjust for index (chars are B, so no scaling) and push result
+        ASM("\taddl %%ebx, %%eax");
+        ASM("\tpushl %%eax");
     }
 
     // Special cases
@@ -597,8 +609,12 @@ class Codegen : public Visitor
     // Strings
     void visitStringAssignment(StringAssignment* p)
     {
-		p->visit_children(this);
-		//TODO Finish this!
+        p->visit_children(this); // visits lhs, then stringprimitive
+
+        //Now lhs has put its address onto stack and primitive has put its address onto stack
+        ASM("popl %%ebx"); // string address to ebx
+        ASM("popl %%eax"); // lhs address to eax
+        ASM("movl %%ebx, (%%eax)");  // put address value in ebx into address location in eax
     }
 
     void visitStringPrimitive(StringPrimitive* p)
