@@ -611,8 +611,32 @@ class Codegen : public Visitor
 
     void visitAbsoluteValue(AbsoluteValue* p)
     {
-        p->visit_children(this);   // Push result of m_expr to stack
-        ASM("fabs");              // Replace stack[0] with absolute value.
+        p->visit_children(this);  // m_expr is either offset of string or an int
+
+        if(p->m_expr->m_attribute.m_basetype == bt_string)
+        {   // m_expr is a string. Address of first char is on stack. (tested)
+            int label = new_label();
+            ASM("\tpopl %%esi");            // Put address of first char into esi
+            ASM("\txorl %%edi,%%edi");      // Clear edi
+            ASM("LookChar%d:", label);                
+            ASM("\tlodsb");                 // load byte at address in esi into al
+            ASM("\tcmpb $0,%%al");          // compare byte (char) to null terminator
+            ASM("\tjz FoundTerm%d", label); // if zero flag, then null term found
+            ASM("\tincl %%edi");            // increment counter
+            ASM("\tjmp LookChar%d", label); // 
+            ASM("FoundTerm%d:", label);     
+            ASM("\tpushl %%edi");           // put string length on stack
+        }
+        else
+        {   // m_expr not a string. Value of expr is on stack
+            ASM("\tpopl %%eax\n");
+            ASM("\ttest %%eax, %%eax");  // bitwise AND, triggers Sign flag
+            int label = new_label();
+            ASM("\tjns label%d", label);  // Negate only if signed
+            ASM("\tneg %%eax");
+            ASM("label%d:", label);
+            ASM("\tpushl %%eax\n");
+        }
     }
 
     // Pointer

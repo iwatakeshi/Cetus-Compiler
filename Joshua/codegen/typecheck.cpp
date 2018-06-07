@@ -742,7 +742,6 @@ class Typecheck : public Visitor
     {
       default_rule(p);
       p->m_attribute.m_basetype = bt_string;
-      p->m_attribute.stringLen = p->m_primitive->m_data;
     }
 
     void visitTCharPtr(TCharPtr* p)
