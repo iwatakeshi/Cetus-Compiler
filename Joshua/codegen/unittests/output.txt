@@ -1,0 +1,18 @@
++-- Symbol Scope ---
+| Main 
+| giveint2 
+| giveint 
++-------------
+
+	+-- Symbol Scope ---
+	+-------------
+
+	+-- Symbol Scope ---
+	+-------------
+
+	+-- Symbol Scope ---
+	| b 
+	| c 
+	| a 
+	+-------------
+

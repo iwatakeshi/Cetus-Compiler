@@ -1,0 +1,61 @@
+.text
+
+.globl giveint
+giveint:
+	pushl %ebp
+	movl %esp, %ebp
+	pushl %ebx
+	pushl %esi
+	pushl %edi
+	pushl $12
+	popl %eax
+	popl %edi
+	popl %esi
+	popl %ebx
+	leave
+	ret
+.globl giveint2
+giveint2:
+	pushl %ebp
+	movl %esp, %ebp
+	pushl %ebx
+	pushl %esi
+	pushl %edi
+	pushl $19
+	popl %eax
+	popl %edi
+	popl %esi
+	popl %ebx
+	leave
+	ret
+.globl Main
+Main:
+	pushl %ebp
+	movl %esp, %ebp
+	pushl %ebx
+	pushl %esi
+	pushl %edi
+	subl $12, %esp
+	pushl -16(%ebp)
+	pushl $5
+	popl %ebx
+	popl %eax
+	movl %ebx, (%eax)
+	pushl -20(%ebp)
+	pushl $17
+	popl %ebx
+	popl %eax
+	movl %ebx, (%eax)
+	pushl -24(%ebp)
+	pushl $27
+	popl %ebx
+	popl %eax
+	movl %ebx, (%eax)
+	pushl -16(%ebp)
+	popl %eax
+	addl $12, %esp
+	popl %edi
+	popl %esi
+	popl %ebx
+	leave
+	ret

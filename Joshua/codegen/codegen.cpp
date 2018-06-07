@@ -566,7 +566,7 @@ class Codegen : public Visitor
         ASM("popl %%ebx");          // array access index to ebx
 
         int offset = GET_OFFSET;    // offset of the array relative ebp
-        ASM("movl %d(%%ebp), %%esi");  // address of array address into esi
+        ASM("movl %d(%%ebp), %%esi", offset);  // address of array address into esi
 
         ASM("addl %%ebx, %%esi");      // Add index to address to get access address
         ASM("\txor %%eax, %%eax");     // Clear eax
@@ -583,8 +583,13 @@ class Codegen : public Visitor
 
         // need to push address here. Have offset. 
         // How to get location of local on stack?
+		
+		ASM("\tmov $%d, %%ebx", offset); //mov offset into ebx
+		ASM("\tmov %%ebp, eax"); //mov ebp into eax
+		ASM("\tsub %%ebx, %%eax"); // sub ebx into eax
+		ASM("\tpush %%eax"); push eax
 
-        ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
+        //ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
     }
 
     void visitDerefVariable(DerefVariable* p)
@@ -604,7 +609,7 @@ class Codegen : public Visitor
         ASM("\tmovl %d(%%ebp), eax", offset);   // Move array address to eax
 
         // Get index in array
-        p->m_expr(accept(this));
+        p->m_expr->accept(this);
         ASM("\tpopl %%ebx");
 
         // Adjust for index (chars are B, so no scaling) and push result

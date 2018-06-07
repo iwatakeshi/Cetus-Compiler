@@ -1,0 +1,22 @@
+procedure giveint() return integer
+{
+	return 12;
+}
+
+procedure giveint2() return integer
+{
+	return 19;
+}
+
+procedure Main() return integer
+{
+	var a: integer;
+	var b: integer;
+	var c: integer;
+
+	a = 5;
+	b = 17;
+	c = 27;
+
+	return a;
+}
