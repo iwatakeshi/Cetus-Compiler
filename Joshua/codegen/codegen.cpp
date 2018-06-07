@@ -286,7 +286,7 @@ class Codegen : public Visitor
         int label = new_label();
         p->m_expr->accept(this);              // Put condition expr result on stack
 
-        ASM("; BEGIN IfNoElse %d", label);   // add control flow comment: BEGIN
+        ASM("# BEGIN IfNoElse %d", label);   // add control flow comment: BEGIN
         ASM("\tpopl %%eax");                 // Move condition expr result to eax
         ASM("\tcmp $0, %%eax");              // Test result against 0 (FALSE)
         ASM("\tje IfNoElseFalse%d", label);  // Conditional jump if equal (FALSE) to label
@@ -295,7 +295,7 @@ class Codegen : public Visitor
         p->m_nested_block->accept(this);      // Handle conditional code block
 
         ASM("IfNoElseFalse%d:", label);      // Print label for FALSE
-        ASM("; END IfNoElse %d", label);     // add control flow comment: END
+        ASM("# END IfNoElse %d", label);     // add control flow comment: END
     }
 
     void visitIfWithElse(IfWithElse* p)
@@ -303,7 +303,7 @@ class Codegen : public Visitor
         int label = new_label();
         p->m_expr->accept(this);                // Put condition expr result on stack
 
-        ASM("; BEGIN IfWithElse %d", label);   // add control flow comment: BEGIN
+        ASM("# BEGIN IfWithElse %d", label);   // add control flow comment: BEGIN
         ASM("\tpopl %%eax");                   // Move condition expr result to eax
         ASM("\tcmp $0, %%eax");                // Test result against 0 (FALSE)
         ASM("\tje IfWithElseFalse%d", label);  // Conditional jump if equal (FALSE) to label
@@ -317,14 +317,14 @@ class Codegen : public Visitor
         p->m_nested_block_2->accept(this);      // Handle conditional code block
 
         ASM("IfWithElseEnd%d:", label);        // Unconditional jump to skip Else block
-        ASM("; END IfWithElse %d", label);     // add control flow comment: END
+        ASM("# END IfWithElse %d", label);     // add control flow comment: END
     }
 
     void visitWhileLoop(WhileLoop* p)
     {
         int label = new_label();
 
-        ASM("; BEGIN WhileLoop %d", label);   // add control flow comment: BEGIN
+        ASM("# BEGIN WhileLoop %d", label);   // add control flow comment: BEGIN
         ASM("WhileLoop%d:", label);           // Print loop label
 
         p->m_nested_block->accept(this);       // Handle conditional code block
@@ -333,7 +333,7 @@ class Codegen : public Visitor
         ASM("\tpopl %%eax");                  // Move condition expr result to eax
         ASM("\tcmp $0, %%eax");               // Test result against 0 (FALSE)
         ASM("\tjne WhileLoop%d", label);      // Conditional jump if not equal (i.e., TRUE) to loop label
-        ASM("; END WhileLoop %d", label);     // add control flow comment: END
+        ASM("# END WhileLoop %d", label);     // add control flow comment: END
     }
 
     void visitCodeBlock(CodeBlock *p)
@@ -448,7 +448,6 @@ class Codegen : public Visitor
     }
 
     // Arithmetic and logic operations
-    // Note: Children will resolve to stack
     void visitAnd(And* p)
     {
         p->visit_children(this);       // pushes values of m_expr_1 and m_expr_2 to stack
@@ -524,26 +523,27 @@ class Codegen : public Visitor
 
     // Variable and constant access
     void visitIdent(Ident* p)
-    {
-        p->visit_children(this);   // visit the symname
+    {   // Pushes content of stack at ident offset, which will be either an address or value
+
+        int offset = -3 * wordsize; // ebx, esi, edi = 3 words on stack
+        offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
+
+        ASM("\tpushl %d(%%ebp)", offset);   // Push contents of stack at offset
     }
 
     void visitBoolLit(BoolLit* p)
     {
-      int value = p->m_primitive->m_data;
-      ASM("\tpushl %d", value);
+        p->visit_children(this); // push p->m_primitive->data (see visitPrimitive)
     }
 
     void visitCharLit(CharLit* p)
     {
-      int value = p->m_primitive->m_data;
-      ASM("\tpushl %d", value);
+        p->visit_children(this); // push p->m_primitive->data (see visitPrimitive)
     }
 
     void visitIntLit(IntLit* p)
     {
-      int value = p->m_primitive->m_data;
-      ASM("\tpushl $%d", value);
+        p->visit_children(this); // push p->m_primitive->data (see visitPrimitive)
     }
 
     void visitNullLit(NullLit* p)
@@ -559,7 +559,8 @@ class Codegen : public Visitor
 
     // LHS
     void visitVariable(Variable* p)
-    {
+    {   // Pushes location of variable on stack for assignment
+
         // Get variable offset
         int offset = -3 * wordsize; // skip ebx, esi, edi
         offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
@@ -568,7 +569,8 @@ class Codegen : public Visitor
     }
 
     void visitDerefVariable(DerefVariable* p)
-    {
+    {   // Pushes value at location of variable on stack to dereference ptrs
+
         // Get variable offset
         int offset = -3 * wordsize; // skip ebx, esi, edi
         offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
@@ -579,6 +581,7 @@ class Codegen : public Visitor
 
     void visitArrayElement(ArrayElement* p)
     {
+
     }
 
     // Special cases
@@ -611,11 +614,12 @@ class Codegen : public Visitor
 
     void visitAbsoluteValue(AbsoluteValue* p)
     {
+        int label = new_label();
+
         p->visit_children(this);  // m_expr is either offset of string or an int
 
         if(p->m_expr->m_attribute.m_basetype == bt_string)
         {   // m_expr is a string. Address of first char is on stack. (tested)
-            int label = new_label();
             ASM("\tpopl %%esi");            // Put address of first char into esi
             ASM("\txorl %%edi,%%edi");      // Clear edi
             ASM("LookChar%d:", label);                
@@ -631,7 +635,6 @@ class Codegen : public Visitor
         {   // m_expr not a string. Value of expr is on stack
             ASM("\tpopl %%eax\n");
             ASM("\ttest %%eax, %%eax");  // bitwise AND, triggers Sign flag
-            int label = new_label();
             ASM("\tjns label%d", label);  // Negate only if signed
             ASM("\tneg %%eax");
             ASM("label%d:", label);
