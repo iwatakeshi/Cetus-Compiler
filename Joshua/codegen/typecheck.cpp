@@ -232,7 +232,7 @@ class Typecheck : public Visitor
       //printf("expr_to_id: ");
       //printf(v->m_symname->spelling());
       return i->m_symname->spelling();
-    }i
+    }
 	
   }
 
