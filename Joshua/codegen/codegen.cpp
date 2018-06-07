@@ -531,7 +531,7 @@ class Codegen : public Visitor
         ASM("\tpushl eax");       // result to stack. Done.
     }
 
-    // Variable and constant access
+    // Variable and constant access return values
     void visitIdent(Ident* p)
     {   // Pushes content of stack at ident offset, which will be either an address or value
 
@@ -562,11 +562,19 @@ class Codegen : public Visitor
 
     void visitArrayAccess(ArrayAccess* p)
     {
-        //TODO: incomplete 
-      p->m_expr->accept(this); //Array index
+        p->m_expr->accept(this);    // push array access index to stack
+        ASM("popl %%ebx");          // array access index to ebx
+
+        int offset = GET_OFFSET;    // offset of the array relative ebp
+        ASM("movl %d(%%ebp), %%esi");  // address of array address into esi
+
+        ASM("addl %%ebx, %%esi");      // Add index to address to get access address
+        ASM("\txor %%eax, %%eax");     // Clear eax
+        ASM("\tlodsb");                // Load byte at address in esi into al
+        ASM("pushl %%eax");            // put byte onto stack, 4-aligned:
     }
 
-    // LHS
+    // LHS return addresses
     void visitVariable(Variable* p)
     {   // Pushes location of variable on stack for assignment
 
