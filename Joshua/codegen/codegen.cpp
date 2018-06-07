@@ -587,7 +587,7 @@ class Codegen : public Visitor
 		ASM("\tmov $%d, %%ebx", offset); //mov offset into ebx
 		ASM("\tmov %%ebp, eax"); //mov ebp into eax
 		ASM("\tsub %%ebx, %%eax"); // sub ebx into eax
-		ASM("\tpush %%eax"); push eax
+		ASM("\tpush %%eax"); //push eax
 
         //ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
     }
