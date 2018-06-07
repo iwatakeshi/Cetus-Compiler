@@ -8,6 +8,8 @@
 
 // Variadic write macro for legibility
 #define ASM(...) fprintf(m_outputfile, __VA_ARGS__); fprintf(m_outputfile, "\n");
+
+// Symbol *s->get_offset() returns offset in BYTEs on activation record, so neg and * 4
 #define GET_OFFSET -1 * (stackOffset + m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset());
 
 class Codegen : public Visitor
@@ -25,7 +27,6 @@ class Codegen : public Visitor
     int label_count; // Access with new_label
 
     // Helpers
-    // This is used to get new unique labels (cleverly names label1, label2, ...)
     int new_label()
     {
         return label_count++;
@@ -138,7 +139,6 @@ class Codegen : public Visitor
 
 
     // NOTE: Used https://en.wikibooks.org/wiki/X86_Assembly/GAS_Syntax
-    // Ugly & only used in visitProcImpl() - rewrite?
     int emit_prologue(SymName *name, unsigned int size_locals, unsigned int num_args)
     {
         int sStack = 0; // Track & return space used for args
@@ -153,20 +153,21 @@ class Codegen : public Visitor
         ASM("\tpushl %%esi");
         ASM("\tpushl %%edi");
 
-        if (num_args) {   // Check for arguments
-            int sOffset = wordsize * 2;   // Track required offset for arg
+        if (num_args) 
+        {   // Check for arguments
+            int offset = stackOffset;   // Track required offset for arg
 
-            while (num_args) {   // Step through all args
-                ASM("\tpushl %d(%%ebp)",sOffset);   // Add arg to stack, reversing order as in notes above ** Edited
-
+            while (num_args) 
+            {   // Step through all args
+                ASM("\tpushl %d(%%ebp)", offset);   // Add arg to stack in reverse order
                 sStack += wordsize;   // Increment record of stack memory size used for args
-                sOffset += wordsize; // Increment offset to get next arg
+                offset += wordsize; // Increment offset to get next arg
                 num_args--;   // Got an arg: decrement args remaining
             }
         }
 
-        if (size_locals) {   // if local vars record stack space usage and allocate space for them.
-
+        if (size_locals) 
+        {   // if local vars record stack space usage and allocate space for them.
             sStack += size_locals;
             ASM("\tsubl $%d, %%esp", size_locals);
         }
@@ -176,7 +177,8 @@ class Codegen : public Visitor
 
     void emit_epilogue(int sStack)
     {
-        if (sStack) {   // If stack space is used for locals (args + temps) move esp to ignore
+        if (sStack) 
+        {   // If stack space is used for locals (args + temps) move esp to ignore
             ASM("\taddl $%d, %%esp", sStack);
         }
 
@@ -243,51 +245,26 @@ class Codegen : public Visitor
     void visitAssignment(Assignment* p)
     {
         p->visit_children(this);      // stack has m_expr on top, then m_lhs
-        ASM("\tpopl %%eax");          // expr result to eax (changed to be consistent with 'Call'"
-        ASM("\tpopl %%ebx");          // lhs location to ebx (changed to be consistent with 'Call'"
-        ASM("\tmovl %%eax, (%%ebx)");   // Put expr result into location
-/*
-        //navigate through the assignment class rather than visiting the children
-        p->m_expr->accept(this);
-        if(dynamic_cast<const AddressOf*>(p->m_expr) != 0){
-           ASM("\tmovl %%ecx, %%eax");
-        }
-        //check the lhs
-        p->m_lhs->accept(this);
-        //If the lhs is an array element
-        if(dynamic_cast<const ArrayElement*>(p->m_lhs) != 0){
-           ASM("\tmovl %%eax, %%ecx");
-           ASM("\tpopl %%eax");
-        }
-        if(dynamic_cast<const Variable*>(p->m_lhs) != 0 && p->m_lhs->m_attribute.m_basetype!=bt_string){
-            ASM("\tmovl %%eax, %%ecx");
-        }
-        if(dynamic_cast<const DerefVariable*>(p->m_lhs) != 0){
-           ASM("\tmovl %%eax, %%ecx");
-        }
-*/
+        ASM("\tpopl %%ebx");          // expr result to ebx
+        ASM("\tpopl %%eax");          // lhs location to eax
+        ASM("\tmovl %%ebx, (%%eax)");   // Put expr result into location
     }
 
     //TODO
     void visitCall(Call* p)
     {
-		p->visit_children(this); //Puts lhs on the stack
 		ASM("\tpushl %%ecx");
 		ASM("\tpushl %%edx");
 		//push arguments in reverse order
-		int argspace = p->m_expr_list->size() * wordsize;
 		for(auto it = (p->m_expr_list->rbegin()); it != p->m_expr_list->rend(); it--)
 		{
 			(*it)->accept(this);
 		}
-		
 		ASM("\tcall %s", p->m_symname->spelling());
-		ASM("\taddl %d, %%esp", argspace); //clear args
+		
 		ASM("\tpopl %%edx");
 		ASM("\tpopl %%ecx");
-    	ASM("\tpopl %%ebx"); //puts lhs into ebx
-		ASM("\tmovl %%eax, (%%ebx)"); // puts return value into lhs
-	}
+    }
 
     void visitReturn(Return* p)
     {
@@ -357,42 +334,14 @@ class Codegen : public Visitor
     }
 
     // Variable declarations (no code generation needed)
-    void visitDeclImpl(DeclImpl* p)
-    {
-        p->visit_children(this);
-    }
-
-    void visitTInteger(TInteger* p)
-    {
-        p->visit_children(this);
-    }
-
-    void visitTIntPtr(TIntPtr* p)
-    {
-        p->visit_children(this);
-    }
-
-    void visitTBoolean(TBoolean* p)
-    {
-        p->visit_children(this);
-    }
-
-    void visitTCharacter(TCharacter* p)
-    {
-        p->visit_children(this);
-
-    }
-
-    void visitTCharPtr(TCharPtr* p)
-    {
-        p->visit_children(this);
-    }
-
-    void visitTString(TString* p)
-    {
-        p->visit_children(this);
-    }
-
+    void visitDeclImpl(DeclImpl* p)     { /* Do nothing: Used for typechecking */ }
+    void visitTInteger(TInteger* p)     { /* Do nothing: Used for typechecking */ }
+    void visitTIntPtr(TIntPtr* p)       { /* Do nothing: Used for typechecking */ }
+    void visitTBoolean(TBoolean* p)     { /* Do nothing: Used for typechecking */ }
+    void visitTCharacter(TCharacter* p) { /* Do nothing: Used for typechecking */ }
+    void visitTCharPtr(TCharPtr* p)     { /* Do nothing: Used for typechecking */ }
+    void visitTString(TString* p)       { /* Do nothing: Used for typechecking */ }
+ 
     // Comparison operations
     // See: set* @ https://docs.oracle.com/cd/E19455-01/806-3773/instructionset-120/index.html
 
@@ -535,7 +484,7 @@ class Codegen : public Visitor
         ASM("\tneg eax");         // Negate contents of eax. Thanks, IA-32!
         ASM("\tpushl eax");       // result to stack. Done.
     }
-
+//TODO
     // Variable and constant access return values
     void visitIdent(Ident* p)
     {   // Pushes content of stack at ident offset, which will be either an address or value
@@ -547,17 +496,23 @@ class Codegen : public Visitor
 
     void visitBoolLit(BoolLit* p)
     {
-        p->visit_children(this); // push p->m_primitive->data (see visitPrimitive)
+        p->visit_children(this); // push address of data (see visitPrimitive)
+        ASM("popl %%eax");       // pop address of data to eax
+        ASM("pushl (%%eax)");    // push data to stack
     }
 
     void visitCharLit(CharLit* p)
     {
-        p->visit_children(this); // push p->m_primitive->data (see visitPrimitive)
+        p->visit_children(this); // push address of data (see visitPrimitive)
+        ASM("popl %%eax");       // pop address of data to eax
+        ASM("pushl (%%eax)");    // push data to stack
     }
 
     void visitIntLit(IntLit* p)
     {
-        p->visit_children(this); // push p->m_primitive->data (see visitPrimitive)
+        p->visit_children(this); // push address of data (see visitPrimitive)
+        ASM("popl %%eax");       // pop address of data to eax
+        ASM("pushl (%%eax)");    // push data to stack
     }
 
     void visitNullLit(NullLit* p)
@@ -567,18 +522,19 @@ class Codegen : public Visitor
 
     void visitArrayAccess(ArrayAccess* p)
     {
-        p->m_expr->accept(this);    // push array access index to stack
-        ASM("popl %%ebx");          // array access index to ebx
+        int offset = GET_OFFSET;        // offset of the array pointer relative ebp
+        p->m_expr->accept(this);        // push index to stack
 
-        int offset = GET_OFFSET;    // offset of the array relative ebp
-        ASM("movl %d(%%ebp), %%esi", offset);  // address of array address into esi
+        ASM("\tmovl %d(%%ebp), %%esi");   // move address of array into esi
+        ASM("\tpopl %%ebx");              // pop index to ebx
 
-        ASM("addl %%ebx, %%esi");      // Add index to address to get access address
-        ASM("\txor %%eax, %%eax");     // Clear eax
-        ASM("\tlodsb");                // Load byte at address in esi into al
-        ASM("pushl %%eax");            // put byte onto stack, 4-aligned:
+        ASM("\taddl %%ebx, %%esi");       // Add index to address to get actual address
+        ASM("\txor %%eax, %%eax");        // Clear eax
+        ASM("\tlodsb");                   // Load byte at address in esi into al
+        ASM("\tpushl %%eax");             // put byte (a char) onto stack, 4-aligned
     }
-
+    
+//TODO
     // LHS return addresses
     void visitVariable(Variable* p)
     {   // Pushes location of variable on stack for assignment
@@ -588,23 +544,15 @@ class Codegen : public Visitor
 
         // need to push address here. Have offset. 
         // How to get location of local on stack?
-		
-		ASM("\tmovl $%d, %%ebx", offset); //mov offset into ebx
-		ASM("\tmovl %%ebp, eax"); //mov ebp into eax
-		ASM("\taddl %%ebx, %%eax"); // add ebx into eax (offset already negative)
-		ASM("\tpushl %%eax"); //push eax
 
-        //ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
+        ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
     }
 
     void visitDerefVariable(DerefVariable* p)
     {   // Pushes value at location of variable on stack to dereference ptrs
-
-        // Get variable offset
-        int offset = GET_OFFSET
-
+        int offset = GET_OFFSET                 // Get variable offset
         ASM("\tmovl %d(%%ebp), eax", offset);   // Move ptr target address to ebx
-        ASM("\tpushl (%%eax)");   // Push value at memory address in eax to stack
+        ASM("\tpushl (%%eax)");                 // Push value at memory address in eax to stack
     }
 
     void visitArrayElement(ArrayElement* p)
@@ -614,7 +562,7 @@ class Codegen : public Visitor
         ASM("\tmovl %d(%%ebp), eax", offset);   // Move array address to eax
 
         // Get index in array
-        p->m_expr->accept(this);
+        p->m_expr(accept(this));
         ASM("\tpopl %%ebx");
 
         // Adjust for index (chars are B, so no scaling) and push result
@@ -628,8 +576,14 @@ class Codegen : public Visitor
     }
 
     void visitPrimitive(Primitive* p)
-    {
-      ASM("\tpushl $%d", p->m_data);   // Push value to stack
+    {   
+        set_data_mode();
+        int label = new_label();
+        ASM("integer%d:", label);
+        ASM("\t.long \"%d\"", p->m_data);
+        set_text_mode();
+        ASM("\tleal integer%d, %%edi", label);
+        ASM("\tpushl %%edi");
     }
 
     // Strings
@@ -647,13 +601,14 @@ class Codegen : public Visitor
     {
       	set_data_mode();
 		int label = new_label();
-		ASM("\tstr%d:", label);
+		ASM("\t%d:", label);
 		ASM("\t\t.asciz \"%s\"", p->m_string);
 		set_text_mode();
-		ASM("\tleal str%d, %%edi", label);
+		ASM("\tleal %d, %%edi", label);
 		ASM("\tpushl %%edi");
     }
 
+    // Returns by arg: strlen(m_expr) or abs(m_expr)
     void visitAbsoluteValue(AbsoluteValue* p)
     {
         int label = new_label();
@@ -674,7 +629,7 @@ class Codegen : public Visitor
             ASM("\tpushl %%edi");           // put string length on stack
         }
         else
-        {   // m_expr not a string. Value of expr is on stack
+        {   // m_expr not a string. Address of expr is on stack
             ASM("\tpopl %%eax\n");
             ASM("\ttest %%eax, %%eax");  // bitwise AND, triggers Sign flag
             ASM("\tjns label%d", label);  // Negate only if signed
