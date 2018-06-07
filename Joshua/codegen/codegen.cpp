@@ -8,6 +8,7 @@
 
 // Variadic write macro for legibility
 #define ASM(...) fprintf(m_outputfile, __VA_ARGS__); fprintf(m_outputfile, "\n");
+#define GET_OFFSET -1 * (stackOffset + m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset());
 
 class Codegen : public Visitor
 {
@@ -17,6 +18,9 @@ class Codegen : public Visitor
 
     // Basic size of a word (integers and booleans) in bytes
     static const int wordsize = 4;
+
+    // Local variable access offset: skip ebx, esi, edi in frame
+    static const int stackOffset = 4 * wordsize; 
 
     int label_count; // Access with new_label
 
@@ -238,6 +242,11 @@ class Codegen : public Visitor
     //TODO pretty sure this works now
     void visitAssignment(Assignment* p)
     {
+        p->visit_children(this);      // stack has m_expr on top, then m_lhs
+        ASM("\tpopl %%ebx");          // expr result to ebx
+        ASM("\tpopl %%eax");          // lhs location to eax
+        ASM("\tmovl %%ebx, (%%eax)");   // Put expr result into location
+/*
         //navigate through the assignment class rather than visiting the children
         p->m_expr->accept(this);
         if(dynamic_cast<const AddressOf*>(p->m_expr) != 0){
@@ -256,6 +265,7 @@ class Codegen : public Visitor
         if(dynamic_cast<const DerefVariable*>(p->m_lhs) != 0){
            ASM("\tmovl %%eax, %%ecx");
         }
+*/
     }
 
     //TODO
@@ -525,8 +535,7 @@ class Codegen : public Visitor
     void visitIdent(Ident* p)
     {   // Pushes content of stack at ident offset, which will be either an address or value
 
-        int offset = -4 * wordsize; // ebx, esi, edi = 3 words on stack
-        offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
+        int offset = GET_OFFSET
 
         ASM("\tpushl %d(%%ebp)", offset);   // Push contents of stack at offset
     }
@@ -562,8 +571,10 @@ class Codegen : public Visitor
     {   // Pushes location of variable on stack for assignment
 
         // Get variable offset
-        int offset = -4 * wordsize; // skip ebx, esi, edi
-        offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
+        int offset = GET_OFFSET
+
+        // need to push address here. Have offset. 
+        // How to get location of local on stack?
 
         ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
     }
@@ -572,8 +583,7 @@ class Codegen : public Visitor
     {   // Pushes value at location of variable on stack to dereference ptrs
 
         // Get variable offset
-        int offset = -4 * wordsize; // skip ebx, esi, edi
-        offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
+        int offset = GET_OFFSET
 
         ASM("\tmovl %d(%%ebp), eax", offset);   // Move ptr target address to ebx
         ASM("\tpushl (%%eax)");   // Push value at memory address in eax to stack
@@ -582,9 +592,7 @@ class Codegen : public Visitor
     void visitArrayElement(ArrayElement* p)
     {
         // Get chararray offset on stack
-        int offset = -4 * wordsize; // ebx, esi, edi = 3 words on stack
-        offset -= m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset();  // sub offset in scope
-
+        int offset = GET_OFFSET
         ASM("\tmovl %d(%%ebp), eax", offset);   // Move array address to eax
 
         // Get index in array
@@ -661,10 +669,14 @@ class Codegen : public Visitor
     // Pointer
     void visitAddressOf(AddressOf* p)
     {
+        p->visit_children(this);   // visits p->m_lhs, which puts address on stack  
     }
 
     void visitDeref(Deref* p)
     {
+        p->visit_children(this);   // visits p->m_expr, which puts ptr value on stack
+        ASM("\tpopl %%eax");       // ptr value to eax
+        ASM("\tpush (%%eax)");     // push value at location in eax, deref'ing ptr
     }
 };
 
