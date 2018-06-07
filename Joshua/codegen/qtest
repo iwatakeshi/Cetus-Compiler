@@ -1,14 +1,14 @@
 procedure proc(x : integer) return integer
 {
-	return 9;
+	return x;
 }
 
 procedure Main() return integer
 {
-	var str: string[15];
 	var a: integer;
-	
-	a = proc(7);
-	str = "literally";
-	return 0;
+	var b: integer;
+	b = 12;
+	a = proc(b);
+
+	return a;
 }

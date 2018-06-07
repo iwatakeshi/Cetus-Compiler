@@ -243,9 +243,9 @@ class Codegen : public Visitor
     void visitAssignment(Assignment* p)
     {
         p->visit_children(this);      // stack has m_expr on top, then m_lhs
-        ASM("\tpopl %%ebx");          // expr result to ebx
-        ASM("\tpopl %%eax");          // lhs location to eax
-        ASM("\tmovl %%ebx, (%%eax)");   // Put expr result into location
+        ASM("\tpopl %%eax");          // expr result to eax (changed to be consistent with 'Call'"
+        ASM("\tpopl %%ebx");          // lhs location to ebx (changed to be consistent with 'Call'"
+        ASM("\tmovl %%eax, (%%ebx)");   // Put expr result into location
 /*
         //navigate through the assignment class rather than visiting the children
         p->m_expr->accept(this);
@@ -271,18 +271,23 @@ class Codegen : public Visitor
     //TODO
     void visitCall(Call* p)
     {
+		p->visit_children(this); //Puts lhs on the stack
 		ASM("\tpushl %%ecx");
 		ASM("\tpushl %%edx");
 		//push arguments in reverse order
+		int argspace = p->m_expr_list->size() * wordsize;
 		for(auto it = (p->m_expr_list->rbegin()); it != p->m_expr_list->rend(); it--)
 		{
 			(*it)->accept(this);
 		}
-		ASM("\tcall %s", p->m_symname->spelling());
 		
+		ASM("\tcall %s", p->m_symname->spelling());
+		ASM("\taddl %d, %%esp", argspace); //clear args
 		ASM("\tpopl %%edx");
 		ASM("\tpopl %%ecx");
-    }
+    	ASM("\tpopl %%ebx"); //puts lhs into ebx
+		ASM("\tmovl %%eax, (%%ebx)"); // puts return value into lhs
+	}
 
     void visitReturn(Return* p)
     {
@@ -584,10 +589,10 @@ class Codegen : public Visitor
         // need to push address here. Have offset. 
         // How to get location of local on stack?
 		
-		ASM("\tmov $%d, %%ebx", offset); //mov offset into ebx
-		ASM("\tmov %%ebp, eax"); //mov ebp into eax
-		ASM("\tsub %%ebx, %%eax"); // sub ebx into eax
-		ASM("\tpush %%eax"); //push eax
+		ASM("\tmovl $%d, %%ebx", offset); //mov offset into ebx
+		ASM("\tmovl %%ebp, eax"); //mov ebp into eax
+		ASM("\taddl %%ebx, %%eax"); // add ebx into eax (offset already negative)
+		ASM("\tpushl %%eax"); //push eax
 
         //ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
     }
@@ -642,10 +647,10 @@ class Codegen : public Visitor
     {
       	set_data_mode();
 		int label = new_label();
-		ASM("\t%d:", label);
+		ASM("\tstr%d:", label);
 		ASM("\t\t.asciz \"%s\"", p->m_string);
 		set_text_mode();
-		ASM("\tleal %d, %%edi", label);
+		ASM("\tleal str%d, %%edi", label);
 		ASM("\tpushl %%edi");
     }
 
