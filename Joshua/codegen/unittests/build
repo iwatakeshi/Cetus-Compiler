@@ -1,0 +1,21 @@
+#!/bin/bash
+
+./csimple < unit1.txt > unit1.s
+./csimple < unit2.txt > unit2.s
+./csimple < unit3.txt > unit3.s
+./csimple < unit4.txt > unit4.s
+
+gcc -c -m32 -o unit1.o unit1.s
+gcc -c -m32 -o unit2.o unit2.s
+gcc -c -m32 -o unit3.o unit3.s
+gcc -c -m32 -o unit4.o unit4.s
+
+gcc -m32 -o u1 unit1.o main.o
+gcc -m32 -o u2 unit2.o main.o
+gcc -m32 -o u3 unit3.o main.o
+gcc -m32 -o u4 unit4.o main.o
+
+./u1 >> output.txt
+./u2 >> output.txt
+./u3 >> output.txt
+./u4 >> output.txt

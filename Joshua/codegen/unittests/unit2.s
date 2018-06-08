@@ -1,7 +1,7 @@
 .text
 
-.globl giveint
-giveint:
+.globl giveint12
+giveint12:
 	pushl %ebp
 	movl %esp, %ebp
 	pushl %ebx
@@ -14,8 +14,8 @@ giveint:
 	popl %ebx
 	leave
 	ret
-.globl giveint2
-giveint2:
+.globl giveint19
+giveint19:
 	pushl %ebp
 	movl %esp, %ebp
 	pushl %ebx
@@ -40,10 +40,14 @@ Main:
 	movl %ebp, %eax
 	subl %ebx, %eax
 	pushl %eax
-	pushl $5
+	pushl %ecx
+	pushl %edx
+	call giveint19
+	addl $0, %esp
+	popl %edx
+	popl %ecx
 	popl %ebx
-	popl %eax
-	movl %ebx, (%eax)
+	movl %eax, (%ebx)
 	movl $20, %ebx
 	movl %ebp, %eax
 	subl %ebx, %eax

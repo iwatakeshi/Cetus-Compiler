@@ -1,10 +1,13 @@
 +-- Symbol Scope ---
 | Main 
-| proc 
+| giveint2 
+| giveint 
 +-------------
 
 	+-- Symbol Scope ---
-	| x 
+	+-------------
+
+	+-- Symbol Scope ---
 	+-------------
 
 	+-- Symbol Scope ---
