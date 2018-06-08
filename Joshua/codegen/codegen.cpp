@@ -246,18 +246,24 @@ class Codegen : public Visitor
     {
         p->visit_children(this);
     }
-
+    
+   // Gets address of m_lhs and value of m_expr, then updates address with value.
    void visitAssignment(Assignment* p)
-    {
-        /* This works for Variable & DerefPointer. Strings are a work in progress.
+    {   /* This works for Variable & DerefPointer. Strings are a work in progress.
             Probably wise to branch by basetype. Or just omit strings entirely! :-D */
 
-        p->visit_children(this);              // stack has VALUE(m_expr) then OFFSET(m_lhs)
-        ASM("\tpopl %%ebx");                 // m_expr value in edx
-        ASM("\tpopl %%eax");                 // m_lhs offset in ebx
-        //ASM("\tneg %%ebx"); eax contains actual address of lhs // negate offset to access locals on stack
-		ASM("\tmovl %%ebx, (%%eax)");
-		//ASM("\tmovl %%edx, (%%ebp, %%ebx)")  // put m_expr in ebp-offset (Base-Relative)
+        p->visit_children(this);        // stack has VALUE(m_expr) then ADDR(m_lhs)
+
+        if(p->m_lhs->m_attribute.m_basetype == bt_string)
+        {
+            //TODO: implement string logic
+        }
+        else // m_lhs is not a string
+        {
+            ASM("\tpopl %%ebx");            // m_expr value in ebx
+            ASM("\tpopl %%eax");            // m_lhs addr in ebx
+    		ASM("\tmovl %%edx, (%%eax)");   // put value into address. var updated!
+        }
     }
 
     //TODO
@@ -284,8 +290,8 @@ class Codegen : public Visitor
 
     void visitReturn(Return* p)
     {
-      p->visit_children(this);
-      ASM("\tpopl %%eax");
+      p->visit_children(this);   // value of m_expr to stack
+      ASM("\tpopl %%eax");       // return value to eax
     }
 
     // Control flow
@@ -365,66 +371,66 @@ class Codegen : public Visitor
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
         ASM("popl %%ebx");            // m_expr_2 into ebx
-        ASM("popl %%eax");            // m_expr_1 into eax
-        ASM("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
-        ASM("sete %%dl");            // conditional set dl on EQUAL
-        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        ASM("pushl %%eax");           // result to stack. Done.
+        ASM("\tpopl %%eax");            // m_expr_1 into eax
+        ASM("\tcmpl %%eax, %%ebx");     // non-destructive sub: set flags
+        ASM("\tsete %%dl");            // conditional set dl on EQUAL
+        ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("\tpushl %%eax");           // result to stack. Done.
     }
 
     void visitNoteq(Noteq* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        ASM("popl %%ebx");            // m_expr_2 into ebx
-        ASM("popl %%eax");            // m_expr_1 into eax
-        ASM("cmpl %%eax, %%ebx");     // non-destructive sub: set flags
-        ASM("setne %%dl");            // conditional set dl on NOT EQUAL
-        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        ASM("pushl %%eax");           // result to stack. Done.
+        ASM("\tpopl %%ebx");            // m_expr_2 into ebx
+        ASM("\tpopl %%eax");            // m_expr_1 into eax
+        ASM("\tcmpl %%eax, %%ebx");     // non-destructive sub: set flags
+        ASM("\tsetne %%dl");            // conditional set dl on NOT EQUAL
+        ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("\tpushl %%eax");           // result to stack. Done.
     }
 
     void visitGt(Gt* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        ASM("popl %%ebx");           // m_expr_2 into ebx
-        ASM("popl %%eax");           // m_expr_1 into eax
-        ASM("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
-        ASM("setg %%dl");            // conditional set dl on GREATER
-        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        ASM("pushl %%eax");          // result to stack. Done.
+        ASM("\tpopl %%ebx");           // m_expr_2 into ebx
+        ASM("\tpopl %%eax");           // m_expr_1 into eax
+        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tsetg %%dl");            // conditional set dl on GREATER
+        ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("\tpushl %%eax");          // result to stack. Done.
     }
 
     void visitGteq(Gteq* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        ASM("popl %%ebx");           // m_expr_2 into ebx
-        ASM("popl %%eax");           // m_expr_1 into eax
-        ASM("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
-        ASM("setge %%dl");            // conditional set dl on GREATER OR EQUAL
-        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        ASM("pushl %%eax");          // result to stack. Done.
+        ASM("\tpopl %%ebx");           // m_expr_2 into ebx
+        ASM("\tpopl %%eax");           // m_expr_1 into eax
+        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tsetge %%dl");            // conditional set dl on GREATER OR EQUAL
+        ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("\tpushl %%eax");          // result to stack. Done.
     }
 
     void visitLt(Lt* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        ASM("popl %%ebx");           // m_expr_2 into ebx
-        ASM("popl %%eax");           // m_expr_1 into eax
-        ASM("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
-        ASM("setl %%dl");            // conditional set dl on LESS
-        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        ASM("pushl %%eax");          // result to stack. Done.
+        ASM("\tpopl %%ebx");           // m_expr_2 into ebx
+        ASM("\tpopl %%eax");           // m_expr_1 into eax
+        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tsetl %%dl");            // conditional set dl on LESS
+        ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("\tpushl %%eax");          // result to stack. Done.
     }
 
     void visitLteq(Lteq* p)
     {
         p->visit_children(this);         // push values of m_expr_1 and m_expr_2 to stack
-        ASM("popl %%ebx");           // m_expr_2 into ebx
-        ASM("popl %%eax");           // m_expr_1 into eax
-        ASM("cmpl %%eax, %%ebx");    // non-destructive sub: set flags
-        ASM("setle %%dl");            // conditional set dl on LESS OR EQUAL
-        ASM("movzbl %%dl, %%eax");   // move + extend bit in dl to eax
-        ASM("pushl %%eax");          // result to stack. Done.
+        ASM("\tpopl %%ebx");           // m_expr_2 into ebx
+        ASM("\tpopl %%eax");           // m_expr_1 into eax
+        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tsetle %%dl");            // conditional set dl on LESS OR EQUAL
+        ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
+        ASM("\tpushl %%eax");          // result to stack. Done.
     }
 
     // Arithmetic and logic operations
@@ -504,7 +510,7 @@ class Codegen : public Visitor
     // Variable and constant access
     void visitIdent(Ident* p)
     {
-        GET_OFFSET                         // Calculate offset in scope
+        GET_OFFSET                           // Calculate offset in scope
         ASM("\tpushl -%d(%%ebp)", offset);   // push value at offset for parent
     }
 
@@ -528,17 +534,18 @@ class Codegen : public Visitor
       ASM("\tpushl $0");   // Push 0 to stack. Used for NULL ptrs.
     }
 
+    // Pushes the char at index to stack
     void visitArrayAccess(ArrayAccess* p)
     {
         GET_OFFSET                 // Calculate offset in scope
         p->m_expr->accept(this);   // push index to stack
 
 
-        ASM("\tmovl %d(%%ebp), %%esi", offset);   // move address of array into esi
-        ASM("\tpopl %%ebx");              // pop index to ebx
+        ASM("\tmovl %d(%%ebp), %%esi", offset);   // move addr of array into esi
+        ASM("\tpopl %%edx");                      // pop index to ebx
 
-        ASM("\taddl %%ebx, %%esi");       // Add index to address to get actual address
-        ASM("\txor %%eax, %%eax");        // Clear eax
+        ASM("\taddl %%edx, %%esi");       // Add index to address to get actual address
+        ASM("\txorl %%eax, %%eax");       // Clear eax
         ASM("\tlodsb");                   // Load byte at address in esi into al
         ASM("\tpushl %%eax");             // put byte (a char) onto stack, 4-aligned
     }
@@ -546,38 +553,28 @@ class Codegen : public Visitor
 //TODO
     // LHS return addresses
 
-     // Pushes offset of variable on stack
+     // Pushes address of variable on stack
     void visitVariable(Variable* p)
     {   
-        GET_OFFSET                 // Calculate offset in scope
-        ASM("\tmovl $%d, %%ebx", offset);
-		ASM("\tmovl %%ebp, %%eax");
-		ASM("\tsubl %%ebx, %%eax");
-		ASM("\tpushl %%eax");
-
-		//we can push the offset v or the address itself ^ depending on how we want our lhs functions to be handled by assignments
-
-		//ASM("\movl $%d, %%eax", offset);    // put offset in eax
-        //ASM("\pushl %%eax");        // Push offset to stack for parent
+        GET_OFFSET                          // Calculate offset in scope
+        ASM("\tmovl $%d, %%ebx", offset);   // Put offset of var in ebx
+		ASM("\tmovl %%ebp, %%eax");         // Put ebp in eax
+		ASM("\tsubl %%ebx, %%eax");         // Get address of local (ebp-offset)
+		ASM("\tpushl %%eax");               // Push address of local to stack
     }
 
-   // Pushes index of referenced variable
+   // Pushes address of referenced variable on stack
     void visitDerefVariable(DerefVariable* p)
     {
-        /* Assumption: pointers contain the offset of their target
-            That is, an intptr to an int at ebp-8 contains 8       */
-
-        GET_OFFSET                               // Calculate offset in scope
+        GET_OFFSET                                 // Calculate offset in scope
         ASM("\tmovl -%d(%%ebp), %%eax", offset);   // Move ptr target offset to eax
-        ASM("\tpushl %%eax");	//push raw address to stack
-		//ASM("\tneg %%eax");                      // negate to access locals on stack
-        //ASM("\tpushl (%%ebp, %%eax)");           // Push offset of target variable (Base-Relative)
+        ASM("\tpushl %%eax");	                   // Push address of target variable to stack
     }
 
     // Pushes memory address of array element at index m_expr
     void visitArrayElement(ArrayElement* p)
     {
-        /* Assumption: Char arrays are declared in data (see visitStringPrimitive)
+        /* Note: Char arrays are declared in data (see visitStringPrimitive)
             and memory addresses are stored on stack. sizeof(char) == 1B           */
 
         GET_OFFSET                               // Calculate offset in scope
@@ -631,7 +628,7 @@ class Codegen : public Visitor
         p->visit_children(this);  // m_expr is either offset of string or an int
 
         if(p->m_expr->m_attribute.m_basetype == bt_string)
-        {   // m_expr is a string. Address of first char is on stack. (tested)
+        {   // m_expr is a string. Address of first char is on stack.
             ASM("\tpopl %%esi");            // Put address of first char into esi
             ASM("\txorl %%edi,%%edi");      // Clear edi
             ASM("LookChar%d:", label);                
@@ -644,13 +641,13 @@ class Codegen : public Visitor
             ASM("\tpushl %%edi");           // put string length on stack
         }
         else
-        {   // m_expr not a string. Address of expr is on stack
-            ASM("\tpopl %%eax\n");
-            ASM("\ttest %%eax, %%eax");  // bitwise AND, triggers Sign flag
-            ASM("\tjns label%d", label);  // Negate only if signed
-            ASM("\tneg %%eax");
-            ASM("label%d:", label);
-            ASM("\tpushl %%eax\n");
+        {   // m_expr not a string. Value of m_expr is on stack
+            ASM("\tpopl %%eax\n");           // Value to eax
+            ASM("\ttest %%eax, %%eax");      // Bitwise AND, triggers Sign flag
+            ASM("\tjns Unsigned%d", label);  // Jump if unsigned to skip negation
+            ASM("\tneg %%eax");              // Negate on sign flag set
+            ASM("Unsigned%d:", label);       // Now eax == |m_expr|
+            ASM("\tpushl %%eax\n");          // Push result
         }
     }
 
