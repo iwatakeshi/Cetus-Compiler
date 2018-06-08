@@ -18,5 +18,5 @@ procedure Main() return integer
 	b = 17;
 	c = 27;
 
-	return a;
+	return a - c + b;
 }

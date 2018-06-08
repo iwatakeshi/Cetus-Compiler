@@ -1,18 +1,8 @@
-+-- Symbol Scope ---
-| Main 
-| giveint2 
-| giveint 
-+-------------
-
-	+-- Symbol Scope ---
-	+-------------
-
-	+-- Symbol Scope ---
-	+-------------
-
-	+-- Symbol Scope ---
-	| b 
-	| c 
-	| a 
-	+-------------
-
+starting Main...
+Main returned: 5
+starting Main...
+Main returned: 19
+starting Main...
+Main returned: 85
+starting Main...
+Main returned: -5

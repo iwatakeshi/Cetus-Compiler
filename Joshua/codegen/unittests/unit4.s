@@ -29,7 +29,7 @@ giveint2:
 	leave
 	ret
 .globl _Main
-_Main
+_Main:
 	pushl %ebp
 	movl %esp, %ebp
 	pushl %ebx
@@ -61,6 +61,16 @@ _Main
 	popl %eax
 	movl %ebx, (%eax)
 	pushl -16(%ebp)
+	pushl -24(%ebp)
+	popl %ebx
+	popl %eax
+	subl %ebx, %eax
+	pushl %eax
+	pushl -20(%ebp)
+	popl %ebx
+	popl %eax
+	addl %ebx, %eax
+	pushl %eax
 	popl %eax
 	addl $12, %esp
 	popl %edi

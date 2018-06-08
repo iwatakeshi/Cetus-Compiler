@@ -1,20 +1,8 @@
 +-- Symbol Scope ---
 | Main 
-| foo 
 +-------------
-
-	+-- Symbol Scope ---
-	| x 
-	+-------------
 
 	+-- Symbol Scope ---
 	| a 
 	+-------------
-
-		+-- Symbol Scope ---
-		+-------------
-
-		+-- Symbol Scope ---
-		| b 
-		+-------------
 

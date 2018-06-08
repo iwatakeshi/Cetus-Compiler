@@ -29,7 +29,7 @@ giveint19:
 	leave
 	ret
 .globl _Main
-_Main
+_Main:
 	pushl %ebp
 	movl %esp, %ebp
 	pushl %ebx
@@ -51,7 +51,7 @@ _Main
 	pushl $17
 	pushl -16(%ebp)
 	popl %ebx
-	popl %ebx
+	popl %eax
 	cdq
 	imull %ebx
 	pushl %eax

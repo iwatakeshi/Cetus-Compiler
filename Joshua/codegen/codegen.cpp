@@ -458,7 +458,7 @@ class Codegen : public Visitor
     {
         p->visit_children(this);     // pushes values of m_expr_1 and m_expr_2 to stack
         ASM("\tpopl %%ebx");         // m_expr_2 into ebx
-        ASM("\tpopl %%ebx");         // m_expr_1 into eax
+        ASM("\tpopl %%eax");         // m_expr_1 into eax
         ASM("\torl %%ebx, %%eax");   // logical OR. Result in eax
         ASM("\tpushl %%eax");        // result to stack. Done.
     }
@@ -467,7 +467,7 @@ class Codegen : public Visitor
     {
         p->visit_children(this);      // pushes values of m_expr_1 and m_expr_2 to stack
         ASM("\tpopl %%ebx");          // m_expr_2 into ebx
-        ASM("\tpopl %%ebx");          // m_expr_1 into eax
+        ASM("\tpopl %%eax");          // m_expr_1 into eax
         ASM("\tsubl %%ebx, %%eax");   // subtract ebx from eax. Result in eax
         ASM("\tpushl %%eax");         // result to stack. Done.
     }
@@ -476,7 +476,7 @@ class Codegen : public Visitor
     {
         p->visit_children(this);      // pushes values of m_expr_1 and m_expr_2 to stack
         ASM("\tpopl %%ebx");          // m_expr_2 into ebx
-        ASM("\tpopl %%ebx");          // m_expr_1 into eax
+        ASM("\tpopl %%eax");          // m_expr_1 into eax
         ASM("\taddl %%ebx, %%eax");   // add ebx to eax. Result in eax
         ASM("\tpushl %%eax");         // result to stack. Done.
     }
@@ -485,7 +485,7 @@ class Codegen : public Visitor
     {
         p->visit_children(this);   // push values of m_expr_1 and m_expr_2 to stack
         ASM("\tpopl %%ebx");       // m_expr_2 into ebx
-        ASM("\tpopl %%ebx");       // m_expr_1 into eax
+        ASM("\tpopl %%eax");       // m_expr_1 into eax
         ASM("\tcdq");              // sign extend into edx
         ASM("\timull %%ebx");      // multiply ebx*eax. Result in eax
         ASM("\tpushl %%eax");      // result to stack. Done.

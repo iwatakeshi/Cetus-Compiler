@@ -15,7 +15,7 @@ gcc -m32 -o u2 unit2.o main.o
 gcc -m32 -o u3 unit3.o main.o
 gcc -m32 -o u4 unit4.o main.o
 
-./u1 >> output.txt
+./u1 > output.txt
 ./u2 >> output.txt
 ./u3 >> output.txt
 ./u4 >> output.txt
