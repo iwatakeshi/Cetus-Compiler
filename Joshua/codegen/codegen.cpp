@@ -608,7 +608,7 @@ class Codegen : public Visitor
         int label = new_label();
 
       	set_data_mode();
-		ASM("String%d:", string);
+		ASM("String%d:", label);
 		ASM("\t.asciz \"%s\"", p->m_string);   // Create null-terminated string in data
 		set_text_mode();
 		ASM("\tleal String%d, %%edi", label);        // Load address of first string element to stack
