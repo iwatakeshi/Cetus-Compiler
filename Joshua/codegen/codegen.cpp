@@ -485,34 +485,34 @@ class Codegen : public Visitor
         ASM("\tpushl eax");       // result to stack. Done.
     }
 //TODO
-    // Variable and constant access return values
+    // Variable and constant access
     void visitIdent(Ident* p)
-    {   // Pushes content of stack at ident offset, which will be either an address or value
+    {
+        // Calculate offset in scope
+        Attribute atb = p->m_attribute;
+        SymScope *scp = atb.m_scope;
+        SymName *syn = p->syname;
+        Symbol *sym = m_st->lookup(scp, syn->spelling());
+        int offset = sym->get_offset();
+        offset += stackOffset;             // account for saved registers
 
-        int offset = GET_OFFSET
-
-        ASM("\tpushl %d(%%ebp)", offset);   // Push contents of stack at offset
+        ASM("\tmovl -%d(%%ebp), %%edx");   // address of ident in edx
+        ASM("\tpushl (%%edx)");            // push value at memory address in edx
     }
 
     void visitBoolLit(BoolLit* p)
     {
-        p->visit_children(this); // push address of data (see visitPrimitive)
-        ASM("popl %%eax");       // pop address of data to eax
-        ASM("pushl (%%eax)");    // push data to stack
+        p->visit_children(this);   // visit m_primitive, which pushes m_data
     }
 
     void visitCharLit(CharLit* p)
     {
-        p->visit_children(this); // push address of data (see visitPrimitive)
-        ASM("popl %%eax");       // pop address of data to eax
-        ASM("pushl (%%eax)");    // push data to stack
+        p->visit_children(this);   // visit m_primitive, which pushes m_data
     }
 
     void visitIntLit(IntLit* p)
     {
-        p->visit_children(this); // push address of data (see visitPrimitive)
-        ASM("popl %%eax");       // pop address of data to eax
-        ASM("pushl (%%eax)");    // push data to stack
+        p->visit_children(this);   // visit m_primitive, which pushes m_data
     }
 
     void visitNullLit(NullLit* p)
@@ -536,16 +536,18 @@ class Codegen : public Visitor
     
 //TODO
     // LHS return addresses
+
+    // Pushes location of variable on stack for assignment
     void visitVariable(Variable* p)
-    {   // Pushes location of variable on stack for assignment
-
-        // Get variable offset
-        int offset = GET_OFFSET
-
-        // need to push address here. Have offset. 
-        // How to get location of local on stack?
-
-        ASM("\tpushl %d(%%ebp)", offset);   // Push value at offset to stack
+    {   
+        // Enter data mode and allocate a long to hold non-string data
+        set_data_mode();
+        int label = new_label();
+        ASM("integer%d:", label);
+        ASM("\t.long 0");                        // new long = 0
+        set_text_mode();
+        ASM("\tleal integer%d, %%edi", label);   // load address of new long
+        ASM("\tpushl %%edi");                    // put address on stack
     }
 
     void visitDerefVariable(DerefVariable* p)
@@ -571,19 +573,11 @@ class Codegen : public Visitor
     }
 
     // Special cases
-    void visitSymName(SymName* p)
-    {
-    }
+    void visitSymName(SymName* p) { /* Do nothing: Used for typechecking */ }
 
     void visitPrimitive(Primitive* p)
     {   
-        set_data_mode();
-        int label = new_label();
-        ASM("integer%d:", label);
-        ASM("\t.long \"%d\"", p->m_data);
-        set_text_mode();
-        ASM("\tleal integer%d, %%edi", label);
-        ASM("\tpushl %%edi");
+        ASM("\tpushl $%d", p->m_data);
     }
 
     // Strings
