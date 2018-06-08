@@ -255,7 +255,7 @@ class Codegen : public Visitor
         p->visit_children(this);              // stack has VALUE(m_expr) then OFFSET(m_lhs)
         ASM("\tpopl %%ebx");                 // m_expr value in edx
         ASM("\tpopl %%eax");                 // m_lhs offset in ebx
-        ASM("\tneg %%ebx");                  // negate offset to access locals on stack
+        //ASM("\tneg %%ebx"); eax contains actual address of lhs // negate offset to access locals on stack
 		ASM("\tmovl %%ebx, (%%eax)");
 		//ASM("\tmovl %%edx, (%%ebp, %%ebx)")  // put m_expr in ebp-offset (Base-Relative)
     }
@@ -569,8 +569,9 @@ class Codegen : public Visitor
 
         GET_OFFSET                               // Calculate offset in scope
         ASM("\tmovl -%d(%%ebp), %%eax", offset);   // Move ptr target offset to eax
-        ASM("\tneg %%eax");                      // negate to access locals on stack
-        ASM("\tpushl (%%ebp, %%eax)");           // Push offset of target variable (Base-Relative)
+        ASM("\tpushl %%eax");	//push raw address to stack
+		//ASM("\tneg %%eax");                      // negate to access locals on stack
+        //ASM("\tpushl (%%ebp, %%eax)");           // Push offset of target variable (Base-Relative)
     }
 
     // Pushes memory address of array element at index m_expr

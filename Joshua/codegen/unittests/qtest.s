@@ -32,7 +32,6 @@ _Main:
 	pushl $15
 	popl %ebx
 	popl %eax
-	neg %ebx
 	movl %ebx, (%eax)
 	movl $16, %ebx
 	movl %ebp, %eax
