@@ -8,7 +8,8 @@ chmod +x make.sh
 Then you can run the bash script with
 ```
 ./make.sh
-```. Then you can run the executables, labeled start1, start2, start3, and start4 with
+```
+.Then you can run the executables, labeled start1, start2, start3, and start4 with
 ```
 ./[executable]
 ```
@@ -27,32 +28,39 @@ make test(x)
 ./csimple
 ```
 and it will ask for input. It will continue scanning unless you enter invalid Csimple code, then it will output an error.  It will only scan/parse/type check since  it does not output to a file.
+
 ---
 
 * If you would like to run the full Csimple compiler. Here are the steps needed to link the Csimple source code to an executable.
 
 ---
 
-1. ```
+1.
+```
 make csimple
 ```
 
-2. ```
+2.
+```
 ./csimple < [source code filename] >> testoutput.s
 ```
 
-3. ```
+3.
+```
 gcc -c -m32 -o csimple.o testoutput.s
 ```
 
-4. ```
+4.
+```
 gcc -c -m32 -o start.o start.c
 ```
 
-5. ```
+5.
+```
 gcc -c -m32 -o start1 start.o csimple.o
 ```
 
-6. ```
+6.
+```
 ./start1  
 ```
