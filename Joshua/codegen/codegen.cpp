@@ -161,7 +161,7 @@ class Codegen : public Visitor
 
         if (num_args) 
         {   // Check for arguments
-            int offset = stackOffset;   // Track required offset for arg
+            int offset = 2 * wordsize;//stackOffset;   // Track required offset for arg
 
             while (num_args) 
             {   // Step through all args
@@ -253,27 +253,34 @@ class Codegen : public Visitor
             Probably wise to branch by basetype. Or just omit strings entirely! :-D */
 
         p->visit_children(this);              // stack has VALUE(m_expr) then OFFSET(m_lhs)
-        ASM("\tpopl %%edx");                 // m_expr value in edx
-        ASM("\tpopl %%ebx");                 // m_lhs offset in ebx
+        ASM("\tpopl %%ebx");                 // m_expr value in edx
+        ASM("\tpopl %%eax");                 // m_lhs offset in ebx
         ASM("\tneg %%ebx");                  // negate offset to access locals on stack
-        ASM("\tmovl %%edx, (%%ebp, %%ebx)")  // put m_expr in ebp-offset (Base-Relative)
+		ASM("\tmovl %%ebx, (%%eax)");
+		//ASM("\tmovl %%edx, (%%ebp, %%ebx)")  // put m_expr in ebp-offset (Base-Relative)
     }
 
     //TODO
     void visitCall(Call* p)
     {
+		p->m_lhs->accept(this); //Puts lhs on stack 
 		ASM("\tpushl %%ecx");
 		ASM("\tpushl %%edx");
 		//push arguments in reverse order
+		int argspace = p->m_expr_list->size() * wordsize;
 		for(auto it = (p->m_expr_list->rbegin()); it != p->m_expr_list->rend(); it--)
 		{
 			(*it)->accept(this);
 		}
 		ASM("\tcall %s", p->m_symname->spelling());
-		
+		ASM("\taddl $%d, %%esp", argspace); //clear args
 		ASM("\tpopl %%edx");
 		ASM("\tpopl %%ecx");
-    }
+    	
+		ASM("\tpopl %%ebx"); 
+		ASM("\tmovl %%eax, (%%ebx)"); //puts return value into lhs
+
+	}
 
     void visitReturn(Return* p)
     {
@@ -427,7 +434,7 @@ class Codegen : public Visitor
         ASM("\tpopl %%ebx");          // m_expr_2 into ebx
         ASM("\tpopl %%eax");          // m_expr_1 into eax
         ASM("\tandl %%ebx, %%eax");   // logical AND. Result in eax
-        ASM("\tpushl eax");           // result to stack. Done.
+        ASM("\tpushl %%eax");           // result to stack. Done.
     }
 
     void visitOr(Or* p)
@@ -436,7 +443,7 @@ class Codegen : public Visitor
         ASM("\tpopl %%ebx");          // m_expr_2 into ebx
         ASM("\tpopl %%ebx");          // m_expr_1 into eax
         ASM("\torl %%ebx, %%eax");    // logical OR. Result in eax
-        ASM("\tpushl eax");           // result to stack. Done.
+        ASM("\tpushl %%eax");           // result to stack. Done.
     }
 
     void visitMinus(Minus* p)
@@ -445,7 +452,7 @@ class Codegen : public Visitor
         ASM("\tpopl %%ebx");          // m_expr_2 into ebx
         ASM("\tpopl %%ebx");          // m_expr_1 into eax
         ASM("\tsubl %%ebx, %%eax");   // subtract ebx from eax. Result in eax
-        ASM("\tpushl eax");           // result to stack. Done.
+        ASM("\tpushl %%eax");           // result to stack. Done.
     }
 
     void visitPlus(Plus* p)
@@ -454,7 +461,7 @@ class Codegen : public Visitor
         ASM("\tpopl %%ebx");          // m_expr_2 into ebx
         ASM("\tpopl %%ebx");          // m_expr_1 into eax
         ASM("\taddl %%ebx, %%eax");   // add ebx to eax. Result in eax
-        ASM("\tpushl eax");           // result to stack. Done.
+        ASM("\tpushl %%eax");           // result to stack. Done.
     }
 
     void visitTimes(Times* p)
@@ -463,8 +470,8 @@ class Codegen : public Visitor
         ASM("\tpopl %%ebx");      // m_expr_2 into ebx
         ASM("\tpopl %%ebx");      // m_expr_1 into eax
         ASM("\tcdq");             // sign extend into edx
-        ASM("\timull ebx");       // multiply ebx*eax. Result in eax
-        ASM("\tpushl eax");       // result to stack. Done.
+        ASM("\timull %%ebx");       // multiply ebx*eax. Result in eax
+        ASM("\tpushl %%eax");       // result to stack. Done.
     }
 
     void visitDiv(Div* p)
@@ -473,32 +480,32 @@ class Codegen : public Visitor
         ASM("\tpopl %%ebx");      // divisor into ebx
         ASM("\tpopl %%eax");      // dividend into eax
         ASM("\tcdq");             // sign extend into edx
-        ASM("\tdivl ebx");        // divide. Result in eax
-        ASM("\tpushl eax");       // result to stack. Done.
+        ASM("\tdivl %%ebx");        // divide. Result in eax
+        ASM("\tpushl %%eax");       // result to stack. Done.
     }
 
     void visitNot(Not* p)
     {
         p->visit_children(this);   // Push result of m_expr to stack
-        ASM("popl %%eax");        // Pop result off stack
-        ASM("movl $1, %%ebx");    // Put "1" into ebx to signify "TRUE"
-        ASM("xor %%ebx, %%eax");  // XOR to invert value of m_expr
-        ASM("pushl %%eax");       // result to stack. Done.
+        ASM("\tpopl %%eax");        // Pop result off stack
+        ASM("\tmovl $1, %%ebx");    // Put "1" into ebx to signify "TRUE"
+        ASM("\txor %%ebx, %%eax");  // XOR to invert value of m_expr
+        ASM("\tpushl %%eax");       // result to stack. Done.
     }
 
     void visitUminus(Uminus* p)
     {
         p->visit_children(this);   // Push result of m_expr to stack
-        ASM("\tpopl eax");        // Pop result to eax
-        ASM("\tneg eax");         // Negate contents of eax. Thanks, IA-32!
-        ASM("\tpushl eax");       // result to stack. Done.
+        ASM("\tpopl %%eax");        // Pop result to eax
+        ASM("\tneg %%eax");         // Negate contents of eax. Thanks, IA-32!
+        ASM("\tpushl %%eax");       // result to stack. Done.
     }
 
     // Variable and constant access
     void visitIdent(Ident* p)
     {
         GET_OFFSET                         // Calculate offset in scope
-        ASM("pushl -%d(%%ebp)", offset);   // push value at offset for parent
+        ASM("\tpushl -%d(%%ebp)", offset);   // push value at offset for parent
     }
 
     void visitBoolLit(BoolLit* p)
@@ -527,7 +534,7 @@ class Codegen : public Visitor
         p->m_expr->accept(this);   // push index to stack
 
 
-        ASM("\tmovl %d(%%ebp), %%esi");   // move address of array into esi
+        ASM("\tmovl %d(%%ebp), %%esi", offset);   // move address of array into esi
         ASM("\tpopl %%ebx");              // pop index to ebx
 
         ASM("\taddl %%ebx, %%esi");       // Add index to address to get actual address
@@ -543,8 +550,15 @@ class Codegen : public Visitor
     void visitVariable(Variable* p)
     {   
         GET_OFFSET                 // Calculate offset in scope
-        ASM("movl $%d, %%eax");    // put offset in eax
-        ASM("pushl %%eax");        // Push offset to stack for parent
+        ASM("\tmovl $%d, %%ebx", offset);
+		ASM("\tmovl %%ebp, %%eax");
+		ASM("\tsubl %%ebx, %%eax");
+		ASM("\tpushl %%eax");
+
+		//we can push the offset v or the address itself ^ depending on how we want our lhs functions to be handled by assignments
+
+		//ASM("\movl $%d, %%eax", offset);    // put offset in eax
+        //ASM("\pushl %%eax");        // Push offset to stack for parent
     }
 
    // Pushes index of referenced variable
@@ -554,7 +568,7 @@ class Codegen : public Visitor
             That is, an intptr to an int at ebp-8 contains 8       */
 
         GET_OFFSET                               // Calculate offset in scope
-        ASM("\tmovl -%d(%%ebp), eax", offset);   // Move ptr target offset to eax
+        ASM("\tmovl -%d(%%ebp), %%eax", offset);   // Move ptr target offset to eax
         ASM("\tneg %%eax");                      // negate to access locals on stack
         ASM("\tpushl (%%ebp, %%eax)");           // Push offset of target variable (Base-Relative)
     }
@@ -566,9 +580,9 @@ class Codegen : public Visitor
             and memory addresses are stored on stack. sizeof(char) == 1B           */
 
         GET_OFFSET                               // Calculate offset in scope
-        ASM("\tmovl -%d(%%ebp), eax", offset);   // Move array address to eax
+        ASM("\tmovl -%d(%%ebp), %%eax", offset);   // Move array address to eax
 
-        p->m_expr(accept(this));                 // Calculate index value
+        p->m_expr->accept(this);                 // Calculate index value
         ASM("\tpopl %%edx");                     // Put index value in edx
 
         ASM("\taddl %%edx, %%eax");              // Add index to address to get element address
@@ -648,7 +662,7 @@ class Codegen : public Visitor
     void visitDeref(Deref* p)
     {
         p->visit_children(this);   // visits p->m_expr, which puts ptr value on stack
-        ASM("\tpopl %%ebx");       // ptr value to eax
+        ASM("\tpopl %%eax");       // ptr value to eax
         ASM("\tpush (%%eax)");     // push value at location in eax, deref'ing ptr
     }
 };

@@ -7,7 +7,7 @@ procedure Main() return integer
 {
 	var a: integer;
 	var b: integer;
-	b = 12;
+	b = 15;
 	a = proc(b);
 
 	return a;
