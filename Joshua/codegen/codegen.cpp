@@ -383,7 +383,7 @@ class Codegen : public Visitor
         p->visit_children(this);       // push values of m_expr_1 and m_expr_2 to stack
         ASM("popl %%ebx");             // m_expr_2 into ebx
         ASM("\tpopl %%eax");           // m_expr_1 into eax
-        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tcmpl %%ebx, %%eax");    // non-destructive sub: set flags
         ASM("\tsete %%dl");            // conditional set dl on EQUAL
         ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
         ASM("\tpushl %%eax");          // result to stack. Done.
@@ -394,7 +394,7 @@ class Codegen : public Visitor
         p->visit_children(this);       // push values of m_expr_1 and m_expr_2 to stack
         ASM("\tpopl %%ebx");           // m_expr_2 into ebx
         ASM("\tpopl %%eax");           // m_expr_1 into eax
-        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tcmpl %%ebx, %%eax");    // non-destructive sub: set flags
         ASM("\tsetne %%dl");           // conditional set dl on NOT EQUAL
         ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
         ASM("\tpushl %%eax");          // result to stack. Done.
@@ -405,7 +405,7 @@ class Codegen : public Visitor
         p->visit_children(this);       // push values of m_expr_1 and m_expr_2 to stack
         ASM("\tpopl %%ebx");           // m_expr_2 into ebx
         ASM("\tpopl %%eax");           // m_expr_1 into eax
-        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tcmpl %%ebx, %%eax");    // non-destructive sub: set flags
         ASM("\tsetg %%dl");            // conditional set dl on GREATER
         ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
         ASM("\tpushl %%eax");          // result to stack. Done.
@@ -416,7 +416,7 @@ class Codegen : public Visitor
         p->visit_children(this);       // push values of m_expr_1 and m_expr_2 to stack
         ASM("\tpopl %%ebx");           // m_expr_2 into ebx
         ASM("\tpopl %%eax");           // m_expr_1 into eax
-        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tcmpl %%ebx, %%eax");    // non-destructive sub: set flags
         ASM("\tsetge %%dl");           // conditional set dl on GREATER OR EQUAL
         ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
         ASM("\tpushl %%eax");          // result to stack. Done.
@@ -427,7 +427,7 @@ class Codegen : public Visitor
         p->visit_children(this);       // push values of m_expr_1 and m_expr_2 to stack
         ASM("\tpopl %%ebx");           // m_expr_2 into ebx
         ASM("\tpopl %%eax");           // m_expr_1 into eax
-        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tcmpl %%ebx, %%eax");    // non-destructive sub: set flags
         ASM("\tsetl %%dl");            // conditional set dl on LESS
         ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
         ASM("\tpushl %%eax");          // result to stack. Done.
@@ -438,7 +438,7 @@ class Codegen : public Visitor
         p->visit_children(this);       // push values of m_expr_1 and m_expr_2 to stack
         ASM("\tpopl %%ebx");           // m_expr_2 into ebx
         ASM("\tpopl %%eax");           // m_expr_1 into eax
-        ASM("\tcmpl %%eax, %%ebx");    // non-destructive sub: set flags
+        ASM("\tcmpl %%ebx, %%eax");    // non-destructive sub: set flags
         ASM("\tsetle %%dl");           // conditional set dl on LESS OR EQUAL
         ASM("\tmovzbl %%dl, %%eax");   // move + extend bit in dl to eax
         ASM("\tpushl %%eax");          // result to stack. Done.
