@@ -151,16 +151,16 @@ class Codegen : public Visitor
 		
 
 		char *UMain = "Main";
-
+/*		For Unix?
 		if(strcmp(name->spelling(), UMain) == 0)
 		{
 			ASM(".globl _%s", name->spelling());
 			ASM("_%s:", name->spelling());
 		} else {
-
+*/
         	ASM(".globl %s", name->spelling());   // .globl $NAME
         	ASM("%s:", name->spelling())          // $NAME:
-		}
+//		}
 
         ASM("\tpushl %%ebp");         // Save ebp for ret
         ASM("\tmovl %%esp, %%ebp");   // New stack frame
