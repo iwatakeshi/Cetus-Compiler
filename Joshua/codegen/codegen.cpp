@@ -254,15 +254,16 @@ class Codegen : public Visitor
 
         p->visit_children(this);        // stack has VALUE(m_expr) then ADDR(m_lhs)
 
+        ASM("\tpopl %%ebx");            // m_expr value in ebx
+        ASM("\tpopl %%eax");            // m_lhs addr in ebx
+
         if(p->m_lhs->m_attribute.m_basetype == bt_string)
-        {
-            //TODO: implement string logic
+        {           
+            ASM("\tmovb %%ex, (%%eax)");   // put byte value into address. var updated!
         }
         else // m_lhs is not a string
         {
-            ASM("\tpopl %%ebx");            // m_expr value in ebx
-            ASM("\tpopl %%eax");            // m_lhs addr in ebx
-    		ASM("\tmovl %%edx, (%%eax)");   // put value into address. var updated!
+    		ASM("\tmovl %%ebx, (%%eax)");   // put value into address. var updated!
         }
     }
 
