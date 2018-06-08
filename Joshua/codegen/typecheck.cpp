@@ -233,7 +233,7 @@ class Typecheck : public Visitor
       //printf(v->m_symname->spelling());
       return i->m_symname->spelling();
     }
-	
+
   }
 
 
@@ -538,7 +538,6 @@ class Typecheck : public Visitor
 
     void checkset_absolute_value(Expr* parent, Expr* child)
     {
-      printf("checkset_abs ");
       Basetype childType = child->m_attribute.m_basetype;
       if(childType != bt_integer && childType != bt_string){
 	this->t_error(expr_abs_error, parent->m_attribute);
@@ -872,7 +871,6 @@ class Typecheck : public Visitor
 
     void visitAbsoluteValue(AbsoluteValue* p)
     {
-      printf("VISIT ABSVALUE");
       default_rule(p);
       checkset_absolute_value(p,p->m_expr);
     }
