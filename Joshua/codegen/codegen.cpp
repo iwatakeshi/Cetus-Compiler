@@ -603,11 +603,10 @@ class Codegen : public Visitor
             then saving the first element address at local offset on the stack. 
             See: visitStringPrimitive()                                         */
 
-        p->visit_children(this);              // esp -> address(string), next is offset(m_lhs)
-        ASM("\tpopl %%edx");                  // Pop string address to ebx
-        ASM("\tpopl %%eax");                  // Pop m_lhs offset to eax
-        ASM("\tneg %%eax");                   // Negate offset for Base-Relative stack access.
-        ASM("\tmovl %%edx, (%%ebp, %%eax)");  // Put address on stack at offset
+        p->visit_children(this);        // esp has addr(string) then addr(m_lhs)
+        ASM("\tpopl %%edx");            // Pop string addr to ebx
+        ASM("\tpopl %%eax");            // Pop m_lhs addr to eax
+        ASM("\tmovl %%edx, (%%eax)");   // Put string address on stack at local address
     }
 
     void visitStringPrimitive(StringPrimitive* p)
