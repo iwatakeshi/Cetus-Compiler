@@ -48,28 +48,6 @@ class Codegen : public Visitor
         fprintf(m_outputfile, ".data\n\n");
     }
 
-    // PART 1:
-    // 1) get arithmetic expressions on integers working:
-    //  you wont really be able to run your code,
-    //  but you can visually inspect it to see that the correct
-    //  chains of opcodes are being generated.
-    // 2) get procedure calls working:
-    //  if you want to see at least a very simple program compile
-    //  and link successfully against gcc-produced code, you
-    //  need to get at least this far
-    // 3) get boolean operation working
-    //  before we can implement any of the conditional control flow
-    //  stuff, we need to have booleans worked out.
-    // 4) control flow:
-    //  we need a way to have if-elses and while loops in our language.
-    // 5) arrays: just like variables, but with an index
-
-    // Hint: the symbol table has been augmented to track an offset
-    //  with all of the symbols.  That offset can be used to figure
-    //  out where in the activation record you should look for a particuar
-    //  variable
-
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     //  function_prologue
@@ -148,19 +126,9 @@ class Codegen : public Visitor
     int emit_prologue(SymName *name, unsigned int size_locals, unsigned int num_args)
     {
         int sStack = 0; // Track & return space used for args
-		
 
-		char *UMain = "Main";
-/*		For Unix?
-		if(strcmp(name->spelling(), UMain) == 0)
-		{
-			ASM(".globl _%s", name->spelling());
-			ASM("_%s:", name->spelling());
-		} else {
-*/
-        	ASM(".globl %s", name->spelling());   // .globl $NAME
-        	ASM("%s:", name->spelling())          // $NAME:
-//		}
+       	ASM(".globl %s", name->spelling());   // .globl $NAME
+       	ASM("%s:", name->spelling())          // $NAME:
 
         ASM("\tpushl %%ebp");         // Save ebp for ret
         ASM("\tmovl %%esp, %%ebp");   // New stack frame
