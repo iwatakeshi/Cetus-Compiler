@@ -326,7 +326,7 @@ class Codegen : public Visitor
 
         p->m_nested_block_1->accept(this);      // Handle conditional code block (TRUE)
 
-        ASM("jmp IfWithElseEnd%d:", label);    // Unconditional jump to skip Else block
+        ASM("jmp IfWithElseEnd%d", label);    // Unconditional jump to skip Else block
         ASM("IfWithElseFalse%d:", label);      // Print label for FALSE
 
         p->m_nested_block_2->accept(this);      // Handle conditional code block
