@@ -1,27 +1,58 @@
-CS467
+# CS467 Cetus-1 Compiler
 
-To compile the program, run "make" in the file.
+### Automatic Test Instructions
+1. In order to run our compiler with the provided Csimple test files, make sure that the make.sh bash file is executable. If it is not run
+```
+chmod +x make.sh
+```
+Then you can run the bash script with
+```
+./make.sh
+```. Then you can run the executables, labeled start1, start2, start3, and start4 with
+```
+./[executable]
+```
+---
 
-Please follow the instructions below to use the premade test files.
+1. If you would like to run the tests individually you can run
+```
+make test(x)
+```
+, where x = 1, 2, 3, or 4. Like the AST, it only tests the valid test files, or else the type checker would just exit with an error and link properly. Then you can run the corresponding executable. “./start1” or other name.
 
-## Scanner/Parser
+### Manual Test Instructions
 
-If you want to manually input csimple code you can run ./csimple and it will ask for input
+1. If you want to manually input Csimple code you can run
+```
+./csimple
+```
+and it will ask for input. It will continue scanning unless you enter invalid Csimple code, then it will output an error.  It will only scan/parse/type check since  it does not output to a file.
+---
 
-Else if you want to run any of the tests files individually then run "make removeDos" first, then "./csimple < tests/[filename]".
+* If you would like to run the full Csimple compiler. Here are the steps needed to link the Csimple source code to an executable.
 
-## AST Generation
+---
 
-To create the AST run "make test2pdf"
+1. ```
+make csimple
+```
 
-## Typechecker
+2. ```
+./csimple < [source code filename] >> testoutput.s
+```
 
-Make sure that the make.sh bash file is executable. If it is not run "chmod +x make.sh"
+3. ```
+gcc -c -m32 -o csimple.o testoutput.s
+```
 
-Run the bash script with "./make.sh". It will automatically run the scanner/parser and give out any errors. The AST's are also generated. A build.log is created to view the errors. You can also visualize the errors from the AST whether one was created or not, since the Type checker uses the AST to check for errors.
+4. ```
+gcc -c -m32 -o start.o start.c
+```
 
-## Compiler
+5. ```
+gcc -c -m32 -o start1 start.o csimple.o
+```
 
-Make sure that the make.sh bash file is executable. If it is not run "chmod +x make.sh"
-
-Run the bash script with "./make.sh". Sames steps to creating above, but any errors are outputted to the build.log file. Make sure there is a start.c file so you can gather the integer return expressions. The Intermediate Representation created by codegen.c is in the ".s" files, is assembled/compiled by gcc, but is unlinked. We then use the start program to link it with the csimple object to create an executable. 
+6. ```
+./start1  
+```
