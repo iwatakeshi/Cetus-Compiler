@@ -9,8 +9,14 @@
 // Variadic write macro for legibility
 #define ASM(...) fprintf(m_outputfile, __VA_ARGS__); fprintf(m_outputfile, "\n");
 
-// Symbol *s->get_offset() returns offset in BYTEs on activation record, so neg and * 4
-#define GET_OFFSET -1 * (stackOffset + m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling())->get_offset());
+// Get offset in local scope. 
+// REQUIRED: *p has Attribute *m_attrib and SymName *m_symname 
+#define GET_OFFSET Attribute atb = p->m_attribute;                     \
+                   SymScope *scp = atb.m_scope;                        \
+                   SymName *syn = p->m_symname;                        \
+                   Symbol *sym = m_st->lookup(scp, syn->spelling());   \
+                   int offset = sym->get_offset();                     \
+                   offset += stackOffset;
 
 class Codegen : public Visitor
 {
@@ -241,13 +247,16 @@ class Codegen : public Visitor
         p->visit_children(this);
     }
 
-    //TODO pretty sure this works now
-    void visitAssignment(Assignment* p)
+   void visitAssignment(Assignment* p)
     {
-        p->visit_children(this);      // stack has m_expr on top, then m_lhs
-        ASM("\tpopl %%ebx");          // expr result to ebx
-        ASM("\tpopl %%eax");          // lhs location to eax
-        ASM("\tmovl %%ebx, (%%eax)");   // Put expr result into location
+        /* This works for Variable & DerefPointer. Strings are a work in progress.
+            Probably wise to branch by basetype. Or just omit strings entirely! :-D */
+
+        p->visit_children(this);              // stack has VALUE(m_expr) then OFFSET(m_lhs)
+        ASM("\tpopl %%edx");                 // m_expr value in edx
+        ASM("\tpopl %%ebx");                 // m_lhs offset in ebx
+        ASM("\tneg %%ebx");                  // negate offset to access locals on stack
+        ASM("\tmovl %%edx, (%%ebp, %%ebx)")  // put m_expr in ebp-offset (Base-Relative)
     }
 
     //TODO
@@ -484,20 +493,12 @@ class Codegen : public Visitor
         ASM("\tneg eax");         // Negate contents of eax. Thanks, IA-32!
         ASM("\tpushl eax");       // result to stack. Done.
     }
-//TODO
+
     // Variable and constant access
     void visitIdent(Ident* p)
     {
-        // Calculate offset in scope
-        Attribute atb = p->m_attribute;
-        SymScope *scp = atb.m_scope;
-        SymName *syn = p->syname;
-        Symbol *sym = m_st->lookup(scp, syn->spelling());
-        int offset = sym->get_offset();
-        offset += stackOffset;             // account for saved registers
-
-        ASM("\tmovl -%d(%%ebp), %%edx");   // address of ident in edx
-        ASM("\tpushl (%%edx)");            // push value at memory address in edx
+        GET_OFFSET                         // Calculate offset in scope
+        ASM("pushl -%d(%%ebp)", offset);   // push value at offset for parent
     }
 
     void visitBoolLit(BoolLit* p)
@@ -522,8 +523,9 @@ class Codegen : public Visitor
 
     void visitArrayAccess(ArrayAccess* p)
     {
-        int offset = GET_OFFSET;        // offset of the array pointer relative ebp
-        p->m_expr->accept(this);        // push index to stack
+        GET_OFFSET                 // Calculate offset in scope
+        p->m_expr->accept(this);   // push index to stack
+
 
         ASM("\tmovl %d(%%ebp), %%esi");   // move address of array into esi
         ASM("\tpopl %%ebx");              // pop index to ebx
@@ -537,39 +539,40 @@ class Codegen : public Visitor
 //TODO
     // LHS return addresses
 
-    // Pushes location of variable on stack for assignment
+     // Pushes offset of variable on stack
     void visitVariable(Variable* p)
     {   
-        // Enter data mode and allocate a long to hold non-string data
-        set_data_mode();
-        int label = new_label();
-        ASM("integer%d:", label);
-        ASM("\t.long 0");                        // new long = 0
-        set_text_mode();
-        ASM("\tleal integer%d, %%edi", label);   // load address of new long
-        ASM("\tpushl %%edi");                    // put address on stack
+        GET_OFFSET                 // Calculate offset in scope
+        ASM("movl $%d, %%eax");    // put offset in eax
+        ASM("pushl %%eax");        // Push offset to stack for parent
     }
 
+   // Pushes index of referenced variable
     void visitDerefVariable(DerefVariable* p)
-    {   // Pushes value at location of variable on stack to dereference ptrs
-        int offset = GET_OFFSET                 // Get variable offset
-        ASM("\tmovl %d(%%ebp), eax", offset);   // Move ptr target address to ebx
-        ASM("\tpushl (%%eax)");                 // Push value at memory address in eax to stack
+    {
+        /* Assumption: pointers contain the offset of their target
+            That is, an intptr to an int at ebp-8 contains 8       */
+
+        GET_OFFSET                               // Calculate offset in scope
+        ASM("\tmovl -%d(%%ebp), eax", offset);   // Move ptr target offset to eax
+        ASM("\tneg %%eax");                      // negate to access locals on stack
+        ASM("\tpushl (%%ebp, %%eax)");           // Push offset of target variable (Base-Relative)
     }
 
+    // Pushes memory address of array element at index m_expr
     void visitArrayElement(ArrayElement* p)
     {
-        // Get chararray offset on stack
-        int offset = GET_OFFSET
-        ASM("\tmovl %d(%%ebp), eax", offset);   // Move array address to eax
+        /* Assumption: Char arrays are declared in data (see visitStringPrimitive)
+            and memory addresses are stored on stack. sizeof(char) == 1B           */
 
-        // Get index in array
-        p->m_expr(accept(this));
-        ASM("\tpopl %%ebx");
+        GET_OFFSET                               // Calculate offset in scope
+        ASM("\tmovl -%d(%%ebp), eax", offset);   // Move array address to eax
 
-        // Adjust for index (chars are B, so no scaling) and push result
-        ASM("\taddl %%ebx, %%eax");
-        ASM("\tpushl %%eax");
+        p->m_expr(accept(this));                 // Calculate index value
+        ASM("\tpopl %%edx");                     // Put index value in edx
+
+        ASM("\taddl %%edx, %%eax");              // Add index to address to get element address
+        ASM("\tpushl %%eax");                    // Push result address for parent
     }
 
     // Special cases
@@ -577,18 +580,21 @@ class Codegen : public Visitor
 
     void visitPrimitive(Primitive* p)
     {   
-        ASM("\tpushl $%d", p->m_data);
+        ASM("\tpushl $%d", p->m_data);   // Dump the value onto the stack
     }
 
-    // Strings
+    // Puts address of allocated string at offset on stack
     void visitStringAssignment(StringAssignment* p)
     {
-        p->visit_children(this); // visits lhs, then stringprimitive
+        /* Assumption: Strings are handled by putting them into data,
+            then saving the first element address at local offset on the stack. 
+            See: visitStringPrimitive()                                         */
 
-        //Now lhs has put its address onto stack and primitive has put its address onto stack
-        ASM("popl %%ebx"); // string address to ebx
-        ASM("popl %%eax"); // lhs address to eax
-        ASM("movl %%ebx, (%%eax)");  // put address value in ebx into address location in eax
+        p->visit_children(this);              // esp -> address(string), next is offset(m_lhs)
+        ASM("\tpopl %%edx");                  // Pop string address to ebx
+        ASM("\tpopl %%eax");                  // Pop m_lhs offset to eax
+        ASM("\tneg %%eax");                   // Negate offset for Base-Relative stack access.
+        ASM("\tmovl %%edx, (%%ebp, %%eax)");  // Put address on stack at offset
     }
 
     void visitStringPrimitive(StringPrimitive* p)
@@ -642,7 +648,7 @@ class Codegen : public Visitor
     void visitDeref(Deref* p)
     {
         p->visit_children(this);   // visits p->m_expr, which puts ptr value on stack
-        ASM("\tpopl %%eax");       // ptr value to eax
+        ASM("\tpopl %%ebx");       // ptr value to eax
         ASM("\tpush (%%eax)");     // push value at location in eax, deref'ing ptr
     }
 };
