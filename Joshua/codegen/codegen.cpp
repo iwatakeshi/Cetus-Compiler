@@ -148,9 +148,19 @@ class Codegen : public Visitor
     int emit_prologue(SymName *name, unsigned int size_locals, unsigned int num_args)
     {
         int sStack = 0; // Track & return space used for args
+		
 
-        ASM(".globl %s", name->spelling());   // .globl $NAME
-        ASM("%s:", name->spelling())          // $NAME:
+		char *UMain = "Main";
+
+		if(strcmp(name->spelling(), UMain) == 0)
+		{
+			ASM(".globl _%s", name->spelling());
+			ASM("_%s:", name->spelling());
+		} else {
+
+        	ASM(".globl %s", name->spelling());   // .globl $NAME
+        	ASM("%s:", name->spelling())          // $NAME:
+		}
 
         ASM("\tpushl %%ebp");         // Save ebp for ret
         ASM("\tmovl %%esp, %%ebp");   // New stack frame

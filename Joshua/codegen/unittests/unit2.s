@@ -28,8 +28,8 @@ giveint19:
 	popl %ebx
 	leave
 	ret
-.globl Main
-Main:
+.globl _Main
+_Main
 	pushl %ebp
 	movl %esp, %ebp
 	pushl %ebx

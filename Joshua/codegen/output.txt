@@ -1,6 +1,6 @@
 +-- Symbol Scope ---
 | Main 
-| proc 
+| foo 
 +-------------
 
 	+-- Symbol Scope ---
@@ -8,7 +8,13 @@
 	+-------------
 
 	+-- Symbol Scope ---
-	| b 
 	| a 
 	+-------------
+
+		+-- Symbol Scope ---
+		+-------------
+
+		+-- Symbol Scope ---
+		| b 
+		+-------------
 
