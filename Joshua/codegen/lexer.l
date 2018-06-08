@@ -73,7 +73,7 @@ null        {yylval.u_base_int = 0; return T_Null;}
 ]           {return T_Rbracket;}
 ,           {return T_Comma;}
 
-\|          ; /* Take care of these directly in grammar */
+\|          {return '|'; }
 
 
 

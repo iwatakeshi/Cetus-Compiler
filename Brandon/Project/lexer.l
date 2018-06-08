@@ -70,7 +70,7 @@ null        {yylval.u_base_int = 0; return T_Null;}
 \[          {return T_Lbracket;}
 ]           {return T_Rbracket;}
 ,           {return T_Comma;}
-\|          ;
+\|          {return '|'; }
 
 0|[1-9][0-9]*   {yylval.u_base_int = (int)strtol(yytext, 0, 10); return T_Num;}
 0[xX][0-9A-F]+  {yylval.u_base_int = (int)strtol(yytext, 0, 16); return T_Num;}

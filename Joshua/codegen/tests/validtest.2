@@ -1,6 +1,14 @@
 procedure Main() return integer
 {
     var a : integer;
+    var c : integer;
     a = 2;
-    return 0;
+    c = 2;
+    if (a == c){
+      c = 10;
+    }
+    else{
+      c = 16 * a;
+    }
+    return c;
 }

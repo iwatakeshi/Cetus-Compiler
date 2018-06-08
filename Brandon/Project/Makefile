@@ -10,7 +10,7 @@ GAWK       = gawk
 ASTBUILDER = astbuilder.gawk
 TARGET     = csimple
 
-OBJS += lexer.o parser.o main.o ast.o primitive.o ast2dot.o symtab.o typecheck.o codegen.o
+OBJS += lexer.o parser.o main.o ast.o primitive.o ast2dot.o symtab.o typecheck.o
 RMFILES = core.* *.dot *.pdf lexer.cpp parser.cpp parser.hpp parser.output ast.hpp ast.cpp error.log *.gch *.ps *.out $(TARGET) $(OBJS)
 RMOBJ = core.* *.dot lexer.cpp parser.cpp parser.hpp parser.output ast.hpp ast.cpp *.gch *.ps $(TARGET) $(OBJS)
 
