@@ -1,0 +1,15 @@
+procedure length(x: string[16]) return integer
+{
+    return |x|;
+}
+
+procedure Main() return integer
+{
+    var a: integer;
+    var b: string[16];
+ 
+    b = "Test string";
+    a = length(b);
+
+    return a;
+}

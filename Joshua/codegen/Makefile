@@ -51,7 +51,7 @@ ast.hpp: ast.cdef
 primitive.o: primitive.hpp primitive.cpp ast.hpp
 symtab.o: symtab.hpp symtab.cpp ast.hpp attribute.hpp
 
-test: $(TARGET) $(TESTFILES) test1 test2 test3 test4
+test: $(TARGET) $(TESTFILES) test1 test2 test3 test4 test5 test6 test7 test8
 
 test1: $(TARGET)
 	@echo "validtest.1"
@@ -80,6 +80,38 @@ test4: $(TARGET)
 	gcc -c -m32 -o csimple.o validtest4.s
 	gcc -c -m32 -o start.o start.c
 	gcc -m32 -o start4 start.o csimple.o
+
+test5: $(TARGET)
+	@echo "validtest.5"
+	./$(TARGET) < tests/validtest.5 >> validtest5.s
+	gcc -c -m32 -o csimple.o validtest5.s
+	gcc -c -m32 -o start.o start.c
+	gcc -m32 -o start5 start.o csimple.o
+
+test6: $(TARGET)
+	@echo "validtest.6"
+	./$(TARGET) < tests/validtest.6 >> validtest6.s
+	gcc -c -m32 -o csimple.o validtest6.s
+	gcc -c -m32 -o start.o start.c
+	gcc -m32 -o start6 start.o csimple.o
+
+
+test7: $(TARGET)
+	@echo "validtest.7"
+	./$(TARGET) < tests/validtest.7 >> validtest7.s
+	gcc -c -m32 -o csimple.o validtest7.s
+	gcc -c -m32 -o start.o start.c
+	gcc -m32 -o start7 start.o csimple.o
+
+
+test8: $(TARGET)
+	@echo "validtest.8"
+	./$(TARGET) < tests/validtest.8 >> validtest8.s
+	gcc -c -m32 -o csimple.o validtest8.s
+	gcc -c -m32 -o start.o start.c
+	gcc -m32 -o start8 start.o csimple.o
+
+
 
 clean:
 	rm -f $(RMFILES)

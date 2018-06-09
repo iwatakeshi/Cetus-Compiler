@@ -1,0 +1,23 @@
+/%
+	Testing char pointers and chars
+%/
+
+procedure Main() return integer
+{
+	var n: integer;
+	var x, y, z: char;
+	var pChar: charptr;
+
+	n = 0;
+
+	x = 'a';
+	y = 'q';
+
+	pChar = &x;
+	
+	if ( ^pChar == 'a'){
+		n = 1;	
+	}
+
+	return n;
+}

@@ -1,0 +1,17 @@
+/%
+	Testing operator precedence.
+	Should order operations appropriately.
+%/
+
+procedure Main() return integer
+{
+	var x, y, z: integer;
+
+	x = 1;
+	y = 2;
+	z = 3;
+
+	x = x + y * z;    /% 1 + 2 * 3 = 1 + 6 = 7 %/
+
+	return x;
+}
