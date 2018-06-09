@@ -2,23 +2,7 @@
 
 set -e
 
-if [ $# -eq 2 ]
-then
-  infile=$2
-  outfile="s.out"
-elif [ $# -eq 3 ]
-then
-  infile=$3
-  outfule=$2
-else
-  echo -e "USAGE: $1 [executable_out] csimple_in"
-  exit 1
-fi
-
-x86file=%outfile+".c"
-
-./csimple < $infile > $x86file
-gcc -c -m32 -o csimple.o $x86file
+./csimple <$1 >$1".s"
+gcc -c -m32 -o csimple.o $1".s"
 gcc -c -m32 -o start.o start.c
-gcc -m32 -o $outfile start.o csimple.o
-exit 0
+gcc -m32 -o $1".out" start.o csimple.o
